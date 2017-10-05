@@ -12,8 +12,7 @@ fs_1.readFile(fileName, (err, data) => {
 
     var walker = new walker_1.Walker(types_1.get({}), console.log);
 
-    walker.attachDocument(fileName);
-    walker.walkNodes(ast.body, 'unname', ast.loc, ast);
+    walker.processDocument(fileName, ast);
 
-    console.log(JSON.stringify(walker.result(), null, 4));
+    console.log(JSON.stringify(walker.document, null, 4));
 });
