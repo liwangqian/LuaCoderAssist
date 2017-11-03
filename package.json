@@ -1,0 +1,156 @@
+{
+  "name": "luacoderassist",
+  "displayName": "LuaCoderAssist",
+  "description": "lua coder assistant in javascript for vscode",
+  "version": "1.0.1",
+  "publisher": "liwangqian",
+  "engines": {
+    "vscode": "^1.11.0"
+  },
+  "categories": [
+    "Languages",
+    "Linters",
+    "Snippets",
+    "Formatters"
+  ],
+  "keywords": [
+    "lua",
+    "code",
+    "assist",
+    "intelligence"
+  ],
+  "activationEvents": [
+    "onLanguage:lua"
+  ],
+  "main": "./client/extension",
+  "contributes": {
+    "configuration": {
+      "type": "Object",
+      "title": "Lua Coder Assistant Configuration",
+      "properties": {
+        "LuaCoderAssist.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable the extension."
+        },
+        "LuaCoderAssist.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Debug information output enable."
+        },
+        "LuaCoderAssist.search.filters": {
+          "type": "array",
+          "default": [],
+          "description": "Filter patterns for file search."
+        },
+        "LuaCoderAssist.search.externalPaths": {
+          "type": "array",
+          "default": [],
+          "description": "External paths to be search, for dependences."
+        },
+        "LuaCoderAssist.search.followLinks": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the links to be search."
+        },
+        "LuaCoderAssist.luaparse.luaversion": {
+          "type": "number",
+          "default": 5.1,
+          "description": "The lua version, for grammer match."
+        },
+        "LuaCoderAssist.luaparse.allowDefined": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow defining globals implicitly by setting them."
+        },
+        "LuaCoderAssist.luacheck.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/Disable luacheck for static diagnostics."
+        },
+        "LuaCoderAssist.luacheck.execPath": {
+          "type": "string",
+          "default": null,
+          "description": "Path of the luacheck excutable.(@ref https://github.com/mpeterv/luacheck)"
+        },
+        "LuaCoderAssist.luacheck.std": {
+          "type": "array",
+          "default": [
+            "lua51",
+            "busted"
+          ],
+          "description": "Set standard globals.(@ref http://luacheck.readthedocs.io/en/stable/cli.html)"
+        },
+        "LuaCoderAssist.luacheck.ignore": {
+          "type": "array",
+          "default": [],
+          "description": "Filter out warnings matching patterns.(@ref http://luacheck.readthedocs.io/en/stable/cli.html)"
+        },
+        "LuaCoderAssist.luacheck.jobs": {
+          "type": "integer",
+          "default": 1,
+          "description": "Number of jobs for parallel check.(@ref http://luacheck.readthedocs.io/en/stable/cli.html)"
+        },
+        "LuaCoderAssist.luacheck.fileSizeLimit": {
+          "type": "integer",
+          "default": 100,
+          "description": "File size (KB) limit for luacheck, performance consideration."
+        },
+        "LuaCoderAssist.luacheck.maxProblems": {
+          "type": "integer",
+          "default": 250,
+          "description": "Max problems to show."
+        },
+        "LuaCoderAssist.luacheck.configFilePath": {
+          "type": "string",
+          "default": "",
+          "description": "The path of '.luacheckrc'."
+        },
+        "LuaCoderAssist.symbol.showFunctionGlobalOnly": {
+          "type": "boolean",
+          "default": true,
+          "description": "Only functions and global symbol will be show in document symbol list."
+        }
+      }
+    },
+    "snippets": [
+      {
+        "language": "lua",
+        "path": "./snippets/busted.json"
+      }
+    ]
+  },
+  "scripts": {
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "lodash": "^4.17.4",
+    "lua-fmt": "^2.3.0",
+    "luaparse": "^0.2.1",
+    "tree-kill": "^1.2.0",
+    "vscode-languageclient": "^3.4.5",
+    "vscode-languageserver": "^3.4.3",
+    "vscode-uri": "^1.0.1",
+    "walk": "^2.3.9"
+  },
+  "devDependencies": {
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0",
+    "mocha": "^2.3.3",
+    "eslint": "^3.6.0",
+    "@types/node": "^6.0.40",
+    "@types/mocha": "^2.2.32"
+  },
+  "homepage": "https://github.com/liwangqian/LuaCoderAssist/blob/master/README.md",
+  "bugs": {
+    "url": "https://github.com/liwangqian/LuaCoderAssist/issues",
+    "email": "liwangqian87@163.com"
+  },
+  "license": "GPL v3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liwangqian/LuaCoderAssist"
+  }
+}
