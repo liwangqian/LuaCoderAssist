@@ -49,7 +49,7 @@ class HoverProvider {
 
     _findDefInDependence(uri, ref) {
         return utils.filterDepDefinitions(
-            utils.getDefinitionsInDependences(uri, this.coder.tracer),
+            utils.getDefinitionsInDependences(uri, ref, this.coder.tracer),
             ref, true);
     }
 };

@@ -194,26 +194,54 @@ function functionSignature(symbol) {
 
 exports.functionSignature = functionSignature;
 
-function getDefinitionsInDependences(uri, tracer) {
+function findDefByNameAndScope(name, location, defs) {
+    for (let i = 0; i < defs.length; i++) {
+        let d = defs[i];
+        if (name === d.name && utils_1.inScope(d.scope, location)) {
+            return d;
+        }
+    }
+
+    return undefined;
+}
+
+function getDefinitionsInDependences(uri, ref, tracer) {
     let sm = symbol_manager.instance();
     let docsym = sm.documentSymbol(uri);
     if (!docsym) {
         return [];
     }
 
-    // try to parse dependences first.
+    let baseSymbol = undefined;
+    let base = ref.bases[0];
+    // 如果是base.property这种表达式，则尝试进行精确匹配
+    if (base) {
+        // 先查看依赖的模块名，如果base==depName，则符号肯定是从模块depName中获取
+        baseSymbol = findDefByNameAndScope(base, ref.location, docsym.dependences());
+        // 如果不在依赖的模块里面，再看下是否有本地定义，解决local x = require("mm")的问题，
+        // 此时，base === x.alias === 'mm'
+        if (!baseSymbol) {
+            baseSymbol = findDefByNameAndScope(base, ref.location, docsym.definitions());
+        }
+    }
+
+    // 线尝试解析依赖模块的符号，这个是性能点，后续考虑优化
     sm.parseDependence(uri);
 
     let defs = [];
     let deps = docsym.dependences();
-    deps.forEach(d => {
+    deps.filter(d => {
+        // 根据前面的计算，尝试进行精确匹配
+        return baseSymbol ? (d.name === baseSymbol.name || d.name === baseSymbol.alias)
+                          : true;
+    }).forEach(d => {
         let fileManager = file_manager.instance();
         let files = fileManager.getFiles(d.name);
         if (files.length === 0) {
             return;
         }
 
-        // for require('pl.tablex')
+        // for require('pl.tablex')，精准匹配
         if (d.shortPath) {
             files = files.filter(file => {
                 return file.includes(d.shortPath);
@@ -227,11 +255,11 @@ function getDefinitionsInDependences(uri, tracer) {
                 return;
             }
 
-            defs = defs.concat(_docsym.definitions().filter(d => {
-                return !d.islocal;
+            let exportSymbols = _docsym.isReturnMode() ? _docsym.returns() : _docsym.definitions();
+            defs = defs.concat(exportSymbols.filter(d => {
+                return (d.returnMode === true) || !d.islocal;
             }) || []);
         });
-        
     });
 
     return defs;
@@ -267,7 +295,7 @@ exports.filterModDefinitions = filterModDefinitions;
 
 function filterDepDefinitions(defs, ref, compareName) {
     return defs.filter(def => {
-        let isInModule = def.container.name !== '_G';
+        let isInModule = (def.container.name !== '_G') && (def.returnMode !== true);
         let offset = 0;
 
         /* if defined in module, reference should has at least one base and
@@ -275,7 +303,9 @@ function filterDepDefinitions(defs, ref, compareName) {
          */
         if (isInModule) {
             let moduleName = ref.bases[0];
+            // TODO: 增加alias的支持，需要查找moduleName这个符号的定义，然后判断def.alias === def.container.name
             if (moduleName !== def.container.name) {
+                // let module = findDefByNameAndScope(moduleName, ref.location, docsym.definitions());
                 return false;
             }
             offset = 1;
@@ -285,12 +315,18 @@ function filterDepDefinitions(defs, ref, compareName) {
             return false;
         }
 
-        // for definition completion, name is unsed
+        // 对于符号补全，不需要比较符号的名字，只要bases一样就行
         if (compareName && ref.name !== def.name) {
             return false;
         }
 
-        for (let i = 0; i < def.bases.length; i++) {
+        // 如果是通过return表达式返回的符号，第一个base的名字不需要比较
+        let startIndex = 0;
+        if (def.returnMode === true && ref.bases.length > 0) {
+            startIndex = 1;
+        }
+
+        for (let i = startIndex; i < def.bases.length; i++) {
             if (ref.bases[i+offset] !== def.bases[i]) {
                 return false;
             }

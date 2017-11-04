@@ -49,7 +49,7 @@ class SignatureProvider {
 
             let param_infos = [];
             d.params.forEach(p => {
-                param_infos.push(lang_sever.ParameterInformation.create(p, 'param ' + p));
+                param_infos.push(lang_sever.ParameterInformation.create(p));
             });
 
             let item = lang_sever.SignatureInformation.create(utils.functionSignature(d));
@@ -76,7 +76,7 @@ class SignatureProvider {
 
     _findDefInDependence(uri, ref) {
         return utils.filterDepDefinitions(
-            utils.getDefinitionsInDependences(uri, this.coder.tracer),
+            utils.getDefinitionsInDependences(uri, ref, this.coder.tracer),
             ref, true);
     }
 };

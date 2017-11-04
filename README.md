@@ -54,25 +54,35 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-* Not support symbol return from a file currently, for example:
+* Not support module alias, like:
 ```lua
     --in a.lua
-    local x = {}
-    function x.funcA()
-
-    end
-
-    return x
-
-    ---------------------------
-    -- in b.lua
-    local x = require('a')
+    require('modu')
+    local x = modu
     x.funcA()   -- here, symbol `funcA` cannot be code complete and cannot goto definition...
 ```
 
 * Cannot jump to symbols in new create file, this can be solved by restart the vscode.
 
 ## Release Notes
+
+### 1.0.2
+
+- add support for return symbol from a file, for example:
+```lua
+    ---- in a.lua
+    local x = {}
+    function x.new()
+
+    end
+
+    return x
+
+    ---- in b.lua
+    local xx = require('a')
+    xx.new()    --- now support all the supported features.
+
+```
 
 ### 1.0.0
 

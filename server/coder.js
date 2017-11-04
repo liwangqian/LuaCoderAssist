@@ -137,7 +137,6 @@ class Coder {
     }
 
     provideSignatureHelp(params) {
-        this.tracer.info('provideSignatureHelp');
         return this._signatureProvider.provideSignatureHelp(params);
     }
 

@@ -29,12 +29,14 @@ exports.parse = (walker, node, container, scope, parentSymbol) => {
 
 function returnIdentifier(expt, walker) {
     let definitions = walker.document.definitions;
-    let defs = definitions.filter(d => {
-        return d.name === expt.name && d.kind === traits.SymbolKind.class;
+    walker.document.returns = definitions.filter(d => {
+        return d.bases[0] === expt.name;
     });
 
-    if (defs) {
-        walker.document.returns = defs[0];
+    if (walker.document.returns) {
+        walker.document.returns.forEach(d => {
+            d.returnMode = true;
+        });
     }
 }
 

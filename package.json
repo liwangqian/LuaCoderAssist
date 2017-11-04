@@ -2,7 +2,7 @@
   "name": "luacoderassist",
   "displayName": "LuaCoderAssist",
   "description": "lua coder assistant in javascript for vscode",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "liwangqian",
   "engines": {
     "vscode": "^1.11.0"

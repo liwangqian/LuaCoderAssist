@@ -147,3 +147,13 @@ function findDefinition(symbol, defs) {
 }
 
 exports.findDefinition = findDefinition;
+
+function parseModuleName(param) {
+    if (param) {
+        return param.match(/\w+$/)[0];
+    }
+
+    return undefined;
+}
+
+exports.parseModuleName = parseModuleName;

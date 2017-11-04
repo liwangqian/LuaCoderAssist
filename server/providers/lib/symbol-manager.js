@@ -30,11 +30,11 @@ class SymbolManager {
         return this.parser.parse(uri, content, maxLine).then((ds) => {
             this.documentSymbols[uri] = ds;
             this.coder.sendDiagnostics(uri, []);
+            setTimeout(this.parseDependence.bind(this), 0, uri);
             // this.coder.tracer.info('parse: file parse ok');
         }, (err) => {
             this.coder.tracer.error(err.message);
             this.coder.sendDiagnostics(uri, flyCheckDiagnostic(err.message));
-            setTimeout(this.parseDependence.bind(this), 0, uri);
         });
     }
 
@@ -90,7 +90,10 @@ exports.instance = instance;
 
 const diagnostic_regex = /\[(\d+):(\d+)\]\s+(.+)/;
 function flyCheckDiagnostic(msg) {
-    let infos   = msg.match(diagnostic_regex);
+    let infos = msg.match(diagnostic_regex);
+    if (!infos) {
+        return [];
+    }
     let line    = parseInt(infos[1]);
     let colum   = parseInt(infos[2]);
     let message = infos[3];

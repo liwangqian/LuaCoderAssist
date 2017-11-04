@@ -30,8 +30,9 @@ class DefinitionProvider {
 
         // find define in dependences
         let defsInDep = utils_2.filterDepDefinitions(
-            utils_2.getDefinitionsInDependences(uri, this.coder.tracer),
+            utils_2.getDefinitionsInDependences(uri, ref, this.coder.tracer),
             ref, true);
+        
         let allDefs = [].concat(defsInFile, defsInDep);
 
         return allDefs.map(d => {

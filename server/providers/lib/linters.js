@@ -41,9 +41,13 @@ class Luacheck {
         }
 
         let smi = symbol_manager_1.instance();
-        let globals = smi.documentSymbol(document.uri).dependences().map((dep) => {
-            return dep.name;
-        });
+        let docSym = smi.documentSymbol(document.uri);
+        let globals = [];
+        if (docSym) {
+            globals = docSym.dependences().map((dep) => {
+                return dep.name;
+            });
+        }
 
         if (globals.length > 0) {
             args.push('--read-globals');

@@ -26,28 +26,24 @@ class DocumentSymbol {
         return !!this.document.module;
     }
 
-    definitions() {
-        if (this.document.definitions) {
-            return this.document.definitions;
-        }
+    isReturnMode() {
+        return !!this.document.returns;
+    }
 
-        return [];
+    definitions() {
+        return this.document.definitions || [];
+    }
+
+    returns() {
+        return this.document.returns || [];
     }
 
     references() {
-        if (this.document.references) {
-            return this.document.references;
-        }
-
-        return [];
+        return this.document.references || [];
     }
 
     dependences() {
-        if (this.document.dependences) {
-            return this.document.dependences;
-        }
-
-        return [];
+        return this.document.dependences || [];
     }
 
     findDefinitions(symbol) {

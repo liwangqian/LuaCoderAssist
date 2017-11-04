@@ -23,6 +23,7 @@ exports.parse = (walker, node, container, scope, parentSymbol, isDef) => {
                 newSymbol.params = init.parameters.map(p => { return p.name; });
                 walker.walkNodes(init, container, scope, newSymbol, true);
             } else {
+                newSymbol.alias = init.name; //这里只处理local x = y的场景，alias=y
                 walker.walkNode(init, container, scope, parentSymbol, false);
             }
             //todo: parse pcall, require for module dependence
@@ -30,11 +31,11 @@ exports.parse = (walker, node, container, scope, parentSymbol, isDef) => {
                 switch (init.base.name) {
                     case 'require':
                         let moduleNode = init.argument || init.arguments[0];
-                        newSymbol.alias = moduleNode.value || '<dynamic-module>';
+                        newSymbol.alias = utils.parseModuleName(moduleNode.value) || '<dynamic-module>';
                         break;
                     case 'pcall':
                         if (init.arguments[0].name == 'require') {
-                            newSymbol.alias = init.arguments[1].value || '<dynamic-module>';
+                            newSymbol.alias = utils.parseModuleName(init.arguments[1].value) || '<dynamic-module>';
                         }
                         break;
                     default:
