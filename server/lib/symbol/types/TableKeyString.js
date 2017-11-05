@@ -9,8 +9,10 @@ exports.parse = (walker, node, container, scope, parentSymbol) => {
     prop.scope     = scope;
     prop.container = container;
     prop.location  = utils.loc2Range(node.key.loc);
-    prop.bases     = prop.bases.concat(parentSymbol.bases, parentSymbol.name);
-
+    if (parentSymbol.name) {
+        prop.bases = prop.bases.concat(parentSymbol.bases, parentSymbol.name);
+    }
+    
     walker.addDef(prop);
 
     if (node.value.type == 'FunctionDeclaration') {

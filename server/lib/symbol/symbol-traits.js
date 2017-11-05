@@ -9,8 +9,10 @@ function symbol(name, kind, islocal) {
         location: undefined,
         scope: undefined,
         container: undefined,
+        bases: [],
         alias: undefined,
-        bases: []
+        params: undefined,
+        returnMode: undefined
     };
 }
 

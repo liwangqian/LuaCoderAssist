@@ -20,7 +20,15 @@ exports.parse = (walker, node, container, scope, parentSymbol) => {
         if (expt.type === 'Identifier') {
             returnIdentifier(expt, walker);
         }
+
         walker.walkNodes(node.arguments, container, scope, parentSymbol, false);
+
+        if (expt.type === 'TableConstructorExpression') {
+            walker.document.returns = walker.document.definitions;
+            walker.document.returns.forEach(d => {
+                d.returnMode = true;
+            });
+        }
     } else {
         node.arguments && walker.walkNodes(node.arguments, container, scope, parentSymbol, false);
     }

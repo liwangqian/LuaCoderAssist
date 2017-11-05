@@ -2,7 +2,6 @@
 
 const _ = require("lodash");
 const utils = require('./utils');
-const stack = require('./stack');
 
 class Walker {
     constructor(types, options, logger) {
@@ -18,7 +17,6 @@ class Walker {
             dependences: [],
             ast: undefined
         };
-        this.stack = new stack.Stack();
     }
 
     walkNode(node, container, scope, parentSymbol, isDef) {
@@ -55,22 +53,10 @@ class Walker {
         this.reset();
         this.document.uri = uri;
         this.document.ast = ast;
-
-        this.walkNodes(ast.body, {name: '_G'}, utils.loc2Range(ast.loc), ast, true);
+        let fileName = uri.match(/(\w+)\.lua$/)[1];
+        this.walkNodes(ast.body, {name: '_G'}, utils.loc2Range(ast.loc), {name: fileName, bases: []}, true);
 
         return this.document;
-    }
-
-    enterScope() {
-        this.stack.enterScope();
-    }
-
-    leaveScope() {
-        this.stack.leaveScope();
-    }
-
-    hasDef(symbol) {
-        return this.stack.findDef(symbol);
     }
 
     addMod(mod) {
