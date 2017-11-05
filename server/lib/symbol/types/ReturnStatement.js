@@ -19,9 +19,8 @@ exports.parse = (walker, node, container, scope, parentSymbol) => {
         let expt = node.arguments[0];
         if (expt.type === 'Identifier') {
             returnIdentifier(expt, walker);
-        } else/*  if (expt.type === 'TableConstructorExpression') */ {
-            walker.walkNodes(node.arguments, container, scope, parentSymbol, false);
         }
+        walker.walkNodes(node.arguments, container, scope, parentSymbol, false);
     } else {
         node.arguments && walker.walkNodes(node.arguments, container, scope, parentSymbol, false);
     }

@@ -35,6 +35,7 @@ connection.onInitialize((params) => {
             signatureHelpProvider: {
                 triggerCharacters: [',', '(']
             },
+            renameProvider: true
             // codeActionProvider: true
         }
     };
@@ -80,6 +81,10 @@ connection.onHover((params) => {
 connection.onSignatureHelp((params) => {
     return coder.provideSignatureHelp(params);
 })
+
+connection.onRenameRequest(params => {
+    return coder.provideRename(params);
+});
 
 connection.onCodeAction((params) => {
     return undefined;

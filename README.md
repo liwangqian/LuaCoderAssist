@@ -18,12 +18,12 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 - code complete
 - signatrue help
 - diagnostics
+- rename, _limitation: can only apply to local defined variable_
 
 ### Not supported
 
 - code format
 - code metrics
-- rename
 - code refine, include **rename**, **extract variable**, **extract function**, etc.
 
 ## Requirements
@@ -65,6 +65,10 @@ This extension contributes the following settings:
 * Cannot jump to symbols in new create file, this can be solved by restart the vscode.
 
 ## Release Notes
+
+### 1.1.0
+
+- add support for rename local defined variables
 
 ### 1.0.2
 

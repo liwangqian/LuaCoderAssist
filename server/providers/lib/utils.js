@@ -337,3 +337,29 @@ function filterDepDefinitions(defs, ref, compareName) {
 }
 
 exports.filterDepDefinitions = filterDepDefinitions;
+
+function findAllReferences(references, def) {
+    return references.filter(r => {
+        if (r.bases.length !== def.bases.length) {
+            return false;
+        }
+
+        if (r.name !== def.name) {
+            return false;
+        }
+
+        if (!utils_1.inScope(def.scope, r.location)) {
+            return false;
+        }
+
+        for (let i = 0; i < r.bases.length; i++) {
+            if (r.bases[i] !== def.bases[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+}
+
+exports.findAllReferences = findAllReferences;

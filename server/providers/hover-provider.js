@@ -25,7 +25,7 @@ class HoverProvider {
         let defs = this._findDefInCurrentModule(uri, ref);
 
         // find in dependence
-        defs = (defs || []).concat(this._findDefInDependence(uri, ref));
+        defs = defs.concat(this._findDefInDependence(uri, ref));
 
         return defs.map(d => {
             let typeDesc = (d.islocal ? '(local ' : '') + utils.symbolKindDesc(d.kind) + (d.islocal ? ') ' : ' ');

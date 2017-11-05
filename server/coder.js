@@ -13,6 +13,7 @@ const completion_provider_1 = require('./providers/completion-provider');
 const diagnostic_provider_1 = require('./providers/diagnostic-provider');
 const hover_provider_1      = require('./providers/hover-provider');
 const signature_provider    = require('./providers/signature-provider');
+const rename_provider       = require('./providers/rename-provider');
 
 class Coder {
     constructor() {
@@ -46,6 +47,7 @@ class Coder {
         this._diagnosticProvider = new diagnostic_provider_1.DiagnosticProvider(this);
         this._hoverProvider      = new hover_provider_1.HoverProvider(this);
         this._signatureProvider  = new signature_provider.SignatureProvider(this);
+        this._renameProvider     = new rename_provider.RenameProvider(this);
 
         this.conn.console.info('coder inited');
 
@@ -138,6 +140,10 @@ class Coder {
 
     provideSignatureHelp(params) {
         return this._signatureProvider.provideSignatureHelp(params);
+    }
+
+    provideRename(params) {
+        return this._renameProvider.provideRename(params);
     }
 
     sendDiagnostics(uri, diagnostics) {
