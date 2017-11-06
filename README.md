@@ -19,17 +19,19 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 - signatrue help
 - diagnostics
 - rename, _limitation: can only apply to local defined variable_
+- code format, including format whole file and format select text, _**format on typing** is not supported now._
 
 ### Not supported
 
-- code format
 - code metrics
-- code refine, include **rename**, **extract variable**, **extract function**, etc.
+- extract variable
+- extract function
 
-## Requirements
+## Dependences
 
 * luaparse: https://github.com/oxyc/luaparse
 * luacheck: https://github.com/mpeterv/luacheck
+* lua-fmt: https://github.com/trixnz/lua-fmt
 
 ## Extension Settings
 
@@ -51,6 +53,9 @@ This extension contributes the following settings:
 * `LuaCoderAssist.luacheck.maxProblems`: Max problems to 
 * `LuaCoderAssist.luacheck.configFilePath`: The path of '.luacheckrc'
 * `LuaCoderAssist.symbol.showFunctionGlobalOnly`: Only functions and global symbol will be show in document symbol list
+* `LuaCoderAssist.format.lineWidth`: Max character in one line.
+* `LuaCoderAssist.format.indentCount`: Indent count.
+* `LuaCoderAssist.format.quotemark`: String quotation style, can be 'single' or "double"
 
 ## Known Issues
 

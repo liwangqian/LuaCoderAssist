@@ -3,7 +3,7 @@
   "displayName": "LuaCoderAssist",
   "description": "lua coder assistant in javascript for vscode",
   "icon": "images/icon.png",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "publisher": "liwangqian",
   "engines": {
     "vscode": "^1.11.0"
@@ -111,6 +111,21 @@
           "type": "boolean",
           "default": true,
           "description": "Only functions and global symbol will be show in document symbol list."
+        },
+        "LuaCoderAssist.format.lineWidth": {
+          "type": "integer",
+          "default": 120,
+          "description": "Max character in one line."
+        },
+        "LuaCoderAssist.format.indentCount": {
+          "type": "integer",
+          "default": 4,
+          "description": "indent count."
+        },
+        "LuaCoderAssist.format.quotemark": {
+          "type": "string",
+          "default": "single",
+          "description": "String quotation style, can be 'single' or 'double'."
         }
       }
     },

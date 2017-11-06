@@ -16,17 +16,17 @@ class SymbolProvider {
         var documentSymbol = this.symbolManager.documentSymbol(uri);
         var definitions = documentSymbol && documentSymbol.definitions();
         definitions = definitions || [];
-        
+
         let showFunctionGlobalOnly = this.coder.settings.symbol.showFunctionGlobalOnly;
         return definitions.filter(def => {
-            return showFunctionGlobalOnly ? !def.islocal || def.kind === traits.SymbolKind.function : true;
+            return (def.name !== '_') && (showFunctionGlobalOnly ? !def.islocal || def.kind === traits.SymbolKind.function : true);
         }).map(def => {
             return langserver_1.SymbolInformation.create(
                 def.name,
                 utils_1.mapSymbolKind(def.kind),
                 def.location,
                 def.uri,
-                def.bases[def.bases.length-1] || def.container.name);
+                def.bases[def.bases.length - 1] || def.container.name);
         });
     }
 };

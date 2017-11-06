@@ -35,7 +35,12 @@ connection.onInitialize((params) => {
             signatureHelpProvider: {
                 triggerCharacters: [',', '(']
             },
-            renameProvider: true
+            renameProvider: true,
+            documentFormattingProvider: true,
+            documentRangeFormattingProvider: true,
+            // documentOnTypeFormattingProvider: {
+            //     firstTriggerCharacter: ";"
+            // }
             // codeActionProvider: true
         }
     };
@@ -54,7 +59,6 @@ connection.onDidChangeConfiguration((change) => {
 });
 
 connection.onDidChangeWatchedFiles((change) => {
-    connection.console.info(JSON.stringify(change.changes));
     coder.onDidChangeWatchedFiles(change);
 });
 
@@ -84,6 +88,19 @@ connection.onSignatureHelp((params) => {
 
 connection.onRenameRequest(params => {
     return coder.provideRename(params);
+});
+
+connection.onDocumentFormatting(params => {
+    return coder.formatDocument(params);
+});
+
+connection.onDocumentRangeFormatting(params => {
+    return coder.formatDocument(params);
+});
+
+connection.onDocumentOnTypeFormatting(params => {
+    coder.tracer.info('onDocumentOnTypeFormatting');
+    return coder.formatOnTyping(params);
 });
 
 connection.onCodeAction((params) => {

@@ -14,6 +14,7 @@ const diagnostic_provider_1 = require('./providers/diagnostic-provider');
 const hover_provider_1      = require('./providers/hover-provider');
 const signature_provider    = require('./providers/signature-provider');
 const rename_provider       = require('./providers/rename-provider');
+const format_provider       = require('./providers/format-provider');
 
 class Coder {
     constructor() {
@@ -48,6 +49,7 @@ class Coder {
         this._hoverProvider      = new hover_provider_1.HoverProvider(this);
         this._signatureProvider  = new signature_provider.SignatureProvider(this);
         this._renameProvider     = new rename_provider.RenameProvider(this);
+        this._formatProvider     = new format_provider.FormatProvider(this);
 
         this.conn.console.info('coder inited');
 
@@ -144,6 +146,14 @@ class Coder {
 
     provideRename(params) {
         return this._renameProvider.provideRename(params);
+    }
+
+    formatDocument(params) {
+        return this._formatProvider.formatRangeText(params);
+    }
+
+    formatOnTyping(params) {
+        return this._formatProvider.formatOnTyping(params);
     }
 
     sendDiagnostics(uri, diagnostics) {
