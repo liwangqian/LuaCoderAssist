@@ -11,23 +11,23 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 ### Supported
 
 - **document symbols**
-![](images/symbol-list.gif)
+![list](images/symbol-list.gif)
 - **goto definition**
-![](images/goto-def.gif)
+![goto](images/goto-def.gif)
 - **definition peak**
-![](images/def-peak.gif)
+![peak](images/def-peak.gif)
 - **code complete**
-![](images/complete.gif)
+![complete](images/complete.gif)
 - **signatrue help**
-![](images/signature.gif)
+![signature](images/signature.gif)
 - **diagnostics**
-![](images/diagnostics.gif)
+![diagnostics](images/diagnostics.gif)
 - **rename**, _limitation: can only apply to local defined variable_
-![](images/rename.gif)
+![rename](images/rename.gif)
 - **code format**, including format whole file and format select text, _**format on typing** is not supported now._
-![](images/format.gif)
+![format](images/format.gif)
 - **symbol from return table**
-![](images/return-table.gif)
+![return](images/return-table.gif)
 
 ### Not supported
 
@@ -79,6 +79,9 @@ This extension contributes the following settings:
 * Cannot jump to symbols in new create file, this can be solved by restart the vscode.
 
 ## Release Notes
+
+### 1.2.2
+- fix issue #2
 
 ### 1.2.1
 - update README.md
