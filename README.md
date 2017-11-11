@@ -80,6 +80,10 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 1.2.3
+- fix bugs when module/file return with nonthing
+- add ldoc snippets
+
 ### 1.2.2
 - fix issue #2
 

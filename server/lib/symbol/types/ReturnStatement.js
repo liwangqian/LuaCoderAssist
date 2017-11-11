@@ -1,7 +1,5 @@
 'use strict';
 
-const traits = require('../symbol-traits');
-
 exports.parse = (walker, node, container, scope, parentSymbol) => {
     /** process 'return a table' situation like:
      *  in 'class.lua'
@@ -15,7 +13,11 @@ exports.parse = (walker, node, container, scope, parentSymbol) => {
      *  return class
      *  ```
      */
-    if (container.name === '_G' && node.arguments) {
+    if (node.arguments.length === 0) {
+        return;
+    }
+
+    if (node.arguments.length === 1 && container.name === '_G') {
         let expt = node.arguments[0];
         if (expt.type === 'Identifier') {
             returnIdentifier(expt, walker);
@@ -30,7 +32,7 @@ exports.parse = (walker, node, container, scope, parentSymbol) => {
             });
         }
     } else {
-        node.arguments && walker.walkNodes(node.arguments, container, scope, parentSymbol, false);
+        walker.walkNodes(node.arguments, container, scope, parentSymbol, false);
     }
 }
 

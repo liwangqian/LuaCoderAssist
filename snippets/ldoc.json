@@ -1,0 +1,110 @@
+{
+    "@doc": {
+        "body": "--- ${1:Summary ends with a period.}\n-- ${2:Some description, can be over several lines.}",
+        "description": "ldoc: description of a function",
+        "prefix": "@doc",
+        "scope": "source.lua"
+    },
+    "@module": {
+        "body": "--- ${1:module description}\n-- @module ${2:module name}",
+        "description": "ldoc: document a module",
+        "prefix": "@module",
+        "scope": "source.lua"
+    },
+    "@function": {
+        "body": "-- @function ${1:function-name}",
+        "description": "ldoc: mark function name",
+        "prefix": "@function",
+        "scope": "source.lua"
+    },
+    "@param": {
+        "body": "-- @param ${1:name} ${2:description}",
+        "description": "ldoc: document a parameter",
+        "prefix": "@param",
+        "scope": "source.lua"
+    },
+    "@return": {
+        "body": "-- @return ${1:name} ${2:description}",
+        "description": "ldoc: document a return value",
+        "prefix": "@return",
+        "scope": "source.lua"
+    },
+    "@author": {
+        "body": "-- @author ${1:the author}",
+        "description": "ldoc: author of the module/function",
+        "prefix": "@author",
+        "scope": "source.lua"
+    },
+    "@raise": {
+        "body": "-- @raise ${1:raise error description}",
+        "description": "ldoc: unhandled error thrown by this function",
+        "prefix": "@raise",
+        "scope": "source.lua"
+    },
+    "@local": {
+        "body": "-- @local ${1:function-name}",
+        "description": "ldoc: explicitly marks a function as not being exported",
+        "prefix": "@local",
+        "scope": "source.lua"
+    },
+    "@see": {
+        "body": "-- @see ${1:the reference name}",
+        "description": "ldoc: reference other documented items",
+        "prefix": "@see",
+        "scope": "source.lua"
+    },
+    "@usage": {
+        "body": "-- @usage ${1:the example code}",
+        "description": "ldoc: give an example of a function's use",
+        "prefix": "@usage",
+        "scope": "source.lua"
+    },
+    "@table": {
+        "body": "-- @table ${1:table-name}",
+        "description": "ldoc: mark a lua table",
+        "prefix": "@table",
+        "scope": "source.lua"
+    },
+    "@field": {
+        "body": "-- @field ${1:field-name}",
+        "description": "ldoc: a named member of a table",
+        "prefix": "@field",
+        "scope": "source.lua"
+    },
+    "@section": {
+        "body": "-- @section ${1:section name}",
+        "description": "ldoc: starting a named section for grouping functions or tables together",
+        "prefix": "@section",
+        "scope": "source.lua"
+    },
+    "@type": {
+        "body": "-- @type ${1:name}",
+        "description": "ldoc: a section which describes a class",
+        "prefix": "@type",
+        "scope": "source.lua"
+    },
+    "@todo": {
+        "body": "-- @todo ${1:description}",
+        "description": "ldoc: description of task todo",
+        "prefix": "@todo",
+        "scope": "source.lua"
+    },
+    "@warning": {
+        "body": "-- @warning ${1:description}",
+        "description": "ldoc: something to pay attention",
+        "prefix": "@warning",
+        "scope": "source.lua"
+    },
+    "@tparam": {
+        "body": "-- @tparam ${1:type} ${2:name} ${3:description}",
+        "description": "ldoc: parameter with type specific",
+        "prefix": "@tparam",
+        "scope": "source.lua"
+    },
+    "@treturn": {
+        "body": "-- @treturn ${1:type} ${2:name} ${3:description}",
+        "description": "ldoc: return value with type specific",
+        "prefix": "@treturn",
+        "scope": "source.lua"
+    }
+}
