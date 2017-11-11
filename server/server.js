@@ -4,17 +4,17 @@
  * ------------------------------------------------------------------------------------------ */
 'use strict';
 var langserver_1 = require('vscode-languageserver');
-var coder_1      = require('./Coder');
+var coder_1 = require('./coder');
 
-var connection   = langserver_1.createConnection(new langserver_1.IPCMessageReader(process),
-                                                 new langserver_1.IPCMessageWriter(process));
-var documents    = new langserver_1.TextDocuments();
-var coder        = coder_1.instance();
+var connection = langserver_1.createConnection(new langserver_1.IPCMessageReader(process),
+    new langserver_1.IPCMessageWriter(process));
+var documents = new langserver_1.TextDocuments();
+var coder = coder_1.instance();
 
 connection.onInitialize((params) => {
     var ok = coder.init({
-        workspaceRoot: params.rootPath, 
-        connection: connection, 
+        workspaceRoot: params.rootPath,
+        connection: connection,
         documents: documents
     });
 
