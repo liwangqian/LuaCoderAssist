@@ -32,7 +32,7 @@ class Coder {
             return true;
         }
 
-        if (!context || !context.workspaceRoot || !context.connection || !context.documents) {
+        if (!context || !context.connection || !context.documents) {
             return false;
         }
 
@@ -76,7 +76,11 @@ class Coder {
         this.settings = settings;
         let fileManager = file_manager_1.instance();
         fileManager.reset();
-        fileManager.setRoots(settings.search.externalPaths.concat(this.workspaceRoot));
+
+        if (this.workspaceRoot) {
+            fileManager.setRoots(settings.search.externalPaths.concat(this.workspaceRoot));
+        }
+
         fileManager.searchFiles(settings.search, ".lua");
 
         // todo:
