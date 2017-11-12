@@ -28,6 +28,8 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 ![format](images/format.gif)
 - **symbol from return table**
 ![return](images/return-table.gif)
+- **insert ldoc**
+![ldoc](images/ldoc.gif)
 
 ### Not supported
 
@@ -79,6 +81,11 @@ This extension contributes the following settings:
 * Cannot jump to symbols in new create file, this can be solved by restart the vscode.
 
 ## Release Notes
+
+### 1.2.5
+- fix issue #3
+- add ldoc command to insert document for function.
+- add ldoc context menu '**Insert LDoc**'.
 
 ### 1.2.3
 - fix bugs when module/file return with nonthing

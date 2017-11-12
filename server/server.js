@@ -3,8 +3,9 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 'use strict';
-var langserver_1 = require('vscode-languageserver');
 var coder_1 = require('./coder');
+var protocols_1 = require('./protocols');
+var langserver_1 = require('vscode-languageserver');
 
 var connection = langserver_1.createConnection(new langserver_1.IPCMessageReader(process),
     new langserver_1.IPCMessageWriter(process));
@@ -105,6 +106,13 @@ connection.onDocumentOnTypeFormatting(params => {
 
 connection.onCodeAction((params) => {
     return undefined;
+});
+
+connection.onRequest(protocols_1.LDocRequest.type, (params) => {
+    let result = coder.onLDocRequest(params);
+    connection.sendRequest(protocols_1.LDocRequest.type, result).then(undefined, e => {
+        coder.tracer.info("send response to ldoc request failed: " + JSON.stringify(e));
+    });
 });
 
 documents.listen(connection);

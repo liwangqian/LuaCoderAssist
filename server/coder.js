@@ -1,30 +1,31 @@
 'use strict';
 
 const langserver_1 = require('vscode-languageserver');
-const fs_1         = require('fs');
-const path_1       = require('path');
-const uri_1        = require('vscode-uri').default;
-const tracer_1          = require('./tracer');
-const symbol_manager_1  = require('./providers/lib/symbol-manager');
-const file_manager_1    = require('./providers/lib/file-manager');
-const symbol_provider_1     = require('./providers/symbol-provider');
+const fs_1 = require('fs');
+const path_1 = require('path');
+const uri_1 = require('vscode-uri').default;
+const tracer_1 = require('./tracer');
+const symbol_manager_1 = require('./providers/lib/symbol-manager');
+const file_manager_1 = require('./providers/lib/file-manager');
+const symbol_provider_1 = require('./providers/symbol-provider');
 const definition_provider_1 = require('./providers/definition-provider');
 const completion_provider_1 = require('./providers/completion-provider');
 const diagnostic_provider_1 = require('./providers/diagnostic-provider');
-const hover_provider_1      = require('./providers/hover-provider');
-const signature_provider    = require('./providers/signature-provider');
-const rename_provider       = require('./providers/rename-provider');
-const format_provider       = require('./providers/format-provider');
+const hover_provider_1 = require('./providers/hover-provider');
+const signature_provider = require('./providers/signature-provider');
+const rename_provider = require('./providers/rename-provider');
+const format_provider = require('./providers/format-provider');
+const ldoc_provider = require('./providers/ldoc-provider');
 
 class Coder {
     constructor() {
         this.workspaceRoot = undefined;
-        this.conn          = undefined;
-        this.documents     = undefined;
-        this.settings      = undefined;
-        this.tracer        = tracer_1.instance();
+        this.conn = undefined;
+        this.documents = undefined;
+        this.settings = undefined;
+        this.tracer = tracer_1.instance();
 
-        this._initialized  = false;
+        this._initialized = false;
     }
 
     init(context) {
@@ -37,19 +38,20 @@ class Coder {
         }
 
         this.workspaceRoot = context.workspaceRoot;
-        this.conn          = context.connection;
-        this.documents     = context.documents;
-        this._initialized  = true;
+        this.conn = context.connection;
+        this.documents = context.documents;
+        this._initialized = true;
 
         this.tracer.init(this);
-        this._symbolProvider     = new symbol_provider_1.SymbolProvider(this);
+        this._symbolProvider = new symbol_provider_1.SymbolProvider(this);
         this._definitionProvider = new definition_provider_1.DefinitionProvider(this);
         this._completionProvider = new completion_provider_1.CompletionProvider(this);
         this._diagnosticProvider = new diagnostic_provider_1.DiagnosticProvider(this);
-        this._hoverProvider      = new hover_provider_1.HoverProvider(this);
-        this._signatureProvider  = new signature_provider.SignatureProvider(this);
-        this._renameProvider     = new rename_provider.RenameProvider(this);
-        this._formatProvider     = new format_provider.FormatProvider(this);
+        this._hoverProvider = new hover_provider_1.HoverProvider(this);
+        this._signatureProvider = new signature_provider.SignatureProvider(this);
+        this._renameProvider = new rename_provider.RenameProvider(this);
+        this._formatProvider = new format_provider.FormatProvider(this);
+        this._ldocProvider = new ldoc_provider.LDocProvider(this);
 
         this.conn.console.info('coder inited');
 
@@ -72,7 +74,7 @@ class Coder {
     }
 
     onDidChangeConfiguration(change) {
-        let settings  = change.settings.LuaCoderAssist;
+        let settings = change.settings.LuaCoderAssist;
         this.settings = settings;
         let fileManager = file_manager_1.instance();
         fileManager.reset();
@@ -118,7 +120,7 @@ class Coder {
         //         files.push(fsPath);
         //     }
         // }
-        
+
     }
 
     provideDocumentSymbols(params) {
@@ -169,6 +171,10 @@ class Coder {
 
     showWarningMessage(msg) {
         this.conn.window.showWarningMessage(msg);
+    }
+
+    onLDocRequest(params) {
+        return this._ldocProvider.onRequest(params);
     }
 };
 

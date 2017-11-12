@@ -1,9 +1,9 @@
 'use strict';
 
-const traits           = require('../lib/symbol/symbol-traits');
-const utils_1          = require('./lib/utils');
+const traits = require('../lib/symbol/symbol-traits');
+const utils_1 = require('./lib/utils');
 const symbol_manager_1 = require('./lib/symbol-manager');
-const langserver_1     = require('vscode-languageserver');
+const langserver_1 = require('vscode-languageserver');
 
 class SymbolProvider {
     constructor(coder) {
