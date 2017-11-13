@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+### 1.2.6
+- fix errors when open a file which has syntax error.
+- add `keepAfterClosed` option for luacheck diagnostics.
+
 ### 1.2.5
 - fix issue #3
 - add ldoc command to insert document for function.

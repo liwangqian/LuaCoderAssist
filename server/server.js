@@ -115,6 +115,10 @@ connection.onRequest(protocols_1.LDocRequest.type, (params) => {
     });
 });
 
+documents.onDidClose(event => {
+    return coder.onDidClosed(event.document);
+});
+
 documents.listen(connection);
 // Listen on the connection
 connection.listen();

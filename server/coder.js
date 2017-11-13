@@ -176,6 +176,12 @@ class Coder {
     onLDocRequest(params) {
         return this._ldocProvider.onRequest(params);
     }
+
+    onDidClosed(doc) {
+        if (!this.settings.luacheck.keepAfterClosed) {
+            this.sendDiagnostics(doc.uri, []);
+        }
+    }
 };
 
 var _coderInstance = undefined;

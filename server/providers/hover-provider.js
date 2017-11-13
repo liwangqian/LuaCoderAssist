@@ -41,7 +41,7 @@ class HoverProvider {
         let sm = symbol_manager.instance();
         let docsym = sm.documentSymbol(uri);
         if (!docsym) {
-            return undefined;
+            return [];
         }
 
         return utils.filterModDefinitions(docsym.definitions(), ref, true);
