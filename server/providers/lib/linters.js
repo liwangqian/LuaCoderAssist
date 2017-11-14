@@ -73,6 +73,10 @@ class Luacheck {
             return diagnostics;
         }
 
+        if (data.stdout === undefined) {
+            return diagnostics;
+        }
+
         let maxProblems = this.coder.settings.luacheck.maxProblems;
 
         //luacheck output to stdout channal

@@ -2,6 +2,9 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+### 1.2.7
+- fix errors when open a file without `.lua` extension, see issue #3.
+
 ### 1.2.6
 - fix errors when open a file which has syntax error.
 - add `keepAfterClosed` option for luacheck diagnostics.

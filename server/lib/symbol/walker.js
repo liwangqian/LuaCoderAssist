@@ -53,8 +53,11 @@ class Walker {
         this.reset();
         this.document.uri = uri;
         this.document.ast = ast;
-        let fileName = uri.match(/(\w+)\.lua$/)[1];
-        this.walkNodes(ast.body, {name: '_G'}, utils.loc2Range(ast.loc), {name: fileName, bases: []}, true);
+        let matches = uri.match(/(\w+)(\.lua)?$/);
+        if (matches) {
+            let fileName = matches[1];
+            this.walkNodes(ast.body, { name: '_G' }, utils.loc2Range(ast.loc), { name: fileName, bases: [] }, true);
+        }
 
         return this.document;
     }
