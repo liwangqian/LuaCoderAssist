@@ -56,3 +56,5 @@ function insertDoc(params) {
 }
 
 exports.LDocCommand = LDocCommand;
+exports.LDocCommandName = "LuaCoderAssist.ldoc";
+

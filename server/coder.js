@@ -97,7 +97,6 @@ class Coder {
             change.document.lineCount
         ).then(ok => {
             this._diagnosticProvider.provideDiagnostics(uri);
-            //todo: provide code metrics...
         });
     }
 
@@ -107,20 +106,24 @@ class Coder {
     }
 
     onDidChangeWatchedFiles(change) {
-        this.tracer.info('We recevied an file change event');
-        // for (let i = 0; i < change.changes.length; i++) {
-        //     let uri = change.changes[i].uri;
-        //     let type = change.changes[i].type;
-
-        //     let fileManager = file_manager_1.instance();
-        //     let fsPath = uri_1.parse(uri).fsPath;
-        //     let fileName = path_1.basename(fsPath, '.lua');
-        //     let files = fileManager.getFiles(fileName);
-        //     if (type === 1) {
-        //         files.push(fsPath);
-        //     }
-        // }
-
+        change.changes.forEach(event => {
+            let uri = event.uri;
+            let etype = event.type;
+            let filePath = uri_1.parse(uri).fsPath;
+            let fileName = path_1.basename(filePath, '.lua');
+            let fileManager = file_manager_1.instance();
+            let symbolManager = symbol_manager_1.instance();
+            switch (etype) {
+                case 1: //create
+                    fileManager.addFile(fileName, filePath);
+                    break;
+                case 3: //delete
+                    fileManager.delFile(fileName, filePath);
+                    symbolManager.deleteDocument(uri);
+                default:
+                    break;
+            }
+        });
     }
 
     provideDocumentSymbols(params) {

@@ -1,6 +1,6 @@
 'use strict';
 
-var utils  = require('../../lib/symbol/utils');
+var utils = require('../../lib/symbol/utils');
 
 class DocumentSymbol {
     constructor(uri) {
@@ -8,7 +8,7 @@ class DocumentSymbol {
             uri: uri,
             module: undefined,
             definitions: undefined,
-            references:  undefined,
+            references: undefined,
             dependences: undefined,
             ast: undefined
         };

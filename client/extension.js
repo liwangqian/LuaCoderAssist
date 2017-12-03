@@ -4,10 +4,12 @@
  * ------------------------------------------------------------------------------------------ */
 'use strict';
 const ldoc_1 = require('./commands/ldoc');
+const showMetricDetails = require('./commands/codemetrics-details');
 const path = require("path");
 const vscode = require("vscode");
 const languageclient = require("vscode-languageclient");
 const logger_1 = require('./lib/logger');
+const CodeMetricsProvider = require('./providers/codemetrics-provider');
 
 function activate(context) {
     let serverModule = context.asAbsolutePath(path.join('server', 'server.js'));
@@ -30,10 +32,27 @@ function activate(context) {
     let connection = new languageclient.LanguageClient('LuaCoderAssist', serverOptions, clientOptions);
     context.subscriptions.push(connection.start());
 
-    context.subscriptions.push(vscode.commands.registerCommand("LuaCoderAssist.ldoc", () => {
-        let ldoc = new ldoc_1.LDocCommand(connection);
-        ldoc.onRequest();
-    }));
+    context.subscriptions.push(
+        vscode.commands.registerCommand(ldoc_1.LDocCommandName, () => {
+            let ldoc = new ldoc_1.LDocCommand(connection);
+            ldoc.onRequest();
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.languages.registerCodeLensProvider('lua',
+            new CodeMetricsProvider.CodeMetricsProvider()
+        )
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(showMetricDetails.ShowMetricsDetailsCommand, (params) => {
+            let showDetails = new showMetricDetails.ShowMetricsDetails();
+            showDetails.showDetails(params);
+        })
+    );
 }
 
 exports.activate = activate;
+
+

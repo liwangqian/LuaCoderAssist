@@ -1,9 +1,9 @@
 'use strict';
 
-const uri_1            = require('vscode-uri').default;
-const langserver_1     = require('vscode-languageserver');
-const path_1           = require('path');
-const fs_1             = require('fs');
+const uri_1 = require('vscode-uri').default;
+const langserver_1 = require('vscode-languageserver');
+const path_1 = require('path');
+const fs_1 = require('fs');
 const symbol_manager_1 = require('./symbol-manager');
 
 // default to 64-bit windows luacheck.exe, from https://github.com/mpeterv/luacheck/releases
@@ -61,14 +61,14 @@ class Luacheck {
 
         return {
             cmd: cmd,
-            cwd: path_1.dirname(fileName), 
+            cwd: path_1.dirname(fileName),
             args: args
         };
     }
 
     parseDiagnostics(data) {
         let diagnostics = [];
-        
+
         if (data.error != null && data.error.message === 'stdout maxBuffer exceeded.') {
             return diagnostics;
         }
@@ -92,12 +92,12 @@ class Luacheck {
                 continue;
             }
 
-            let lineNo   = parseInt(matched[2]);
-            let schar    = parseInt(matched[3]);
-            let echar    = parseInt(matched[4]);
-            let eType    = this._toDiagnosticSeverity(matched[5]);
-            let eCode    = parseInt(matched[6])
-            let errMsg   = matched[7];
+            let lineNo = parseInt(matched[2]);
+            let schar = parseInt(matched[3]);
+            let echar = parseInt(matched[4]);
+            let eType = this._toDiagnosticSeverity(matched[5]);
+            let eCode = parseInt(matched[6])
+            let errMsg = matched[7];
 
             diagnostics.push(langserver_1.Diagnostic.create(
                 langserver_1.Range.create(lineNo - 1, schar - 1, lineNo - 1, echar),
@@ -127,14 +127,14 @@ class Luacheck {
         switch (errCode) {
             case "E": return langserver_1.DiagnosticSeverity.Error;
             case "W": return langserver_1.DiagnosticSeverity.Warning;
-            default : return langserver_1.DiagnosticSeverity.Information;
+            default: return langserver_1.DiagnosticSeverity.Information;
         }
     }
 
     _lengthOverWarning(position) {
         return langserver_1.Diagnostic.create(
             langserver_1.Range.create(position, position),
-            'File size is over the config file size limit.', 
+            'File size is over the config file size limit.',
             langserver_1.DiagnosticSeverity.Hint, undefined,
             'luacheck');
     }

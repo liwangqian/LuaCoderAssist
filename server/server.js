@@ -104,15 +104,15 @@ connection.onDocumentOnTypeFormatting(params => {
     return coder.formatOnTyping(params);
 });
 
-connection.onCodeAction((params) => {
-    return undefined;
-});
-
 connection.onRequest(protocols_1.LDocRequest.type, (params) => {
     let result = coder.onLDocRequest(params);
     connection.sendRequest(protocols_1.LDocRequest.type, result).then(undefined, e => {
         coder.tracer.info("send response to ldoc request failed: " + JSON.stringify(e));
     });
+});
+
+connection.onCodeAction((params) => {
+    return undefined;
 });
 
 documents.onDidClose(event => {

@@ -30,10 +30,11 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 ![return](images/return-table.gif)
 - **insert ldoc**
 ![ldoc](images/ldoc.gif)
+- **code metrics**
+![metrics](images/metrics.gif)
 
 ### Not supported
 
-- code metrics
 - extract variable
 - extract function
 - symbol document support
@@ -43,30 +44,6 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 * luaparse: https://github.com/oxyc/luaparse
 * luacheck: https://github.com/mpeterv/luacheck
 * lua-fmt: https://github.com/trixnz/lua-fmt
-
-## Extension Settings
-
-This extension contributes the following settings:
-
-* `LuaCoderAssist.enable`: Enable/disable the extension
-* `LuaCoderAssist.debug`: Debug information output enable
-* `LuaCoderAssist.search.filters`: Filter patterns for file search
-* `LuaCoderAssist.search.externalPaths`: External paths to be search, for dependences
-* `LuaCoderAssist.search.followLinks`: Whether the links to be search
-* `LuaCoderAssist.luaparse.luaversion`: The lua version, for grammer match,
-* `LuaCoderAssist.luaparse.allowDefined`: Allow defining globals implicitly by setting them
-* `LuaCoderAssist.luacheck.enable`: Enable/Disable luacheck for static diagnostics
-* `LuaCoderAssist.luacheck.execPath`: Path of the luacheck excutable.(@ref https://github.com/mpeterv/luacheck)
-* `LuaCoderAssist.luacheck.std`: Set standard globals.(@ref http://luacheck.readthedocs.io/en/stable/cli.html)
-* `LuaCoderAssist.luacheck.ignore`: Filter out warnings matching patterns.(@ref http://luacheck.readthedocs.io/en/stable/cli.html)
-* `LuaCoderAssist.luacheck.jobs`: Number of jobs for parallel check.(@ref http://luacheck.readthedocs.io/en/stable/cli.html)
-* `LuaCoderAssist.luacheck.fileSizeLimit`: File size (KB) limit for luacheck, performance consideration
-* `LuaCoderAssist.luacheck.maxProblems`: Max problems to 
-* `LuaCoderAssist.luacheck.configFilePath`: The path of '.luacheckrc'
-* `LuaCoderAssist.symbol.showFunctionGlobalOnly`: Only functions and global symbol will be show in document symbol list
-* `LuaCoderAssist.format.lineWidth`: Max character in one line.
-* `LuaCoderAssist.format.indentCount`: Indent count.
-* `LuaCoderAssist.format.quotemark`: String quotation style, can be 'single' or "double"
 
 ## Known Issues
 
@@ -78,9 +55,12 @@ This extension contributes the following settings:
     x.funcA()   -- here, symbol `funcA` cannot be code complete and cannot goto definition...
 ```
 
-* Cannot jump to symbols in new create file, this can be solved by restart the vscode.
-
 ## Release Notes
+
+### 1.3.0
+- add: code metric codelens
+- fix: symbols in new create file and remove symbols of deleted file.
+- remove: Extension Settings section in README.md
 
 ### 1.2.7
 - fix errors when open a file without `.lua` extension, see issue #3.

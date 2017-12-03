@@ -2,6 +2,11 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+### 1.3.0 @ 2017-12-03
+- add: code metric codelens
+- fix: symbols in new create file and remove symbols of deleted file.
+- remove: Extension Settings section in README.md
+
 ### 1.2.7
 - fix errors when open a file without `.lua` extension, see issue #3.
 

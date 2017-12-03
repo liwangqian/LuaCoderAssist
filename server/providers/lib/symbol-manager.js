@@ -1,10 +1,10 @@
 'use strict';
 
-const langserver_1    = require('vscode-languageserver');
+const langserver_1 = require('vscode-languageserver');
 const symbol_parser_1 = require('./symbol-parser');
-const file_manager_1  = require('./file-manager');
-const path_1          = require('path');
-const uri_1           = require('vscode-uri').default;
+const file_manager_1 = require('./file-manager');
+const path_1 = require('path');
+const uri_1 = require('vscode-uri').default;
 
 class SymbolManager {
     constructor() {
@@ -24,6 +24,10 @@ class SymbolManager {
 
     documentSymbol(uri) {
         return this.documentSymbols[uri];
+    }
+
+    deleteDocument(uri) {
+        this.documentSymbols[uri] && (this.documentSymbols[uri] = undefined);
     }
 
     parseDocument(uri, content, maxLine) {
@@ -94,8 +98,8 @@ function flyCheckDiagnostic(msg) {
     if (!infos) {
         return [];
     }
-    let line    = parseInt(infos[1]);
-    let colum   = parseInt(infos[2]);
+    let line = parseInt(infos[1]);
+    let colum = parseInt(infos[2]);
     let message = infos[3];
 
     let diagnostics = [];

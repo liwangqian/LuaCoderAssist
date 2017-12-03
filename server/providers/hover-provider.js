@@ -1,7 +1,7 @@
 'use strict';
 
 const symbol_manager = require('./lib/symbol-manager');
-const utils          = require('./lib/utils');
+const utils = require('./lib/utils');
 
 class HoverProvider {
     constructor(coder) {
@@ -16,7 +16,7 @@ class HoverProvider {
 
         let uri = params.textDocument.uri;
         let document = this.coder.document(uri);
-        let ref = utils.symbolAtPosition(position, document, {backward: true, forward: true});
+        let ref = utils.symbolAtPosition(position, document, { backward: true, forward: true });
         if (ref === undefined) {
             return undefined;
         }
