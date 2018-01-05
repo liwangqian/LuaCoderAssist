@@ -67,7 +67,7 @@ function createDependenceSymbol(moduleNode, container, scope) {
     dep.container = container;
 
     if (moduleNode.value.includes('.')) {
-        dep.shortPath = moduleNode.value.replace('.', path_1.sep);
+        dep.shortPath = moduleNode.value.replace(/\./g, path_1.sep);
     }
 
     return dep;

@@ -1,51 +1,55 @@
-# Lua Coder Assistant
+# Lua编程助手(Lua Coder Assistant)
+
+Lua 编程助手是一款能够为Lua开发人员提供智能帮助的基于VSCODE的插件
 
 Lua coder assistant is an vscode extension attempt to provide language intelligence for coders coding in lua language.
 
-## Install
+## 安装(Install)
+
+本插件可在微软VSCODE插件商店中搜索`LuaCoderAssist`进行安装
 
 Search `LuaCoderAssist` in extension market of vscode and install.
 
-## Features
+## 功能(Features)
 
-### Supported
+### 当前已支持的功能(Supported)
 
-- **document symbols**
+- **文件内符号列表(document symbols)**
 ![list](images/symbol-list.gif)
-- **goto definition**
+- **符号定义跳转(goto definition)**
 ![goto](images/goto-def.gif)
-- **definition peak**
+- **符号定义预览(definition peak)**
 ![peak](images/def-peak.gif)
-- **code complete**
+- **代码补全(code complete)**
 ![complete](images/complete.gif)
-- **signatrue help**
+- **函数特征帮助(signatrue help)**
 ![signature](images/signature.gif)
-- **diagnostics**
+- **静态检查(diagnostics)**
 ![diagnostics](images/diagnostics.gif)
-- **rename**, _limitation: can only apply to local defined variable_
+- **符号重命名(rename)**, _limitation: can only apply to local defined variable_
 ![rename](images/rename.gif)
-- **code format**, including format whole file and format select text, _**format on typing** is not supported now._
+- **代码格式化(code format)**, including format whole file and format select text, _**format on typing** is not supported now._
 ![format](images/format.gif)
-- **symbol from return table**
+- **返回表模式(symbol from return table)**
 ![return](images/return-table.gif)
-- **insert ldoc**
+- **插入函数头(insert ldoc)**
 ![ldoc](images/ldoc.gif)
-- **code metrics**
+- **代码度量(code metrics)**
 ![metrics](images/metrics.gif)
 
-### Not supported
+### 当前还不支持(Not supported)
 
 - extract variable
 - extract function
 - symbol document support
 
-## Dependences
+## 依赖(Dependences)
 
 * luaparse: https://github.com/oxyc/luaparse
 * luacheck: https://github.com/mpeterv/luacheck
 * lua-fmt: https://github.com/trixnz/lua-fmt
 
-## Known Issues
+## 已知的缺陷(Known Issues)
 
 * Not support module alias, like:
 ```lua
@@ -55,7 +59,12 @@ Search `LuaCoderAssist` in extension market of vscode and install.
     x.funcA()   -- here, symbol `funcA` cannot be code complete and cannot goto definition...
 ```
 
-## Release Notes
+## 发行记录(Release Notes)
+
+### 1.3.1
+- fix: fixed bug in issue #7.
+- fix: update the description of `LuaCoderAssist.search.externalPaths` configuration.
+- add: add chinese description in README.md
 
 ### 1.3.0
 - add: code metric codelens
