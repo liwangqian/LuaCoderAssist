@@ -69,7 +69,7 @@ class LDocProvider {
             return [];
         }
 
-        return utils_1.filterModDefinitions(docsym.definitions(), ref, true);
+        return utils_1.filterModDefinitions(docsym.definitions(), ref, utils_1.preciseCompareName);
     }
 };
 

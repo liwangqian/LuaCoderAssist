@@ -17,7 +17,7 @@ class DefinitionProvider {
         }
 
         let document = this.coder.document(uri);
-        let ref = utils_2.symbolAtPosition(params.position, document, {backward: true, forward: true});
+        let ref = utils_2.symbolAtPosition(params.position, document, { backward: true, forward: true });
         if (!ref) {
             return [];
         }
@@ -31,8 +31,8 @@ class DefinitionProvider {
         // find define in dependences
         let defsInDep = utils_2.filterDepDefinitions(
             utils_2.getDefinitionsInDependences(uri, ref, this.coder.tracer),
-            ref, true);
-        
+            ref, utils_2.preciseCompareName);
+
         let allDefs = [].concat(defsInFile, defsInDep);
 
         return allDefs.map(d => {

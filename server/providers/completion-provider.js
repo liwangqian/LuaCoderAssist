@@ -1,9 +1,9 @@
 'use strict';
 
-const langserver     = require('vscode-languageserver');
+const langserver = require('vscode-languageserver');
 const symbol_manager = require('./lib/symbol-manager');
-const utils          = require('./lib/utils');
-const uri_1          = require('vscode-uri').default;
+const utils = require('./lib/utils');
+const uri_1 = require('vscode-uri').default;
 
 class CompletionProvider {
     constructor(coder) {
@@ -18,7 +18,7 @@ class CompletionProvider {
 
         let uri = params.textDocument.uri;
         let document = this.coder.document(uri);
-        let ref = utils.symbolAtPosition(position, document, {backward: true});
+        let ref = utils.symbolAtPosition(position, document, { backward: true });
         if (ref === undefined) {
             return undefined;
         }
@@ -46,16 +46,17 @@ class CompletionProvider {
                 return item;
             }));
         }
-        
+
+        this.coder.tracer.info(JSON.stringify(completionList, null, 2));
         if (completionList && completionList.length > 0) {
             return completionList;
         } else {
             // fall in editor default completion
             return undefined;
         }
-        
+
     }
-    
+
     resolveCompletion(item) {
         let islocal = item.data.islocal
         let detail = (islocal ? '(local ' : '') + utils.symbolKindDesc(item.data.kind) + (islocal ? ') ' : ' ');
@@ -73,18 +74,19 @@ class CompletionProvider {
         }
 
         let defs = docsym.definitions();
-        defs = utils.filterModDefinitions(defs, ref, false);
         if (ref.bases[0] === undefined) {
             defs = (defs || []).concat(docsym.dependences());
         }
 
+        defs = utils.filterModDefinitions(defs, ref, utils.fuzzyCompareName);
+
         return defs;
     }
-    
+
     _findDefInDependence(uri, ref) {
         return utils.filterDepDefinitions(
             utils.getDefinitionsInDependences(uri, ref, this.coder.tracer),
-            ref, false);
+            ref, utils.fuzzyCompareName);
     }
 
 };

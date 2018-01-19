@@ -1,14 +1,14 @@
 'use strict';
 
 const langserver_1 = require('vscode-languageserver');
-const cp_1         = require('child_process');
-const walk_1       = require('walk');
-const fs_1         = require('fs');
-const uri_1        = require('vscode-uri').default;
-const traits_1     = require('../../lib/symbol/symbol-traits');
-const utils_1      = require('../../lib/symbol/utils');
+const cp_1 = require('child_process');
+const walk_1 = require('walk');
+const fs_1 = require('fs');
+const uri_1 = require('vscode-uri').default;
+const traits_1 = require('../../lib/symbol/symbol-traits');
+const utils_1 = require('../../lib/symbol/utils');
 const symbol_manager = require('./symbol-manager');
-const file_manager   = require('./file-manager');
+const file_manager = require('./file-manager');
 
 function searchFile(startpath, options, onFile, onEnd) {
     var emitter = walk_1.walk(startpath, options);
@@ -29,7 +29,7 @@ exports.searchFile = searchFile;
 function loadConfig(fileName, cwd) {
     const program = `local _, config = require("luacov.util").load_config("${fileName}"); \
                      print(require("dkjson").encode(config));`
-    const buffer = cp_1.execFileSync("lua", ["-e", program], {cwd: cwd});
+    const buffer = cp_1.execFileSync("lua", ["-e", program], { cwd: cwd });
     return JSON.parse(buffer.toString());
 }
 
@@ -43,9 +43,9 @@ exports.fileSize = fileSize;
 
 
 function findSymbol(position, symbols) {
-    var line       = position.line;
-    var character  = position.character;
-    var symbol     = null;
+    var line = position.line;
+    var character = position.character;
+    var symbol = null;
 
     for (var i = 0; i < symbols.length; i++) {
         var ref = symbols[i];
@@ -63,19 +63,18 @@ function findSymbol(position, symbols) {
 exports.findSymbol = findSymbol;
 
 function lineContent(document, position) {
-    var offsetEnd   = document.offsetAt(position);
-    var offsetStart = document.offsetAt({line: position.line, character: 0});
+    var offsetEnd = document.offsetAt(position);
+    var offsetStart = document.offsetAt({ line: position.line, character: 0 });
     return document.getText().substring(offsetStart, offsetEnd);
 }
 
 exports.lineContent = lineContent;
 
 function mapSymbolKind(kind) {
-    switch (kind)
-    {
+    switch (kind) {
         case traits_1.SymbolKind.function: return langserver_1.SymbolKind.Function;
-        case traits_1.SymbolKind.class:    return langserver_1.SymbolKind.Class;
-        case traits_1.SymbolKind.module:   return langserver_1.SymbolKind.Module;
+        case traits_1.SymbolKind.class: return langserver_1.SymbolKind.Class;
+        case traits_1.SymbolKind.module: return langserver_1.SymbolKind.Module;
         case traits_1.SymbolKind.property: return langserver_1.SymbolKind.Property;
         default: return langserver_1.SymbolKind.Variable;
     }
@@ -117,9 +116,9 @@ function symbolKindDesc(kind) {
 exports.symbolKindDesc = symbolKindDesc;
 
 const backwardRegex = /[a-zA-Z0-9_.:]/; // parse all the bases
-const forwardRegex  = /[a-zA-Z0-9_]/;   // parse only the name
+const forwardRegex = /[a-zA-Z0-9_]/;   // parse only the name
 function extendTextRange(content, from, options) {
-    let range = {start: from, end: from};
+    let range = { start: from, end: from };
 
     let offset = from;
     if (options.backward) {
@@ -130,7 +129,7 @@ function extendTextRange(content, from, options) {
             }
         }
     }
-    
+
     if (options.forward) {
         offset = from;
         while (offset++ <= content.length) {
@@ -147,13 +146,13 @@ function extendTextRange(content, from, options) {
 // parse the content to get symbol info
 const symbolRegex = /(\w+)[.:]?/g;
 function parseContext(content) {
-    var result = { name: undefined, bases: [] };
+    var result = { name: "", bases: [] };
     var match;
     while ((match = symbolRegex.exec(content)) !== null) {
         if (match.index === symbolRegex.lastIndex) {
             symbolRegex.lastIndex++;
         }
-        
+
         var m = match[0];
         if (m.endsWith('.') || m.endsWith(':')) {
             result.bases.push(match[1]);
@@ -169,15 +168,15 @@ exports.parseContext = parseContext;
 
 function symbolAtPosition(position, doc, options) {
     let cursor = doc.offsetAt(position);
-    let text   = doc.getText();
-    let range  = extendTextRange(text, cursor, options);
+    let text = doc.getText();
+    let range = extendTextRange(text, cursor, options);
     if (range.start < 0) {
         return undefined;
     }
 
     let ref = parseContext(text.substring(range.start, range.end));
-    ref.location = {start: position, end: position};    // used for scope filter
-    
+    ref.location = { start: position, end: position };    // used for scope filter
+
     return ref;
 }
 
@@ -187,7 +186,7 @@ function functionSignature(symbol) {
     if (symbol.kind != traits_1.SymbolKind.function) {
         return undefined;
     }
-    let baseName  = symbol.bases[symbol.bases.length-1];
+    let baseName = symbol.bases[symbol.bases.length - 1];
     let signature = (baseName ? (baseName + '.') : '') + symbol.name + '(' + symbol.params.join(', ') + ')';
     return signature;
 }
@@ -233,7 +232,7 @@ function getDefinitionsInDependences(uri, ref, tracer) {
     deps.filter(d => {
         // 根据前面的计算，尝试进行精确匹配
         return baseSymbol ? (d.name === baseSymbol.name || d.name === baseSymbol.alias)
-                          : true;
+            : true;
     }).forEach(d => {
         let fileManager = file_manager.instance();
         let files = fileManager.getFiles(d.name);
@@ -267,6 +266,18 @@ function getDefinitionsInDependences(uri, ref, tracer) {
 
 exports.getDefinitionsInDependences = getDefinitionsInDependences;
 
+function fuzzyCompareName(srcName, dstName) {
+    return dstName.includes(srcName);
+}
+
+exports.fuzzyCompareName = fuzzyCompareName;
+
+function preciseCompareName(srcName, dstName) {
+    return srcName === dstName;
+}
+
+exports.preciseCompareName = preciseCompareName;
+
 function filterModDefinitions(defs, ref, compareName) {
     return defs.filter(d => {
         if (!utils_1.inScope(d.scope, ref.location)) {
@@ -277,7 +288,7 @@ function filterModDefinitions(defs, ref, compareName) {
             return false;
         }
 
-        if (compareName && ref.name !== d.name) {
+        if (!compareName(ref.name, d.name)) {
             return false;
         }
 
@@ -285,7 +296,7 @@ function filterModDefinitions(defs, ref, compareName) {
             if (ref.bases[i] !== d.bases[i]) {
                 return false;
             }
-            
+
         }
         return true;
     });
@@ -316,7 +327,7 @@ function filterDepDefinitions(defs, ref, compareName) {
         }
 
         // 对于符号补全，不需要比较符号的名字，只要bases一样就行
-        if (compareName && ref.name !== def.name) {
+        if (!compareName(ref.name, def.name)) {
             return false;
         }
 
@@ -327,7 +338,7 @@ function filterDepDefinitions(defs, ref, compareName) {
         }
 
         for (let i = startIndex; i < def.bases.length; i++) {
-            if (ref.bases[i+offset] !== def.bases[i]) {
+            if (ref.bases[i + offset] !== def.bases[i]) {
                 return false;
             }
         }

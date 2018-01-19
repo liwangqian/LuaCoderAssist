@@ -44,13 +44,13 @@ class HoverProvider {
             return [];
         }
 
-        return utils.filterModDefinitions(docsym.definitions(), ref, true);
+        return utils.filterModDefinitions(docsym.definitions(), ref, utils.preciseCompareName);
     }
 
     _findDefInDependence(uri, ref) {
         return utils.filterDepDefinitions(
             utils.getDefinitionsInDependences(uri, ref, this.coder.tracer),
-            ref, true);
+            ref, utils.preciseCompareName);
     }
 };
 

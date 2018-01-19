@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+### 1.3.2 @ 2018-01-14
+
+- fix issue #9: add `--max-line-length` to luacheck using the `format.lineWidth` configuration.
+
 ### 1.3.1 @ 2018-01-05
 - fix: fixed bug in issue #7.
 - fix: update the description of `LuaCoderAssist.search.externalPaths` configuration.

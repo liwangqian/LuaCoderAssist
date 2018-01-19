@@ -1,8 +1,8 @@
 'use strict';
 
-const utils_1        = require('./lib/utils');
+const utils_1 = require('./lib/utils');
 const symbol_manager = require('./lib/symbol-manager');
-const langserver     = require('vscode-languageserver');
+const langserver = require('vscode-languageserver');
 
 class RenameProvider {
     constructor(coder) {
@@ -20,7 +20,7 @@ class RenameProvider {
 
         let uri = params.textDocument.uri;
         let document = this.coder.document(uri);
-        let ref = utils_1.symbolAtPosition(params.position, document, {backward: true, forward: true});
+        let ref = utils_1.symbolAtPosition(params.position, document, { backward: true, forward: true });
         if (ref === undefined) {
             return {
                 code: -8,
@@ -37,7 +37,7 @@ class RenameProvider {
             };
         }
 
-        let defs = utils_1.filterModDefinitions(docsym.definitions(), ref, true);
+        let defs = utils_1.filterModDefinitions(docsym.definitions(), ref, utils_1.preciseCompareName);
         if (defs.length === 0) {
             return {
                 code: -6,
@@ -53,7 +53,7 @@ class RenameProvider {
 
         return {
             changes: {
-                [uri] : textEdits
+                [uri]: textEdits
             }
         };
     }
