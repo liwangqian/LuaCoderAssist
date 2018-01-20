@@ -62,6 +62,10 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 
 ## 发行记录(Release Notes)
 
+### 1.3.3
+
+- fix issue #12: fallback to vscode's default code-complete list when no defined symbol were found.
+
 ### 1.3.2
 
 - fix issue #9: add `--max-line-length` to luacheck using the `format.lineWidth` configuration.
