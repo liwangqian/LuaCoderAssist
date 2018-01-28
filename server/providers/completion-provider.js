@@ -3,6 +3,8 @@
 const langserver = require('vscode-languageserver');
 const symbol_manager = require('./lib/symbol-manager');
 const utils = require('./lib/utils');
+const utils_1 = require('../lib/symbol/utils');
+const traits_1 = require('../lib/symbol/symbol-traits');
 const uri_1 = require('vscode-uri').default;
 
 class CompletionProvider {
@@ -47,7 +49,7 @@ class CompletionProvider {
             }));
         }
 
-        this.coder.tracer.info(JSON.stringify(completionList, null, 2));
+        // this.coder.tracer.info(JSON.stringify(completionList, null, 2));
         if (completionList && completionList.length > 0) {
             return completionList;
         } else {
@@ -66,6 +68,24 @@ class CompletionProvider {
         return item;
     }
 
+    _resolveSelfKeyWord(ref, defs) {
+        if (!ref.bases || ref.bases[0] !== 'self') {
+            return;
+        }
+
+        for (let i = defs.length - 1; i >= 0; ++i) {
+            let def = defs[i];
+            if ((def.kind === traits_1.SymbolKind.function) &&
+                (utils_1.inScope(def.scope, ref.location))) {
+                ref.bases[0] = def.bases[def.bases.length - 1] || ref.bases[0];
+                this.coder.tracer.info('self resolved to ' + ref.bases[0]);
+                break;
+            }
+        }
+
+        return;
+    }
+
     _findDefInCurrentModule(uri, ref) {
         let sm = symbol_manager.instance();
         let docsym = sm.documentSymbol(uri);
@@ -77,6 +97,8 @@ class CompletionProvider {
         if (ref.bases[0] === undefined) {
             defs = (defs || []).concat(docsym.dependences());
         }
+
+        this._resolveSelfKeyWord(ref, defs);
 
         defs = utils.filterModDefinitions(defs, ref, utils.fuzzyCompareName);
 

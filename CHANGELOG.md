@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 1.3.4 @ 2018-01-28
+
+- add: resolve `self` key word to provide precise complete list, relate to issue #13
+
 ## 1.3.3 @ 2018-01-20
 
 - fix issue #12: fallback to vscode's default code-complete list when no defined symbol was found.
