@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 1.3.5 @ 2018-01-30
+
+- fixed bug #16
+
 ## 1.3.4 @ 2018-01-28
 
 - add: resolve `self` key word to provide precise complete list, relate to issue #13

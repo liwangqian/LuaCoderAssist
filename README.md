@@ -62,6 +62,10 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 
 ## 发行记录(Release Notes)
 
+### 1.3.5
+
+- fixed bug #16
+
 ### 1.3.4
 
 - add: resolve `self` key word to provide precise complete list, relate to issue #13

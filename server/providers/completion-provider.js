@@ -73,7 +73,7 @@ class CompletionProvider {
             return;
         }
 
-        for (let i = defs.length - 1; i >= 0; ++i) {
+        for (let i = defs.length - 1; i >= 0; --i) {
             let def = defs[i];
             if ((def.kind === traits_1.SymbolKind.function) &&
                 (utils_1.inScope(def.scope, ref.location))) {
