@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 1.3.6 @ 2018-01-31
+
+- add intellisense support for `self` using in function of nested table, ralate to issue #15.
+
 ## 1.3.5 @ 2018-01-30
 
 - fixed bug #16

@@ -62,6 +62,10 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 
 ## 发行记录(Release Notes)
 
+### 1.3.6
+
+- add intellisense support for `self` using in function of nested table, ralate to issue #15.
+
 ### 1.3.5
 
 - fixed bug #16

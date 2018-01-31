@@ -77,8 +77,8 @@ class CompletionProvider {
             let def = defs[i];
             if ((def.kind === traits_1.SymbolKind.function) &&
                 (utils_1.inScope(def.scope, ref.location))) {
-                ref.bases[0] = def.bases[def.bases.length - 1] || ref.bases[0];
-                this.coder.tracer.info('self resolved to ' + ref.bases[0]);
+                ref.bases = def.bases;
+                this.coder.tracer.info('self resolved to ' + ref.bases[ref.bases.length - 1]);
                 break;
             }
         }
