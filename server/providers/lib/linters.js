@@ -115,6 +115,11 @@ class Luacheck {
     }
 
     precondiction(document) {
+        const settings = this.coder.settings.luacheck;
+        if (!settings.enable) {
+            this.coder.sendDiagnostics(document.uri, []);
+            return false;
+        }
         return this._sizeCheck(document);
     }
 
@@ -122,7 +127,7 @@ class Luacheck {
         const text = document.getText();
         const maxSize = this.coder.settings.luacheck.fileSizeLimit * 1024;
         if (text.length > maxSize) {
-            this.coder.sendDiagnostics(document.uri, [this._lengthOverWarning(document.positionAt(maxSize))])
+            this.coder.sendDiagnostics(document.uri, [this._lengthOverWarning(document.positionAt(maxSize))]);
             return false;
         }
 

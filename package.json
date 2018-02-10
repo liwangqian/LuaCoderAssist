@@ -3,7 +3,7 @@
   "displayName": "LuaCoderAssist",
   "description": "lua coder assistant in javascript for vscode",
   "icon": "images/icon.png",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "publisher": "liwangqian",
   "engines": {
     "vscode": "^1.11.0"
