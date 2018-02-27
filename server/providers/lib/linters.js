@@ -11,6 +11,18 @@ const default_luacheck_executor = path_1.resolve(__dirname, '../../../3rd/luache
 const luacheck_regex = /^(.+):(\d+):(\d+)-(\d+): \(([EW])(\d+)\) (.+)$/;
 const defaultOpt = ['-m', '-t', '--no-self', '--no-color', '--codes', '--ranges', '--formatter', 'plain'];
 
+function isFileSync(aPath) {
+    try {
+        return fs_1.statSync(aPath).isFile();
+    } catch (e) {
+        if (e.code === 'ENOENT') {
+            return false;
+        } else {
+            throw e;
+        }
+    }
+}
+
 class Luacheck {
     constructor(coder) {
         this.coder = coder;
@@ -20,8 +32,8 @@ class Luacheck {
         const settings = this.coder.settings.luacheck;
         let args = [];
 
-        if (fs_1.exists(path_1.resolve(settings.configFilePath, ".luacheckrc"))) {
-            args.push('--config', settings.configFilePath);
+        if (isFileSync(path_1.resolve(settings.configFilePath, ".luacheckrc"))) {
+            args.push('--config', path_1.resolve(settings.configFilePath, ".luacheckrc"));
         } else {
             args.push('--no-config');
         }
