@@ -9,7 +9,7 @@ const symbol_manager_1 = require('./symbol-manager');
 // default to 64-bit windows luacheck.exe, from https://github.com/mpeterv/luacheck/releases
 const default_luacheck_executor = path_1.resolve(__dirname, '../../../3rd/luacheck/luacheck.exe');
 const luacheck_regex = /^(.+):(\d+):(\d+)-(\d+): \(([EW])(\d+)\) (.+)$/;
-const defaultOpt = ['-m', '-t', '--no-self', '--no-color', '--codes', '--ranges', '--formatter', 'plain'];
+const defaultOpt = ['-m', '-t', '--no-color', '--codes', '--ranges', '--formatter', 'plain'];
 
 function isFileSync(aPath) {
     try {
@@ -34,8 +34,6 @@ class Luacheck {
 
         if (isFileSync(path_1.resolve(settings.configFilePath, ".luacheckrc"))) {
             args.push('--config', path_1.resolve(settings.configFilePath, ".luacheckrc"));
-        } else {
-            args.push('--no-config');
         }
 
         if (settings.std.length > 0) {
