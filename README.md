@@ -62,6 +62,14 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 
 ## 发行记录(Release Notes)
 
+### 1.3.8
+
+- Fix file detection for the luacheck option `--config`, contribute by `FireSiku`
+- Auto detect the `.luacheckrc` file for luacheck, contribute by `Positive07`
+- Add luacheck delay to improve experience while editing a large lua file
+- Add `LuaCoderAssist.luacheck.onSave` config
+- Add `LuaCoderAssist.luacheck.onTyping` config
+
 ### 1.3.7
 
 - fix issue #17.

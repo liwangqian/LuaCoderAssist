@@ -3,7 +3,7 @@
   "displayName": "LuaCoderAssist",
   "description": "lua coder assistant in javascript for vscode",
   "icon": "images/icon.png",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "publisher": "liwangqian",
   "engines": {
     "vscode": "^1.11.0"
@@ -87,6 +87,16 @@
           "type": "boolean",
           "default": true,
           "description": "Enable/Disable luacheck for static diagnostics."
+        },
+        "LuaCoderAssist.luacheck.onSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run luacheck when file saved."
+        },
+        "LuaCoderAssist.luacheck.onTyping": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run luacheck when file changed."
         },
         "LuaCoderAssist.luacheck.execPath": {
           "type": "string",

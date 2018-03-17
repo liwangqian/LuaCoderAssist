@@ -1,12 +1,12 @@
 'use strict';
 
-const execFile  = require('child_process').execFile;
+const execFile = require('child_process').execFile;
 const linters_1 = require('./lib/linters');
 
 class DiagnosticProvider {
     constructor(coder) {
-        this.coder      = coder;
-        this.linters    = [];
+        this.coder = coder;
+        this.linters = [];
         this._lintQueue = {};
 
         this._initLinters();
@@ -21,10 +21,10 @@ class DiagnosticProvider {
         this._lintQueue[uri] = true;
 
         // fire after a while wait for more input, performance consideration
-        this._lintTask(uri);
-        // setTimeout((uri) => {
-        //     this._lintTask(uri);
-        // }, 1000, uri);
+        // this._lintTask(uri);
+        setTimeout((uri) => {
+            this._lintTask(uri);
+        }, 3000, uri);
     }
 
     _initLinters() {
@@ -43,7 +43,7 @@ class DiagnosticProvider {
 
             const command = linter.command(document);
 
-            this._lint(command, text.toString('utf8')).then(ok => {}, nok => {
+            this._lint(command, text.toString('utf8')).then(ok => { }, nok => {
                 const diagnostics = linter.parseDiagnostics(nok);
                 this.coder.sendDiagnostics(uri, diagnostics);
             });
@@ -52,11 +52,11 @@ class DiagnosticProvider {
 
     _lint(linter, input) {
         return new Promise((resolve, reject) => {
-            let proc = execFile(linter.cmd, linter.args, {cwd: linter.cwd}, (error, stdout, stderr) => {
+            let proc = execFile(linter.cmd, linter.args, { cwd: linter.cwd }, (error, stdout, stderr) => {
                 if (error != null) {
-                    reject({error: error, stdout: stdout, stderr: stderr});
+                    reject({ error: error, stdout: stdout, stderr: stderr });
                 } else {
-                    resolve({error: error, stdout: stdout, stderr: stderr});
+                    resolve({ error: error, stdout: stdout, stderr: stderr });
                 }
             });
 

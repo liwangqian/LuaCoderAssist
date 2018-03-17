@@ -96,13 +96,16 @@ class Coder {
             change.document.getText(),
             change.document.lineCount
         ).then(ok => {
-            this._diagnosticProvider.provideDiagnostics(uri);
+            if (this.settings.luacheck.onTyping) {
+                this._diagnosticProvider.provideDiagnostics(uri);
+            }
         });
     }
 
     onDidSave(params) {
-        // this.tracer.info('onDidSave');
-        // var uri = params.document.uri;
+        if (this.settings.luacheck.onSave) {
+            this._diagnosticProvider.provideDiagnostics(params.document.uri);
+        }
     }
 
     onDidChangeWatchedFiles(change) {
