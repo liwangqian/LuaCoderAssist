@@ -10,8 +10,8 @@ class LuaSymbol {
 };
 
 class LuaTypeBase {
-    constructor(typeName) {
-        this.typeName = typeName;
+    constructor(name) {
+        this.name = name;
     }
 }
 
@@ -48,58 +48,56 @@ class LuaBoolean extends LuaTypeBase {
 class LuaTable extends LuaTypeBase {
     constructor(_metatable) {
         super('table');
-        this.fields = new Map();
+        this.fields = {};
         this.metatable = _metatable;
     }
 
-    setField(key, value) {
-        if (this.fields.has(key)) {
+    set(key, value) {
+        if (this.fields[key]) {
             return;
         }
-        this.fields.set(key, value);  //TODO: 考虑重复赋值不同类型的处理
+        this.fields[key] = value;  //TODO: 考虑重复赋值不同类型的处理
     }
 
-    getField(key) {
-        return this.fields.get(key);
+    get(key) {
+        return this.fields[key];
     }
 
-    hasField(key) {
-        return this.fields.has(key);
+    has(key) {
+        return this.fields[key] != null;
     }
 
-    getMetatable() {
+    getmetatable() {
         return this.metatable;
     }
 
-    setMetatable(tbl) {
+    setmetatable(tbl) {
         this.metatable = tbl;
     }
 
-    /**
-     * Search key alone the inherit link-list
-     * @param {string} key the field name
-     * @returns \{} if not found, \{table, value} if found, and table.getField(key) == value
-     */
-    searchField(key) {
-        const search = (table) => {
-            if (!table) {
+    search(key) {
+        const _search = (table) => {
+            if (!table || !(table instanceof LuaTable)) {
                 return {};
             }
 
-            const value = table.getField(key);
+            const value = table.get(key);
             if (value) {
-                return { table, value };
+                return { parent: table, value: value };
             }
 
-            const mt = table.getMetatable();
+            const result = _search(table.__index)
+            if (result.value) return result
+
+            const mt = table.getmetatable();
             if (!mt) {
                 return {};
             }
 
-            return search(mt.__index);
+            return _search(mt.__index);
         }
 
-        return search(this);
+        return _search(this);
     }
 };
 
@@ -107,7 +105,7 @@ class LuaScope {
     constructor(range, parentScope) {
         this.parentScope = parentScope;
         this.subScopes = [];
-        this.symbols = new Map();
+        this.symbols = {};
         this.range = range;
 
         if (parentScope) {
@@ -119,33 +117,33 @@ class LuaScope {
         return this.range[0] <= range[0] && range[1] <= this.range[1];
     }
 
-    hasSymbol(name) {
-        return this.symbols.has(name);
+    has(name) {
+        return this.symbols[name] != null;
     }
 
-    getSymbol(name) {
-        return this.symbols.get(name);
+    get(name) {
+        return this.symbols[name];
     }
 
-    setSymbol(name, symbol) {
-        this.symbols.set(name, symbol);
+    set(name, symbol) {
+        this.symbols[name] = symbol;
     }
 
-    searchSymbolUp(name) {
-        const search = (scope) => {
+    search(name) {
+        const _search = (scope) => {
             if (!scope) {
                 return {};
             }
 
-            const value = scope.getSymbol(name);
+            const value = scope.get(name);
             if (value) {
-                return { scope, value };
+                return { parent: scope, value: value };
             }
 
-            return search(scope.parentScope);
+            return _search(scope.parentScope);
         }
 
-        return search(this);
+        return _search(this);
     }
 };
 
@@ -162,8 +160,8 @@ class LuaModule extends LuaTypeBase {
     constructor(range, parentScope, uri) {
         super('module');
         this.scope = new LuaScope(range, parentScope);
-        this.depends = new Map();
-        this.exports = new Map();
+        this.depends = {};
+        this.exports = {};
         this.moduleMode = false;
         this.uri = uri;
 
@@ -176,7 +174,7 @@ class LuaModule extends LuaTypeBase {
     }
 
     addDepend(name, value) {
-        this.depends.set(name, value);
+        this.depends[name] = value;
     }
 };
 
@@ -188,11 +186,26 @@ const BasicTypes = {
     bool_t: new LuaBoolean(),
 }
 
+class LazyType {
+    constructor(scope, node, name, index) {
+        this.scope = scope;
+        this.node = node;
+        this.name = name;
+        this.index = index;
+    }
+};
+
+function newType(scope, node, name, index) {
+    return new LazyType(scope, node, name, index);
+}
+
 module.exports = {
     LuaSymbol,
     BasicTypes,
     LuaTable,
     LuaScope,
     LuaFunction,
-    LuaModule
+    LuaModule,
+    LazyType,
+    newType
 };

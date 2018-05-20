@@ -1,55 +1,10 @@
 'use strict';
 
-const { LuaSymbol, BasicTypes } = require('./typedef');
-
-class LazyType {
-    constructor(scope, node, name) {
-        this.scope = scope;
-        this.node = node;
-        this.name = name;
-    }
-
-    parseLiteral(name, type, range) {
-        let symbol = new LuaSymbol(type, name, true, range);
-        this.scope.setSymbol(name, symbol);
-        return type;
-    }
-
-    deduce() {
-        let { table, value } = this.scope.searchSymbolUp(this.name);
-        if (value) {
-            if (value.type instanceof LazyType) {
-                return typeOf(value);
-            } else {
-                return value.type;
-            }
-        }
-
-        switch (this.node.type) {
-            case 'StringLiteral':
-                return this.parseLiteral(this.name, BasicTypes.string_t, this.node.range);
-            case 'NumericLiteral':
-                return this.parseLiteral(this.name, BasicTypes.number_t, this.node.range);
-            case 'BooleanLiteral':
-                return this.parseLiteral(this.name, BasicTypes.bool_t, this.node.range);
-            case 'NilLiteral':
-                return this.parseLiteral(this.name, BasicTypes.nil_t, this.node.range);
-            case 'StringCallExpression':
-            case 'CallExpression':
-                break;
-            default:
-                return this.parseLiteral(this.name, BasicTypes.unkown_t, this.node.range);
-        }
-    }
-};
-
-function newType(scope, node, name) {
-    return new LazyType(scope, node, name);
-}
+const { LuaSymbol, BasicTypes, LazyType } = require('./typedef');
 
 function typeOf(symbol) {
     if (!symbol) {
-        return null;
+        return BasicTypes.unkown_t;
     }
 
     let type = symbol.type;
@@ -57,15 +12,37 @@ function typeOf(symbol) {
         return type;
     }
 
-    let deduceType = type.deduce();
-    if (deduceType && deduceType != BasicTypes.nil_t && deduceType != BasicTypes.unkown_t) {
-        symbol.type = deduceType;
+    let typeSymbol = parseAstNode(type.node, type.name);
+    if (typeSymbol) {
+        type.scope.set(type.name, typeSymbol);
+        symbol.type = typeSymbol.type;
+        return symbol.type;
     }
 
-    return deduceType;
+    const { value } = type.scope.search(type.name);
+    return (value && value.type) || BasicTypes.unkown_t;
 }
 
+function parseAstNode(node, name) {
+    switch (node.type) {
+        case 'StringLiteral':
+            return new LuaSymbol(BasicTypes.string_t, name, true, node.range);
+        case 'NumericLiteral':
+            return new LuaSymbol(BasicTypes.number_t, name, true, node.range);
+        case 'BooleanLiteral':
+            return new LuaSymbol(BasicTypes.bool_t, name, true, node.range);
+        case 'NilLiteral':
+            return new LuaSymbol(BasicTypes.nil_t, name, true, node.range);
+        case 'StringCallExpression':
+        case 'CallExpression':
+            // return the returns of the function 
+            break;
+        default:
+            return null;
+    }
+}
+
+
 module.exports = {
-    newType,
-    typeOf,
+    typeOf
 }

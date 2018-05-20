@@ -1,26 +1,22 @@
 'use strict';
 
-const fs = require('fs')
 const luaparse = require('luaparse');
-const { LuaSymbol, LuaTable, LuaFunction, LuaModule, LuaScope, BasicTypes } = require('./typedef');
-const { newType, typeOf } = require('./typeof');
+const { LuaSymbol, LuaTable, LuaFunction, LuaModule, LuaScope, BasicTypes, newType } = require('./typedef');
 const { identName, baseName, safeName } = require('./utils');
 const LuaEnv = require('./luaenv');
 
 exports.analysis = analysis;
-exports.searchSymbol = searchSymbol;
+exports.searchSymbol = findDef;
 
 // _G
 let _G = LuaEnv.globalEnv();
 
-/** b  
- * Analysis adapt to luaparse
-*/
 function analysis(code, uri) {
     let moduleType = new LuaModule([0, code.length + 1], _G, uri);
     let theModule = new LuaSymbol(moduleType, null, false, null);
     let currentScope = null;
     let currentFunc = null;
+    let lastFunc = null;
 
     function isPlaceHolder(name) {
         return name === '_';
@@ -46,7 +42,7 @@ function analysis(code, uri) {
         let mname = param.value.match(/\w+$/)[0];
         let type = newType(currentScope, node);
         let symbol = new LuaSymbol(type, mname, true, node.range, uri);
-        currentScope.setSymbol(mname, symbol);
+        currentScope.set(mname, symbol);
         moduleType.addDepend(mname, symbol);
     }
 
@@ -65,7 +61,7 @@ function analysis(code, uri) {
             let type = getInitType(init);
             let symbol = new LuaSymbol(type, name, true, variable.range);
 
-            currentScope.setSymbol(name, symbol);
+            currentScope.set(name, symbol);
 
             walkNode(init);
         });
@@ -89,7 +85,7 @@ function analysis(code, uri) {
             }
 
             let bName = baseName(variable);
-            let { value } = currentScope.searchSymbolUp(bName || name);
+            let { value } = currentScope.search(bName || name);
             if (value && !bName) {
                 return;
             }
@@ -98,9 +94,9 @@ function analysis(code, uri) {
             let symbol = new LuaSymbol(type, name, true, variable.range);
 
             if (bName && value.type instanceof LuaTable) {
-                value.type.setField(name, symbol);
+                value.type.set(name, symbol);
             } else {
-                currentScope.setSymbol(name, symbol); //TODO: should define in _G ?
+                currentScope.set(name, symbol); //TODO: should define in _G ?
             }
 
             walkNode(init);
@@ -116,7 +112,7 @@ function analysis(code, uri) {
             let n = field.key.name;
             let t = newType(currentScope, field.value, safeName(field.value));
             let s = new LuaSymbol(t, n, true, field.key.range);
-            type.setField(n, s);
+            type.set(n, s);
 
             walkNode(field.value);
         });
@@ -136,14 +132,14 @@ function analysis(code, uri) {
         let func = new LuaSymbol(type, name, node.isLocal, range);
         let bName = baseName(node.identifier);
         if (bName) {
-            let { value } = currentScope.searchSymbolUp(bName);
+            let { value } = currentScope.search(bName);
             if (value && value.type instanceof LuaTable) {
-                value.type.setField(name, func);
+                value.type.set(name, func);
             } else {
                 //TODO: add definition as global?
             }
         } else {
-            currentScope.setSymbol(name, func);
+            currentScope.set(name, func);
         }
 
         currentScope = type.scope;
@@ -151,13 +147,14 @@ function analysis(code, uri) {
         node.parameters.forEach((param, index) => {
             let name = param.name || param.value;
             let symbol = new LuaSymbol(BasicTypes.unkown_t, name, true, param.range);
-            currentScope.setSymbol(name, symbol);
+            currentScope.set(name, symbol);
             type.args[index] = name;
         });
 
+        lastFunc = currentFunc;
         currentFunc = func;
         walkNodes(node.body);
-        currentFunc = null;
+        currentFunc = lastFunc;
         currentScope = currentScope.parentScope;
     }
 
@@ -175,11 +172,15 @@ function analysis(code, uri) {
         }
     }
 
-    function parseDoStatement(node) {
+    function parseScopeStatement(node) {
         let scope = new LuaScope(node.range, currentScope);
         currentScope = scope;
         walkNodes(node.body);
         currentScope = scope.parentScope;
+    }
+
+    function parseIfStatement(node) {
+        walkNodes(node.clauses);
     }
 
     function parseReturnStatement(node) {
@@ -188,11 +189,45 @@ function analysis(code, uri) {
             let n = 'R' + index;
             let s = new LuaSymbol(t, n, false, arg.range);
             if (currentFunc) {
+                // return from function
                 currentFunc.type.returns[index] = s;
             } else {
+                // return from module
                 theModule.type.exports = s;
             }
         });
+    }
+
+    function parseForNumericStatement(node) {
+        let scope = new LuaScope(node.range, currentScope);
+        currentScope = scope;
+
+        let variable = node.variable;
+        let name = variable.name;
+        if (!isPlaceHolder(name)) {
+            let symbol = new LuaSymbol(BasicTypes.number_t, name, true, variable.range);
+            scope.set(name, symbol);
+        }
+
+        walkNodes(node.body);
+        currentScope = scope.parentScope;
+    }
+
+    function parseForGenericStatement(node) {
+        let scope = new LuaScope(node.range, currentScope);
+        currentScope = scope;
+
+        let variables = node.variables;
+        variables.forEach((variable, index) => {
+            let name = variable.name;
+            if (!isPlaceHolder(name)) {
+                let symbol = new LuaSymbol(newType(scope, node.iterators[0], index), name, true, variable.range);
+                scope.set(name, symbol);
+            }
+        });
+
+        walkNodes(node.body);
+        currentScope = scope.parentScope;
     }
 
     function walkNodes(nodes) {
@@ -217,11 +252,25 @@ function analysis(code, uri) {
             case 'StringCallExpression':
                 parseCallExpression(node);
                 break;
+            case 'ifClause':
+            case 'ElseifClause':
+            case 'elseClause':
+            case 'WhileStatement':
+            case 'RepeatStatement':
             case 'DoStatement':
-                parseDoStatement(node);
+                parseScopeStatement(node);
+                break;
+            case 'ForNumericStatement':
+                parseForNumericStatement(node);
+                break;
+            case 'ForGenericStatement':
+                parseForGenericStatement(node);
                 break;
             case 'ReturnStatement':
                 parseReturnStatement(node);
+                break;
+            case 'IfStatement':
+                parseIfStatement(node);
                 break;
             case 'Chunk':
                 currentScope = moduleType.scope;
@@ -249,28 +298,27 @@ function analysis(code, uri) {
 
 /**
  * search definition of the symbol
- * @param {{name:string, loc:[number, number]}} symbol the symbol to search.
  */
-function searchSymbol(symbol, moduleName) {
+function findDef(ref, moduleName) {
     let rootScope = _G;
-    let theModule = _G.getSymbol(moduleName);
+    let theModule = _G.get(moduleName);
     if (theModule) {
         rootScope = theModule.type.scope;
     }
 
-    const search = (symbol, scope) => {
-        if (!scope || !scope.inScope(symbol.loc)) {
+    const _search = (name, scope) => {
+        if (!scope || !scope.inScope(ref.loc)) {
             return null;
         }
 
-        let s = scope.getSymbol(symbol.name);
+        let s = scope.get(name);
         if (s) {
             return s;
         }
 
         for (let i = 0; i < scope.subScopes.length; i++) {
             const _scope = scope.subScopes[i];
-            const _symbol = search(symbol, _scope)
+            const _symbol = _search(name, _scope)
             if (_symbol) {
                 return _symbol;
             }
@@ -279,5 +327,10 @@ function searchSymbol(symbol, moduleName) {
         return null;
     }
 
-    return search(symbol, rootScope);
+    let base0 = ref.base[0];
+    if (base0) {
+        _search(base0, rootScope);
+    }
+
+    return _search(ref, rootScope);
 }

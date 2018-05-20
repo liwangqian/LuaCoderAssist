@@ -2,25 +2,28 @@
 
 const { globalEnv } = require('./luaenv');
 const { typeOf } = require('./typeof');
-const { analysis, searchSymbol } = require('./analysis');
+const { analysis, findDef } = require('./analysis');
 const _G = globalEnv();
 
+exports.typeOf = typeOf;
 exports.analysis = _analysis;
 exports.query = _query;
 exports.complete = _complete;
 exports.globals = _G;
 
+let loaded = {};
+
 function _analysis(code, uri) {
     let res = analysis(code, uri);
-    _G.setSymbol(res.type.fileName, res);
-    _G.getSymbol('package').type.getField('loaded').type.setField(res.name, res.type.fileName);
+    _G.set(res.name, res);
+    loaded[res.type.fileName] = res;
 }
 
-function _query(name, loc, fileName) {
-    const res = searchSymbol({ name, loc }, fileName);
-    return typeOf(res);
+function _query(ref, loc, fileName) {
+    const res = findDef(ref, fileName);
+    return res;
 }
 
-function _complete(baseName, loc, fileName) {
+function _complete(name, loc, fileName) {
 
 }

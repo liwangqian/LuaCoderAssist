@@ -1,3 +1,1 @@
-local x
-
-x = 1
+local x = tostring(123)
