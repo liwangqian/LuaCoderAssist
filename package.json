@@ -226,7 +226,8 @@
     "vscode-languageclient": "^3.4.5",
     "vscode-languageserver": "^3.4.3",
     "vscode-uri": "^1.0.1",
-    "walk": "^2.3.9"
+    "walk": "^2.3.9",
+    "underscore": "^1.9.0"
   },
   "devDependencies": {
     "typescript": "^2.0.3",

@@ -1,6 +1,5 @@
 'use strict';
 
-const anonymous = '<anonymous>'
 function identName(ident) {
     if (ident) {
         return ident.name || identName(ident.identifier);

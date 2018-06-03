@@ -1,22 +1,19 @@
 'use strict';
 
-const { LuaScope, LuaTable, LuaSymbol } = require('./typedef');
+const { LuaScope, LuaTable, LuaSymbol, MultiMap } = require('./typedef');
 
-let _G = null;
+let _G = new LuaSymbol(new LuaTable(), '_G', false, null);
+_G.scope = new LuaScope([0, Infinity]);
 
-function initEnv() {
-    _G = new LuaScope([0, Infinity]);
-    let _package = new LuaSymbol(new LuaTable(), 'package', false);
-    _G.set('package', _package);
-    _package.type.set('loaded', new LuaSymbol(new LuaTable(), 'loaded', false));
+let Package = {
+    loaded: new Map(),
+    uriMap: new MultiMap()
 }
 
-exports.globalEnv = globalEnv;
+module.exports = {
+    _G,
+    Package
+};
 
-function globalEnv() {
-    if (!_G) {
-        initEnv();
-    }
 
-    return _G;
-}
+

@@ -156,10 +156,27 @@ class LuaFunction extends LuaTypeBase {
     }
 };
 
+class LuaModuleEnv extends LuaScope {
+    constructor(range, globalEnv) {
+        super(range);
+        this._G = globalEnv;
+    }
+
+    get(name) {
+        let def = super.get(name);
+        if (def) {
+            return def;
+        }
+        return this._G.type.get(name);
+    }
+
+};
+
 class LuaModule extends LuaTypeBase {
-    constructor(range, parentScope, uri) {
+    constructor(globalEnv, range, uri) {
         super('module');
-        this.scope = new LuaScope(range, parentScope);
+        this.scope = new LuaModuleEnv(range, globalEnv);
+        this.scopeStack = [];
         this.depends = {};
         this.exports = {};
         this.moduleMode = false;
@@ -199,6 +216,26 @@ function newType(scope, node, name, index) {
     return new LazyType(scope, node, name, index);
 }
 
+class MultiMap {
+    constructor() {
+        this._map = new Map();
+    }
+
+    get(key) {
+        return this._map.get(key);
+    }
+
+    set(key, val) {
+        let values = this._map.get(key) || new Set();
+        values.add(val);
+        this._map.set(key, values);
+    }
+
+    has(key) {
+        return this._map.has(key)
+    }
+};
+
 module.exports = {
     LuaSymbol,
     BasicTypes,
@@ -207,5 +244,6 @@ module.exports = {
     LuaFunction,
     LuaModule,
     LazyType,
-    newType
+    newType,
+    MultiMap
 };

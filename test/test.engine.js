@@ -1,12 +1,11 @@
 'use strict';
-
+const _ = require('underscore');
 const fs = require('fs');
 const engine = require('../server/lib/engine');
 
 //tester
 fs.readFile('./test/textures/test01.lua', (err, data) => {
-    engine.analysis(data, './textures/test01.lua');
-    console.log(engine.globals);
-    console.log(engine.globals.get('test01'));
-    console.log(engine.typeOf(engine.globals.get('test01').type.scope.symbols['x']));
+    let uri = './textures/test01.lua';
+    engine.parseDocument(data, uri);
+    console.log(engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('x.a.fd', [123, 125], uri))));
 });
