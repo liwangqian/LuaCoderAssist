@@ -9,3 +9,7 @@ function dump(tb)
 end
 
 dump(package.loaded['test01'])
+
+local x = 2
+local abcdj
+local abcdfgd

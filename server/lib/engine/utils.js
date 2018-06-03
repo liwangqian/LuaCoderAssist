@@ -20,8 +20,17 @@ function safeName(node) {
     return node.name || '@(' + node.range + ')';
 }
 
+function object2Array(obj) {
+    let array = [];
+    for (const key in obj) {
+        array.push(obj[key]);
+    }
+    return array;
+}
+
 module.exports = {
     identName,
     baseName,
-    safeName
+    safeName,
+    object2Array
 };

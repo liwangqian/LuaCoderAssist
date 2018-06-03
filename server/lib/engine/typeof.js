@@ -4,6 +4,10 @@ const _ = require('underscore');
 const { LuaSymbol, BasicTypes, LazyType, LuaFunction, LuaScope } = require('./typedef');
 const { _G, Package } = require('./luaenv');
 
+/**
+ * 
+ * @param {LuaSymbol} symbol the symbol
+ */
 function typeOf(symbol) {
     if (!symbol) {
         return BasicTypes.unkown_t;
@@ -68,7 +72,44 @@ function returnType(functionSymbol, params, index) {
 }
 
 /**
- * search definition of the symbol
+ * Search the most inner scope of range
+ * @param {LuaScope} rootScope root scope to begin search
+ * @param {Array<Number>} range [start, end]
+ */
+function searchInnerScope(rootScope, range) {
+    let targetScope = rootScope;
+    let refScope = new LuaScope(range);
+
+    /**
+     * @param {LuaScope} scope 
+     */
+    const _search = (scope) => {
+        if (!scope || !scope.inScope(range)) {
+            return;
+        }
+
+        let _scopeIndex = _.sortedIndex(scope.subScopes, refScope, (elem) => {
+            return elem.range[0] - range[0];
+        });
+
+        let _scope = scope.subScopes[_scopeIndex - 1];
+        if (!_scope) {
+            return;
+        }
+
+        targetScope = _scope;
+        return _search(_scope);
+    }
+
+    _search(rootScope);
+    return targetScope;
+}
+
+/**
+ * 
+ * @param {String} name symbol name 
+ * @param {String} uri uri of the document
+ * @param {Array<Number>} range range of the reference
  */
 function findDef(name, uri, range) {
     let theModule = Package.loaded.get(uri);
@@ -76,38 +117,14 @@ function findDef(name, uri, range) {
         return null;
     }
 
-    let refScope = new LuaScope(range);
-    let rootScope = theModule.type.scope;
-    let def = null;
-
-    const _search = (scope) => {
-        if (!scope || !scope.inScope(range)) {
-            return;
-        }
-
-        /**
-         * 查找最内层作用域的定义
-         */
-        let _scopeIndex = _.sortedIndex(scope.subScopes, refScope, (elem) => {
-            return elem.range[0] - range[0];
-        });
-
-        let _scope = scope.subScopes[_scopeIndex - 1];
-        _search(_scope);
-
-        def = def || scope.get(name);
-        return true;
-    }
-
-    _search(rootScope);
-
-    /*找不到局部作用域的定义，再找全局域*/
-    def = def || _G.type.get(name);
-    return def;
+    let scope = searchInnerScope(theModule.type.scope, range);
+    let { value } = scope.search(name);
+    return value;
 }
 
 
 module.exports = {
     typeOf,
-    findDef
+    findDef,
+    searchInnerScope
 }

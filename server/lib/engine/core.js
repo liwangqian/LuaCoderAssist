@@ -147,7 +147,6 @@ function analysis(code, uri) {
         }
 
         currentScope = type.scope;
-        moduleType.scopeStack.push(currentScope);
 
         node.parameters.forEach((param, index) => {
             let name = param.name || param.value;
@@ -180,7 +179,6 @@ function analysis(code, uri) {
     function parseScopeStatement(node) {
         let scope = new LuaScope(node.range, currentScope);
         currentScope = scope;
-        moduleType.scopeStack.push(scope);
         walkNodes(node.body);
         currentScope = scope.parentScope;
     }
@@ -207,7 +205,6 @@ function analysis(code, uri) {
     function parseForNumericStatement(node) {
         let scope = new LuaScope(node.range, currentScope);
         currentScope = scope;
-        moduleType.scopeStack.push(scope);
 
         let variable = node.variable;
         let name = variable.name;
@@ -223,7 +220,6 @@ function analysis(code, uri) {
     function parseForGenericStatement(node) {
         let scope = new LuaScope(node.range, currentScope);
         currentScope = scope;
-        moduleType.scopeStack.push(scope);
 
         let variables = node.variables;
         variables.forEach((variable, index) => {

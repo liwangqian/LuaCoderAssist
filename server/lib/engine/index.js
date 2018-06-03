@@ -2,9 +2,9 @@
 
 const { typeOf } = require('./typeof');
 const { parseDocument } = require('./analysis');
-const { CompleteContext, completionProvider } = require('./complete');
+const { CompletionContext, completionProvider } = require('./completion');
 const { DefinitionContext, definitionProvider } = require('./definition');
 
 module.exports = {
-    typeOf, parseDocument, CompleteContext, completionProvider, DefinitionContext, definitionProvider
+    typeOf, parseDocument, CompletionContext, completionProvider, DefinitionContext, definitionProvider
 };

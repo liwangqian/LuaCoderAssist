@@ -23,21 +23,22 @@ class DefinitionContext {
  * @param {DefinitionContext} context query context
  */
 function definitionProvider(context) {
-    let names = context.names;
+    const names = context.names;
+    const length = names.length;
     let def = findDef(names[0], context.uri, context.range);
     if (!def) return null;
-    if (names.length === 1) return def;
-    if (!Is.luatable(def.type)) return null;
+    if (length === 1) return def;
+    if (!Is.luatable(def.type) && !Is.luamodule(def.type)) return null;
 
-    for (let i = 1; i < names.length; i++) {
+    for (let i = 1; i < (length - 1); i++) {
         const name = names[i];
         def = def.type.get(name);
         if (!def || !Is.luatable(typeOf(def))) {
-            break;
+            return null;
         }
     }
 
-    return def;
+    return def.type.get(names[length - 1]);
 }
 
 module.exports = {

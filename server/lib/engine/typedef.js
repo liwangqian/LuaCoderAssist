@@ -1,6 +1,13 @@
 'use strict';
 
 class LuaSymbol {
+    /**
+     * 
+     * @param {LuaBoolean|LuaFunction|LuaModule|LuaNil|LuaNumber|LuaString|LuaTable|LuaUnknown|LazyType} type type of the symbol
+     * @param {String} name name of the symbol
+     * @param {Boolean} local is the symbol local
+     * @param {Array<Number>} location location of the symbol
+     */
     constructor(type, name, local, location) {
         this.type = type;
         this.name = name;
@@ -176,7 +183,6 @@ class LuaModule extends LuaTypeBase {
     constructor(globalEnv, range, uri) {
         super('module');
         this.scope = new LuaModuleEnv(range, globalEnv);
-        this.scopeStack = [];
         this.depends = {};
         this.exports = {};
         this.moduleMode = false;
