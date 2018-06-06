@@ -16,6 +16,9 @@ const signature_provider = require('./providers/signature-provider');
 const rename_provider = require('./providers/rename-provider');
 const format_provider = require('./providers/format-provider');
 const ldoc_provider = require('./providers/ldoc-provider');
+const engine = require('./lib/engine');
+const utils = require('./providers/lib/utils');
+const langserver = require('vscode-languageserver');
 
 class Coder {
     constructor() {
@@ -91,15 +94,16 @@ class Coder {
 
     onDidChangeContent(change) {
         let uri = change.document.uri;
-        symbol_manager_1.instance().parseDocument(
-            uri,
-            change.document.getText(),
-            change.document.lineCount
-        ).then(ok => {
-            if (this.settings.luacheck.onTyping) {
-                this._diagnosticProvider.provideDiagnostics(uri);
-            }
-        });
+        // symbol_manager_1.instance().parseDocument(
+        //     uri,
+        //     change.document.getText(),
+        //     change.document.lineCount
+        // ).then(ok => {
+        //     if (this.settings.luacheck.onTyping) {
+        //         this._diagnosticProvider.provideDiagnostics(uri);
+        //     }
+        // });
+        engine.parseDocument(change.document.getText(), uri, this.tracer);
     }
 
     onDidSave(params) {
@@ -139,7 +143,25 @@ class Coder {
     }
 
     provideCompletions(params) {
-        return this._completionProvider.provideCompletions(params);
+        let uri = params.textDocument.uri;
+        let position = params.position;
+        let document = this.document(uri);
+        let ref = utils.symbolAtPosition(position, document, { backward: true });
+        if (ref === undefined) {
+            return undefined;
+        }
+        this.tracer.info(JSON.stringify(ref));
+        let items = engine.completionProvider(new engine.CompletionContext(ref.name, ref.range, uri));
+        let completionItems = items.map(item => {
+            let symbol = langserver.CompletionItem.create(item.name);
+            symbol.kind = 12;
+            symbol.data = item.type.name
+            return symbol;
+        });
+
+        this.tracer.info(JSON.stringify(completionItems));
+        return completionItems;
+        // return this._completionProvider.provideCompletions(params);
     }
 
     resolveCompletion(item) {

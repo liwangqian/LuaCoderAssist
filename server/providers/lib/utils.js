@@ -174,8 +174,9 @@ function symbolAtPosition(position, doc, options) {
         return undefined;
     }
 
-    let ref = parseContext(text.substring(range.start, range.end));
-    ref.location = { start: position, end: position };    // used for scope filter
+    // let ref = parseContext(text.substring(range.start, range.end));
+    let ref = { name: text.substring(range.start, range.end), range: [range.start, range.end] };
+    // ref.location = { start: position, end: position };    // used for scope filter
 
     return ref;
 }

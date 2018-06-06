@@ -92,7 +92,7 @@ function analysis(code, uri) {
             let type = getInitType(init, index);
             let symbol = new LuaSymbol(type, name, false, variable.range);
 
-            if (bName && value.type instanceof LuaTable) {
+            if (value && value.type instanceof LuaTable) {
                 value.type.set(name, symbol);
             } else {
                 currentScope.set(name, symbol); //TODO: should define in _G ?

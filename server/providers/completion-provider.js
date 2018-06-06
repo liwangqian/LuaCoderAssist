@@ -60,11 +60,13 @@ class CompletionProvider {
     }
 
     resolveCompletion(item) {
-        let islocal = item.data.islocal
-        let detail = (islocal ? '(local ' : '') + utils.symbolKindDesc(item.data.kind) + (islocal ? ') ' : ' ');
-        detail = detail + (utils.functionSignature(item.data) || item.data.name);
+        // let islocal = item.data.islocal
+        // let detail = (islocal ? '(local ' : '') + utils.symbolKindDesc(item.data.kind) + (islocal ? ') ' : ' ');
+        // detail = detail + (utils.functionSignature(item.data) || item.data.name);
+        // item.detail = detail;
+        // item.documentation = uri_1.parse(item.data.uri).fsPath;
+        let detail = item.data;
         item.detail = detail;
-        item.documentation = uri_1.parse(item.data.uri).fsPath;
         return item;
     }
 
