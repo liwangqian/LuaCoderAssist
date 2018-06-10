@@ -1,8 +1,9 @@
 'use strict';
 
 const _ = require('underscore');
-const { LuaSymbol, BasicTypes, LazyType, LuaFunction, LuaScope } = require('./typedef');
-const { _G, Package } = require('./luaenv');
+const { LuaSymbol, BasicTypes, LazyType, LuaScope } = require('./typedef');
+const Is = require('./is');
+const { Package } = require('./luaenv');
 
 /**
  * 
@@ -13,23 +14,112 @@ function typeOf(symbol) {
         return BasicTypes.unkown_t;
     }
 
-    let type = symbol.type;
+    let type = deduceType(symbol.type);
+    symbol.type = type;
+    return type;
+}
+
+function deduceType(type) {
     if (!(type instanceof LazyType)) {
         return type;
     }
 
-    let typeSymbol = parseAstNode(type.node, type.name);
-    if (typeSymbol) {
-        type.scope.set(type.name, typeSymbol);
-        symbol.type = typeSymbol.type;
-        return symbol.type;
+    const { value } = type.scope.search(type.name);
+    let namedType = value && value.type;
+    if (namedType) {
+        return namedType;
     }
 
-    const { value } = type.scope.search(type.name);
-    return (value && value.type) || BasicTypes.unkown_t;
+    let typeSymbol = parseAstNode(type.node, type);
+    return typeSymbol && typeSymbol.type || BasicTypes.unkown_t;
 }
 
-function parseAstNode(node, name) {
+function mergeType(left, right) {
+    let leftType = deduceType(left);
+    let rightType = deduceType(right);
+
+    return typeScore(leftType) > typeScore(rightType) ? leftType : rightType;
+}
+
+function typeScore(t) {
+    if (Is.luaany(t)) {
+        return 0;
+    } else if (Is.luaboolean(t) || Is.luanumber(t) || Is.luastring(t)) {
+        return 1;
+    } else if (Is.luafunction(t)) {
+        return 2;
+    } else if (Is.luatable(t)) {
+        return 3;
+    } else if (Is.luamodule(t)) {
+        return 4;
+    } else {
+        return 0;
+    }
+}
+
+function parseLogicalExpression(node, type) {
+    const scope = type.scope;
+    const name = type.name;
+    if (node.operator === 'and') {
+        return parseLogicalExpression(node.right, type);
+    } else if (node.operator === 'or') {
+        let leftNode = parseLogicalExpression(node.left, type);
+        let rightNode = parseLogicalExpression(node.right, type);
+        return {
+            type: 'MergeType',
+            left: new LazyType(scope, leftNode, name),
+            right: new LazyType(scope, rightNode, name)
+        };
+    } else {
+        return node;
+    }
+}
+
+function extractBasesName(node) {
+    let bases = [];
+    const _walk = (base) => {
+        if (!base) return;
+        _walk(base.base);
+        bases.push(base.name || base.identifier.name);
+    }
+    _walk(node);
+    return bases;
+}
+
+function parseCallExpression(node, type) {
+    let def = parseMemberExpression(node.base, type);
+    if (!Is.luafunction(typeOf(def))) {
+        return null;
+    }
+
+    let R = def.type.returns[type.index || 0];
+    typeOf(R); //deduce the type
+    return R;
+}
+
+function parseMemberExpression(node, type) {
+    let names = extractBasesName(node);
+    let name = names[0];
+    let { value } = type.scope.search(name);
+    if (!value) {
+        return null;
+    }
+
+    let def = value;
+    for (let i = 1, size = names.length; i < size; ++i) {
+        let t = typeOf(def);
+        if (!def || !(Is.luatable(t) || Is.luamodule(t))) {
+            return null;
+        }
+        const name = names[i];
+        def = t.get(name);
+    }
+
+    return def;
+}
+
+function parseAstNode(node, type) {
+    const name = type.name;
     switch (node.type) {
         case 'StringLiteral':
             return new LuaSymbol(BasicTypes.string_t, name, true, node.range);
@@ -39,35 +129,17 @@ function parseAstNode(node, name) {
             return new LuaSymbol(BasicTypes.bool_t, name, true, node.range);
         case 'NilLiteral':
             return new LuaSymbol(BasicTypes.nil_t, name, true, node.range);
+        case 'MemberExpression':
+            return parseMemberExpression(node, type);
         case 'StringCallExpression':
         case 'CallExpression':
-            // return the returns of the function 
-            if (node.base.name === 'tostring') {
-                return new LuaSymbol(BasicTypes.string_t, name, true, node.range);
-            }
-            break;
+            return parseCallExpression(node, type);
+        case 'LogicalExpression':
+            return parseAstNode(parseLogicalExpression(node, type), type);
+        case 'MergeType':
+            return new LuaSymbol(mergeType(node.left, node.right), name, true, node.range);
         default:
             return null;
-    }
-}
-
-function returnType(functionSymbol, params, index) {
-    if (!(functionSymbol instanceof LuaSymbol)) {
-        return BasicTypes.unkown_t;
-    }
-
-    if (!(functionSymbol.type instanceof LuaFunction)) {
-        return BasicTypes.unkown_t;
-    }
-
-    switch (functionSymbol.name) {
-        case 'require':
-            let mname = params[0];
-
-            break;
-
-        default:
-            break;
     }
 }
 

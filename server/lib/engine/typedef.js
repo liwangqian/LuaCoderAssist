@@ -24,13 +24,13 @@ class LuaTypeBase {
 
 class LuaUnknown extends LuaTypeBase {
     constructor() {
-        super('unknown');
+        super('any');
     }
 };
 
 class LuaNil extends LuaTypeBase {
     constructor() {
-        super('nil');
+        super('any');
     }
 };
 
@@ -161,6 +161,10 @@ class LuaFunction extends LuaTypeBase {
         this.returns = [];
         this.args = [];
     }
+
+    get() {
+        return this.returns[0];
+    }
 };
 
 class LuaModuleEnv extends LuaScope {
@@ -194,6 +198,14 @@ class LuaModule extends LuaTypeBase {
          */
         let matchs = uri.match(/(\w+)(\.lua)?$/);
         this.fileName = matchs[1];
+    }
+
+    get(key) {
+        return this.exports[key];
+    }
+
+    set(key, value) {
+        this.exports[key] = value;
     }
 
     addDepend(name, value) {

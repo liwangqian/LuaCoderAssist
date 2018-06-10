@@ -46,6 +46,7 @@ function analysis(code, uri) {
     }
 
     function parseLocalStatement(node) {
+        let prevInit = node.init[0];
         node.variables.forEach((variable, index) => {
             let name = variable.name;
             if (isPlaceHolder(name)) {
@@ -53,16 +54,14 @@ function analysis(code, uri) {
             }
 
             let init = node.init[index];
-            if (isInitWithNil(init)) {
-                return;
-            }
+            prevInit = init || prevInit;
 
-            let type = getInitType(init, index);
+            let type = getInitType(prevInit, index);
             let symbol = new LuaSymbol(type, name, true, variable.range);
 
             currentScope.set(name, symbol);
 
-            walkNode(init);
+            init && walkNode(init);
         });
     }
 
@@ -139,6 +138,10 @@ function analysis(code, uri) {
             let { value } = currentScope.search(bName);
             if (value && value.type instanceof LuaTable) {
                 value.type.set(name, func);
+                if (node.identifier.indexer === ':') {
+                    let _self = new LuaSymbol(value.type, 'self', true, range);
+                    type.scope.set('self', _self);
+                }
             } else {
                 //TODO: add definition as global?
             }
@@ -189,7 +192,7 @@ function analysis(code, uri) {
 
     function parseReturnStatement(node) {
         node.arguments.forEach((arg, index) => {
-            let t = newType(currentScope, arg, safeName(arg));
+            let t = getInitType(arg, index);
             let n = 'R' + index;
             let s = new LuaSymbol(t, n, false, arg.range);
             if (currentFunc) {
@@ -199,6 +202,8 @@ function analysis(code, uri) {
                 // return from module
                 theModule.type.exports = s;
             }
+
+            walkNode(arg);
         });
     }
 
@@ -256,9 +261,9 @@ function analysis(code, uri) {
             case 'StringCallExpression':
                 parseCallExpression(node);
                 break;
-            case 'ifClause':
+            case 'IfClause':
             case 'ElseifClause':
-            case 'elseClause':
+            case 'ElseClause':
             case 'WhileStatement':
             case 'RepeatStatement':
             case 'DoStatement':

@@ -9,6 +9,7 @@ const traits_1 = require('../../lib/symbol/symbol-traits');
 const utils_1 = require('../../lib/symbol/utils');
 const symbol_manager = require('./symbol-manager');
 const file_manager = require('./file-manager');
+const engine = require('../../lib/engine');
 
 function searchFile(startpath, options, onFile, onEnd) {
     var emitter = walk_1.walk(startpath, options);
@@ -84,24 +85,12 @@ exports.mapSymbolKind = mapSymbolKind;
 
 function mapToCompletionKind(kind) {
     switch (kind) {
-        case traits_1.SymbolKind.variable:
-            return langserver_1.CompletionItemKind.Variable;
-        case traits_1.SymbolKind.parameter:
-            return langserver_1.CompletionItemKind.Property;
-        case traits_1.SymbolKind.reference:
-            return langserver_1.CompletionItemKind.Reference;
-        case traits_1.SymbolKind.function:
-            return langserver_1.CompletionItemKind.Function;
-        case traits_1.SymbolKind.class:
+        case 'table':
             return langserver_1.CompletionItemKind.Class;
-        case traits_1.SymbolKind.module:
+        case 'function':
+            return langserver_1.CompletionItemKind.Function;
+        case 'module':
             return langserver_1.CompletionItemKind.Module;
-        case traits_1.SymbolKind.dependence:
-            return langserver_1.CompletionItemKind.Module;
-        case traits_1.SymbolKind.property:
-            return langserver_1.CompletionItemKind.Property;
-        case traits_1.SymbolKind.label:
-            return langserver_1.CompletionItemKind.Enum;
         default:
             return langserver_1.CompletionItemKind.Variable;
     }
@@ -183,13 +172,23 @@ function symbolAtPosition(position, doc, options) {
 
 exports.symbolAtPosition = symbolAtPosition;
 
-function functionSignature(symbol) {
-    if (symbol.kind != traits_1.SymbolKind.function) {
-        return undefined;
+function functionSignature(symbol, details) {
+    let type = symbol.type;
+    if (type.name != 'function') {
+        details.push(symbol.name);
+        details.push(' : ', type.name);
+        return;
     }
-    let baseName = symbol.bases[symbol.bases.length - 1];
-    let signature = (baseName ? (baseName + '.') : '') + symbol.name + '(' + symbol.params.join(', ') + ')';
-    return signature;
+
+    let ret = type.returns.map(item => {
+        let typeName = engine.typeOf(item).name;
+        typeName = typeName.startsWith('@') ? 'any' : typeName;
+        return typeName;
+    });
+
+    details.push('function ', symbol.name);
+    details.push('(' + type.args.join(', ') + ') : ');
+    details.push(ret.length == 0 ? 'void' : ret.join(','));
 }
 
 exports.functionSignature = functionSignature;

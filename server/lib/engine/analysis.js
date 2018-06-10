@@ -9,7 +9,7 @@ function parseDocument(code, uri, logger) {
         Package.loaded.set(uri, m);
         Package.uriMap.set(m.name, uri);
     } catch (err) {
-        logger.error(err);
+        logger.error(JSON.stringify(err));
     }
 }
 
