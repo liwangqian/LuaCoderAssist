@@ -47,6 +47,7 @@ function analysis(code, uri) {
 
     function parseLocalStatement(node) {
         let prevInit = node.init[0];
+        let prevInitIndex = 0;
         node.variables.forEach((variable, index) => {
             let name = variable.name;
             if (isPlaceHolder(name)) {
@@ -55,8 +56,9 @@ function analysis(code, uri) {
 
             let init = node.init[index];
             prevInit = init || prevInit;
+            let idx = init ? index : (index - prevInitIndex); // in case: local x, y, z = true, abc()
 
-            let type = getInitType(prevInit, index);
+            let type = getInitType(prevInit, idx);
             let symbol = new LuaSymbol(type, name, true, variable.range);
 
             currentScope.set(name, symbol);
