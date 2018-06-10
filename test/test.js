@@ -28,3 +28,10 @@ do {
 } while ((scope = scope.parent));
 
 console.log(symbols);
+
+try {
+    let unk = null;
+    let xx = unk.abc;
+} catch (err) {
+    console.log(err.stack);
+}

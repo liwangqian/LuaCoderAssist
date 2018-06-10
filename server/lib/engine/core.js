@@ -26,6 +26,9 @@ function analysis(code, uri) {
     }
 
     function getInitType(init, index) {
+        if (!init) {
+            return null;
+        }
         if (init.type === 'TableConstructorExpression') {
             return parseTableConstructorExpression(init);
         } else {
@@ -56,7 +59,11 @@ function analysis(code, uri) {
 
             let init = node.init[index];
             prevInit = init || prevInit;
-            let idx = init ? index : (index - prevInitIndex); // in case: local x, y, z = true, abc()
+            if (init) {
+                prevInitIndex = index;
+            }
+
+            let idx = index - prevInitIndex; // in case: local x, y, z = true, abc()
 
             let type = getInitType(prevInit, idx);
             let symbol = new LuaSymbol(type, name, true, variable.range);
