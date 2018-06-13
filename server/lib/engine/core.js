@@ -3,6 +3,7 @@
 const luaparse = require('luaparse');
 const { LuaSymbol, LuaTable, LuaFunction, LuaModule, LuaScope, BasicTypes, newType } = require('./typedef');
 const { identName, baseName, safeName } = require('./utils');
+const Is = require('./is');
 const LuaEnv = require('./luaenv');
 
 exports.analysis = analysis;
@@ -21,14 +22,8 @@ function analysis(code, uri) {
         return name === '_';
     }
 
-    function isInitWithNil(init) {
-        return !init || init.name === 'nil';
-    }
-
     function getInitType(init, index) {
-        if (!init) {
-            return null;
-        }
+        if (!init) return BasicTypes.any_t;
         if (init.type === 'TableConstructorExpression') {
             return parseTableConstructorExpression(init);
         } else {
@@ -62,9 +57,7 @@ function analysis(code, uri) {
             if (init) {
                 prevInitIndex = index;
             }
-
             let idx = index - prevInitIndex; // in case: local x, y, z = true, abc()
-
             let type = getInitType(prevInit, idx);
             let symbol = new LuaSymbol(type, name, true, variable.range);
 
@@ -75,10 +68,13 @@ function analysis(code, uri) {
     }
 
     function parseAssignmentStatement(node) {
+        let prevInit = node.init[0];
+        let prevInitIndex = 0;
         node.variables.forEach((variable, index) => {
+            let init = node.init[index];
             let name = identName(variable);
             if (!name) {
-                walkNode(node.init[index]);
+                walkNode(init);
                 return;
             }
 
@@ -86,22 +82,26 @@ function analysis(code, uri) {
                 return;
             }
 
-            let init = node.init[index];
-            if (isInitWithNil(init)) {
-                return;
+            prevInit = init || prevInit;
+            if (init) {
+                prevInitIndex = index;
             }
-
+            let idx = index - prevInitIndex; // in case: x, y, z = true, abc()
             let bName = baseName(variable);
             let { value } = currentScope.search(bName || name);
-            if (value && !bName) {
+            if (value && !Is.luaany(value.type) && !bName) {
                 return;
             }
 
-            let type = getInitType(init, index);
+            let type = getInitType(init, idx);
             let symbol = new LuaSymbol(type, name, false, variable.range);
 
-            if (value && value.type instanceof LuaTable) {
-                value.type.set(name, symbol);
+            if (value) {
+                if (Is.luatable(value.type)) {
+                    value.type.set(name, symbol);
+                } else {
+                    value.type = type;
+                }
             } else {
                 currentScope.set(name, symbol); //TODO: should define in _G ?
                 if (moduleType.moduleMode) {
@@ -162,7 +162,7 @@ function analysis(code, uri) {
 
         node.parameters.forEach((param, index) => {
             let name = param.name || param.value;
-            let symbol = new LuaSymbol(BasicTypes.unkown_t, name, true, param.range);
+            let symbol = new LuaSymbol(BasicTypes.any_t, name, true, param.range);
             currentScope.set(name, symbol);
             type.args[index] = name;
         });
@@ -180,11 +180,17 @@ function analysis(code, uri) {
             let mname = (node.argument || node.arguments[0]).value;
             theModule.name = mname;
             moduleType.moduleMode = true;
-        } else if (fname === 'require') {
-            let param = (node.argument || node.arguments[0]);
-            parseDependence(node, param);
-        } else if (fname === 'pcall' && node.arguments[0].value === 'require') {
-            parseDependence(node, node.arguments[1]);
+        }
+
+        if (moduleType.moduleMode) {
+            if (fname === 'require') {
+                let param = (node.argument || node.arguments[0]);
+                parseDependence(node, param);
+            } else if (fname === 'pcall' && node.arguments[0].value === 'require') {
+                parseDependence(node, node.arguments[1]);
+            } else {
+                //empty
+            }
         }
     }
 
@@ -253,6 +259,7 @@ function analysis(code, uri) {
     }
 
     function walkNode(node) {
+        if (!node) return;
         switch (node.type) {
             case 'AssignmentStatement':
                 parseAssignmentStatement(node);

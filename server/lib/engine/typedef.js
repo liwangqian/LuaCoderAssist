@@ -22,13 +22,7 @@ class LuaTypeBase {
     }
 }
 
-class LuaUnknown extends LuaTypeBase {
-    constructor() {
-        super('any');
-    }
-};
-
-class LuaNil extends LuaTypeBase {
+class LuaAny extends LuaTypeBase {
     constructor() {
         super('any');
     }
@@ -214,8 +208,7 @@ class LuaModule extends LuaTypeBase {
 };
 
 const BasicTypes = {
-    unkown_t: new LuaUnknown(),
-    nil_t: new LuaNil(),
+    any_t: new LuaAny(),
     number_t: new LuaNumber(),
     string_t: new LuaString(),
     bool_t: new LuaBoolean(),

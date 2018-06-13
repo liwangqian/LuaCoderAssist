@@ -35,7 +35,7 @@ function luanumber(t) {
 }
 
 function luaany(t) {
-    return t === BasicTypes.nil_t || t === BasicTypes.unkown_t;
+    return t === BasicTypes.any_t;
 }
 
 

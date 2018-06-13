@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('underscore');
-const { LuaSymbol, BasicTypes, LazyType, LuaScope } = require('./typedef');
+const { BasicTypes, LazyType, LuaScope } = require('./typedef');
 const Is = require('./is');
 const { Package } = require('./luaenv');
 
@@ -11,12 +11,18 @@ const { Package } = require('./luaenv');
  */
 function typeOf(symbol) {
     if (!symbol) {
-        return BasicTypes.unkown_t;
+        return BasicTypes.any_t;
     }
 
-    let type = deduceType(symbol.type);
-    symbol.type = type;
-    return type;
+    let type
+    try {
+        type = deduceType(symbol.type);
+    } catch (err) {
+        type = BasicTypes.any_t;
+    }
+
+    symbol.type = deduceType(type); // once again
+    return symbol.type;
 }
 
 function deduceType(type) {
@@ -31,7 +37,7 @@ function deduceType(type) {
     }
 
     let typeSymbol = parseAstNode(type.node, type);
-    return typeSymbol && typeSymbol.type || BasicTypes.unkown_t;
+    return typeSymbol || BasicTypes.any_t;
 }
 
 function mergeType(left, right) {
@@ -71,7 +77,7 @@ function parseLogicalExpression(node, type) {
             right: new LazyType(scope, rightNode, name)
         };
     } else {
-        return node;
+        return null;
     }
 }
 
@@ -87,14 +93,13 @@ function extractBasesName(node) {
 }
 
 function parseCallExpression(node, type) {
-    let def = parseMemberExpression(node.base, type);
-    if (!Is.luafunction(typeOf(def))) {
+    let ftype = parseMemberExpression(node.base, type);
+    if (!Is.luafunction(ftype)) {
         return null;
     }
 
-    let R = def.type.returns[type.index || 0];
-    typeOf(R); //deduce the type
-    return R;
+    let R = ftype.returns[type.index || 0];
+    return typeOf(R); //deduce the type
 }
 
 function parseMemberExpression(node, type) {
@@ -115,20 +120,57 @@ function parseMemberExpression(node, type) {
         def = t.get(name);
     }
 
-    return def;
+    return def.type;
+}
+
+function parseUnaryExpression(node, type) {
+    switch (node.operator) {
+        case '-': // -123
+            return BasicTypes.number_t;
+        case 'not': // not x
+            return BasicTypes.bool_t;
+        default:
+            return null;
+    }
+}
+
+function parseBinaryExpression(node, type) {
+    switch (node.operator) {
+        case '..':
+            return BasicTypes.string_t;
+        case '+':
+        case '-':
+        case '*':
+        case '^':
+        case '/':
+        case '%':
+            return parseAstNode(node.right, type);
+        default:
+            return null;
+    }
+}
+
+function parseIdentifier(node, type) {
+    let { value } = type.scope.search(node.name);
+    return value && value.type;
 }
 
 function parseAstNode(node, type) {
-    const name = type.name;
     switch (node.type) {
         case 'StringLiteral':
-            return new LuaSymbol(BasicTypes.string_t, name, true, node.range);
+            return BasicTypes.string_t;
         case 'NumericLiteral':
-            return new LuaSymbol(BasicTypes.number_t, name, true, node.range);
+            return BasicTypes.number_t;
         case 'BooleanLiteral':
-            return new LuaSymbol(BasicTypes.bool_t, name, true, node.range);
+            return BasicTypes.bool_t;
         case 'NilLiteral':
-            return new LuaSymbol(BasicTypes.nil_t, name, true, node.range);
+            return BasicTypes.any_t;
+        case 'Identifier':
+            return parseIdentifier(node, type);
+        case 'UnaryExpression':
+            return parseUnaryExpression(node, type);
+        case 'BinaryExpression':
+            return parseBinaryExpression(node, type);
         case 'MemberExpression':
             return parseMemberExpression(node, type);
         case 'StringCallExpression':
@@ -137,7 +179,7 @@ function parseAstNode(node, type) {
         case 'LogicalExpression':
             return parseAstNode(parseLogicalExpression(node, type), type);
         case 'MergeType':
-            return new LuaSymbol(mergeType(node.left, node.right), name, true, node.range);
+            return mergeType(node.left, node.right);
         default:
             return null;
     }
