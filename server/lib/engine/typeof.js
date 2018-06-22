@@ -71,11 +71,11 @@ function parseLogicalExpression(node, type) {
     } else if (node.operator === 'or') {
         let leftNode = parseLogicalExpression(node.left, type);
         let rightNode = parseLogicalExpression(node.right, type);
-        return {
+        return parseAstNode({
             type: 'MergeType',
             left: new LazyType(scope, leftNode, name),
             right: new LazyType(scope, rightNode, name)
-        };
+        }, type);
     } else {
         return null;
     }
@@ -123,8 +123,9 @@ function parseMemberExpression(node, type) {
     return def.type;
 }
 
-function parseUnaryExpression(node, type) {
+function parseUnaryExpression(node) {
     switch (node.operator) {
+        case '#':
         case '-': // -123
             return BasicTypes.number_t;
         case 'not': // not x
@@ -138,6 +139,13 @@ function parseBinaryExpression(node, type) {
     switch (node.operator) {
         case '..':
             return BasicTypes.string_t;
+        case '==':
+        case '~=':
+        case '>':
+        case '<':
+        case '>=':
+        case '<=':
+            return BasicTypes.bool_t;
         case '+':
         case '-':
         case '*':
@@ -156,6 +164,7 @@ function parseIdentifier(node, type) {
 }
 
 function parseAstNode(node, type) {
+    if (!node) return null;
     switch (node.type) {
         case 'StringLiteral':
             return BasicTypes.string_t;
@@ -177,7 +186,7 @@ function parseAstNode(node, type) {
         case 'CallExpression':
             return parseCallExpression(node, type);
         case 'LogicalExpression':
-            return parseAstNode(parseLogicalExpression(node, type), type);
+            return parseLogicalExpression(node, type);
         case 'MergeType':
             return mergeType(node.left, node.right);
         default:
