@@ -22,7 +22,48 @@ class Coder {
         this.workspaceRoot = undefined;
         this.conn = undefined;
         this.documents = undefined;
-        this.settings = undefined;
+        this.settings = {
+            luacheck: {
+                enable: true,
+                onSave: true,
+                onTyping: true,
+                execPath: null,
+                std: ["lua51", "busted"],
+                ignore: [],
+                jobs: 1,
+                fileSizeLimit: 100,
+                maxProblems: 250,
+                configFilePath: "",
+                keepAfterClosed: true
+            },
+            search: {
+                filters: [],
+                externalPaths: [],
+                followLinks: false
+            },
+            luaparse: {
+                luaversion: "5.1",
+                allowDefined: false
+            },
+            symbol: {
+                showFunctionGlobalOnly: true
+            },
+            format: {
+                lineWidth: 120,
+                indentCount: 4,
+                quotemark: "single"
+            },
+            ldoc: {
+                authorInFunctionLevel: true,
+                authorName: "",
+            },
+            metric: {
+                enable: true,
+                logicalLineMax: 50,
+                physicalLineMax: 80,
+                cyclomaticMax: 10,
+                maintainabilityMin: 60
+            }};
         this.tracer = tracer_1.instance();
 
         this._initialized = false;
@@ -74,19 +115,20 @@ class Coder {
     }
 
     onDidChangeConfiguration(change) {
-        let settings = change.settings.LuaCoderAssist;
-        this.settings = settings;
+        if (change.settings && change.settings.LuaCoderAssist) {
+            this.settings = change.settings.LuaCoderAssist;
+        }
         let fileManager = file_manager_1.instance();
         fileManager.reset();
 
         if (this.workspaceRoot) {
-            fileManager.setRoots(settings.search.externalPaths.concat(this.workspaceRoot));
+            fileManager.setRoots(this.settings.search.externalPaths.concat(this.workspaceRoot));
         }
 
-        fileManager.searchFiles(settings.search, ".lua");
+        fileManager.searchFiles(this.settings.search, ".lua");
 
         // todo:
-        symbol_manager_1.instance().updateOptions(settings);
+        symbol_manager_1.instance().updateOptions(this.settings);
     }
 
     onDidChangeContent(change) {
@@ -187,6 +229,10 @@ class Coder {
         if (!this.settings.luacheck.keepAfterClosed) {
             this.sendDiagnostics(doc.uri, []);
         }
+    }
+
+    onWillSaveWaitUntil(params) {
+        return false;
     }
 };
 
