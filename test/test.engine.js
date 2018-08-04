@@ -18,14 +18,14 @@ class Logger {
 fs.readFile('./test/textures/test01.lua', (err, data) => {
     let uri = './textures/test01.lua';
     engine.parseDocument(data, uri, new Logger());
-    let x = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('z0', [300, 310], uri)));
+    let x = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('x.abc.d', [591, 604], uri)));
     // let y = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('y', [211, 213], uri)));
     // let xx = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('xx', [233, 236], uri)));
     console.log(x);
     // console.log(y);
     // console.log(xx);
     // console.log(engine.typeOf(def.returns[1]));
-    // const completionItems = engine.completionProvider(new engine.CompletionContext('x.', [138, 138], uri));
-    // console.log(completionItems);
-    // console.log(engine.typeOf(completionItems[0]));
+    const completionItems = engine.completionProvider(new engine.CompletionContext('pri', [492, 495], uri));
+    console.log(completionItems);
+    console.log(engine.typeOf(completionItems[0]));
 });

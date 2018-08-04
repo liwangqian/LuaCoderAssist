@@ -1,13 +1,9 @@
 'use strict';
 
-const { LuaScope, LuaFunction, LuaModule, LuaSymbol, LuaTable, BasicTypes } = require('./typedef');
+const { LuaFunction, LuaModule, LuaSymbol, LuaTable, BasicTypes, LazyType } = require('./typedef');
 
 function luatable(t) {
     return t instanceof LuaTable;
-}
-
-function luascope(t) {
-    return t instanceof LuaScope;
 }
 
 function luafunction(t) {
@@ -38,7 +34,10 @@ function luaany(t) {
     return t === BasicTypes.any_t;
 }
 
+function lualazy(t) {
+    return t instanceof LazyType;
+}
 
 module.exports = {
-    luafunction, luamodule, luascope, luasymbol, luatable, luastring, luanumber, luaboolean, luaany
+    luafunction, luamodule, luasymbol, luatable, luastring, luanumber, luaboolean, luaany, lualazy
 };

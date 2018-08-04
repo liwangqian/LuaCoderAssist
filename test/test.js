@@ -29,9 +29,27 @@ do {
 
 console.log(symbols);
 
-try {
-    let unk = null;
-    let xx = unk.abc;
-} catch (err) {
-    console.log(err.stack);
+// try {
+//     let unk = null;
+//     let xx = unk.abc;
+// } catch (err) {
+//     console.log(err.stack);
+// }
+
+class Tester {
+    constructor() { }
+
+    print(xx, yy) {
+        console.log(xx);
+        console.log(yy);
+    }
+
+    print(xx) {
+        console.log(xx);
+    }
+
 }
+
+(new Tester()).print(123, 34);
+
+console.log('abc.xyz:'.endsWith(':'));

@@ -1,9 +1,10 @@
 'use strict';
 
-const { LuaScope, LuaTable, LuaSymbol, MultiMap } = require('./typedef');
+const { LuaTable, LuaSymbol, MultiMap } = require('./typedef');
+// const { Scope } = require('./linear-stack');
+
 
 let _G = new LuaSymbol(new LuaTable(), '_G', false, null);
-_G.scope = new LuaScope([0, Infinity]);
 
 let Package = {
     loaded: new Map(),

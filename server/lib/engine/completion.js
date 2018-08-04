@@ -2,7 +2,8 @@
 
 const { Package } = require('./luaenv');
 const { object2Array } = require('./utils');
-const { typeOf, findDef, searchInnerScope } = require('./typeof');
+const { typeOf, searchInnerStackIndex } = require('./typeof');
+const { ScopeEnd } = require('./linear-stack');
 const Is = require('./is');
 
 class CompletionContext {
@@ -17,6 +18,7 @@ class CompletionContext {
         this.names = expr.trim().split(/[\.\:]/);
         this.range = range;
         this.uri = uri;
+        this.functionOnly = expr.endsWith(':');
     }
 };
 
@@ -31,20 +33,31 @@ function completionProvider(context) {
         return [];
     }
 
-    let scope = searchInnerScope(theModule.type.scope, context.range);
+    let stack = theModule.type.stack;
+    let index = searchInnerStackIndex(stack, context.range);
+    let skipNode = (node) => ScopeEnd.is(node);
+
+    if (index === 0) {
+        return [];
+    }
 
     //Case: abc
     if (namesLength === 1) {
         let symbols = [];
-        do {
-            symbols.push(...object2Array(scope.symbols));
-        } while ((scope = scope.parentScope));
+        let node = stack.nodes[index - 1];
+        while (node) {
+            !skipNode(node) && symbols.push(node.data);
+            node = node._prevNode;
+        };
         return symbols;
     }
 
     //Case: abc.x or abc.xy:z ...
     //TODO: support abc().xx
-    let { value } = scope.search(context.names[0]);
+    const name = context.names[0];
+    let value = stack.search((S) => {
+        return (S.name === name) && (!S.local || S.location[1] <= context.range[0])
+    }, index);
     if (!Is.luatable(typeOf(value)) && !Is.luamodule(value)) {
         return [];
     }
@@ -59,7 +72,8 @@ function completionProvider(context) {
         }
     }
 
-    return object2Array(def.type.fields || def.type.exports);
+    const filter = item => context.functionOnly && !Is.luafunction(item.type);
+    return object2Array(def.type.fields || def.type.exports, filter);
 }
 
 module.exports = {

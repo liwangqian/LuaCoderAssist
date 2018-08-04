@@ -1,8 +1,10 @@
 'use strict';
 
 const luaparse = require('luaparse');
-const { LuaSymbol, LuaTable, LuaFunction, LuaModule, LuaScope, BasicTypes, newType } = require('./typedef');
-const { identName, baseName, safeName } = require('./utils');
+const { LuaSymbol, LuaTable, LuaFunction, LuaModule, BasicTypes, newType, LuaContext } = require('./typedef');
+const { typeOf } = require('./typeof');
+const { Scope } = require('./linear-stack');
+const { identName, baseName, baseNames, safeName, directParent } = require('./utils');
 const Is = require('./is');
 const LuaEnv = require('./luaenv');
 
@@ -12,11 +14,12 @@ exports.analysis = analysis;
 let _G = LuaEnv._G;
 
 function analysis(code, uri) {
-    let moduleType = new LuaModule(_G, [0, code.length + 1], uri);
+    let moduleType = new LuaModule(uri);
     let theModule = new LuaSymbol(moduleType, null, false, null);
-    let currentScope = null;
+    let currentScope = new Scope(moduleType.stack);
+    let stack = moduleType.stack;
+    let funcStack = [];
     let currentFunc = null;
-    let lastFunc = null;
 
     function isPlaceHolder(name) {
         return name === '_';
@@ -27,7 +30,7 @@ function analysis(code, uri) {
         if (init.type === 'TableConstructorExpression') {
             return parseTableConstructorExpression(init);
         } else {
-            return newType(currentScope, init, safeName(init), index);
+            return newType(new LuaContext(moduleType), init, safeName(init), index);
         }
     }
 
@@ -36,11 +39,9 @@ function analysis(code, uri) {
             return;
         }
 
-        let mname = param.value.match(/\w+$/)[0];
-        let type = newType(currentScope, node);
-        let symbol = new LuaSymbol(type, mname, true, node.range, uri);
-        currentScope.set(mname, symbol);
-        moduleType.addDepend(mname, symbol);
+        let name = param.value.match(/\w+$/)[0];
+        let symbol = newType(new LuaContext(moduleType), node, name);
+        moduleType.import(symbol);
     }
 
     function parseLocalStatement(node) {
@@ -60,8 +61,7 @@ function analysis(code, uri) {
             let idx = index - prevInitIndex; // in case: local x, y, z = true, abc()
             let type = getInitType(prevInit, idx);
             let symbol = new LuaSymbol(type, name, true, variable.range);
-
-            currentScope.set(name, symbol);
+            currentScope.push(symbol);
 
             init && walkNode(init);
         });
@@ -82,30 +82,41 @@ function analysis(code, uri) {
                 return;
             }
 
+            // in case: x, y, z = true, abc()
             prevInit = init || prevInit;
             if (init) {
                 prevInitIndex = index;
             }
-            let idx = index - prevInitIndex; // in case: x, y, z = true, abc()
-            let bName = baseName(variable);
-            let { value } = currentScope.search(bName || name);
-            if (value && !Is.luaany(value.type) && !bName) {
-                return;
+
+            const predict = (S) => { return (S.name === name) && (!S.local || S.location[1] <= variable.range[0]) };
+            let value;
+            let bName = baseNames(variable.base);
+            if (bName.length > 0) {
+                value = directParent(stack, bName);
+                if (!value || !Is.luatable(value.type)) {
+                    return;
+                }
+            } else {
+                value = stack.search(predict);
+                if (value && !Is.luaany(value.type)) {
+                    return;
+                }
             }
 
+            let idx = index - prevInitIndex;
             let type = getInitType(init, idx);
             let symbol = new LuaSymbol(type, name, false, variable.range);
 
             if (value) {
-                if (Is.luatable(value.type)) {
+                if (Is.luatable(typeOf(value))) {
                     value.type.set(name, symbol);
                 } else {
-                    value.type = type;
+                    value.type = type;  // local xzy; xzy = 1
                 }
             } else {
-                currentScope.set(name, symbol); //TODO: should define in _G ?
+                currentScope.push(symbol); // cached
                 if (moduleType.moduleMode) {
-                    moduleType.exports[name] = symbol;
+                    moduleType.export(symbol);
                 } else {
                     _G.type.set(name, symbol);
                 }
@@ -116,20 +127,20 @@ function analysis(code, uri) {
     }
 
     function parseTableConstructorExpression(node) {
-        let type = new LuaTable();
+        let table = new LuaTable();
         node.fields.forEach((field) => {
             if (field.type !== 'TableKeyString') {
                 return;
             }
-            let n = field.key.name;
-            let t = getInitType(field.value);
-            let s = new LuaSymbol(t, n, true, field.key.range);
-            type.set(n, s);
+            let name = field.key.name;
+            let type = getInitType(field.value);
+            let symbol = new LuaSymbol(type, name, true, field.key.range);
+            table.set(name, symbol);
 
             walkNode(field.value);
         });
 
-        return type;
+        return table;
     }
 
     function parseFunctionDeclaration(node) {
@@ -140,38 +151,57 @@ function analysis(code, uri) {
         } else {
             name = '@(' + range + ')';
         }
-        let type = new LuaFunction(node.range, currentScope);
+
+        let type = new LuaFunction();
         let func = new LuaSymbol(type, name, node.isLocal, range);
-        let bName = baseName(node.identifier);
-        if (bName) {
-            let { value } = currentScope.search(bName);
-            if (value && value.type instanceof LuaTable) {
-                value.type.set(name, func);
-                if (node.identifier.indexer === ':') {
-                    let _self = new LuaSymbol(value.type, 'self', true, range);
-                    type.scope.set('self', _self);
+        let _self;
+
+        if (func.local) {
+            /**
+             * case: `local function foo() end`
+            */
+            currentScope.push(func);
+        } else {
+
+            /**
+             * case 1: `function foo() end`
+             * case 2: `function class.foo() end` or `function class:foo() end`
+             * case 3: `function module.class:foo() end`
+             * ...
+             */
+            let bName = baseNames(node.identifier.base);
+            if (bName.length > 0) {
+                let parent = directParent(stack, bName);
+                if (parent && Is.luatable(parent.type)) {
+                    parent.type.set(name, func);
+                    if (node.identifier.indexer === ':') {
+                        _self = new LuaSymbol(parent.type, 'self', true, range);
+                    }
                 }
             } else {
-                //TODO: add definition as global?
+                currentScope.push(func); /* for search at hand */
+                moduleType.export(func);
             }
-        } else {
-            currentScope.set(name, func);
         }
 
-        currentScope = type.scope;
+        currentScope = (new Scope(stack)).enter(currentScope);
 
         node.parameters.forEach((param, index) => {
             let name = param.name || param.value;
             let symbol = new LuaSymbol(BasicTypes.any_t, name, true, param.range);
-            currentScope.set(name, symbol);
-            type.args[index] = name;
+            currentScope.push(symbol);
+            type.param(index, symbol);
         });
 
-        lastFunc = currentFunc;
+        /* self is defined after the params */
+        _self && currentScope.push(_self);
+
+        funcStack.push(currentFunc);
         currentFunc = func;
         walkNodes(node.body);
-        currentFunc = lastFunc;
-        currentScope = currentScope.parentScope;
+        currentFunc = funcStack.pop();
+
+        currentScope = currentScope.exit([node.range[1], node.range[1]]);
     }
 
     function parseCallExpression(node) {
@@ -195,10 +225,9 @@ function analysis(code, uri) {
     }
 
     function parseScopeStatement(node) {
-        let scope = new LuaScope(node.range, currentScope);
-        currentScope = scope;
+        currentScope = (new Scope(stack)).enter(currentScope);
         walkNodes(node.body);
-        currentScope = scope.parentScope;
+        currentScope = currentScope.exit();
     }
 
     function parseIfStatement(node) {
@@ -207,15 +236,15 @@ function analysis(code, uri) {
 
     function parseReturnStatement(node) {
         node.arguments.forEach((arg, index) => {
-            let t = getInitType(arg, index);
-            let n = 'R' + index;
-            let s = new LuaSymbol(t, n, false, arg.range);
+            let type = getInitType(arg, index);
+            let name = 'R' + index;
+            let symbol = new LuaSymbol(type, name, false, arg.range);
             if (currentFunc) {
                 // return from function
-                currentFunc.type.returns[index] = s;
+                currentFunc.type.return(index, symbol);
             } else {
                 // return from module
-                theModule.type.exports = s;
+                moduleType.exports = symbol;
             }
 
             walkNode(arg);
@@ -223,35 +252,34 @@ function analysis(code, uri) {
     }
 
     function parseForNumericStatement(node) {
-        let scope = new LuaScope(node.range, currentScope);
-        currentScope = scope;
+        currentScope = (new Scope(stack)).enter(currentScope);
 
         let variable = node.variable;
         let name = variable.name;
         if (!isPlaceHolder(name)) {
             let symbol = new LuaSymbol(BasicTypes.number_t, name, true, variable.range);
-            scope.set(name, symbol);
+            currentScope.push(symbol);
         }
 
         walkNodes(node.body);
-        currentScope = scope.parentScope;
+        currentScope = currentScope.exit();
     }
 
     function parseForGenericStatement(node) {
-        let scope = new LuaScope(node.range, currentScope);
-        currentScope = scope;
+        currentScope = (new Scope(stack)).enter(currentScope);
 
         let variables = node.variables;
         variables.forEach((variable, index) => {
             let name = variable.name;
             if (!isPlaceHolder(name)) {
-                let symbol = new LuaSymbol(newType(scope, node.iterators[0], index), name, true, variable.range);
-                scope.set(name, symbol);
+                let type = newType(new LuaContext(moduleType), node.iterators[0], index);
+                let symbol = new LuaSymbol(type, name, true, variable.range);
+                currentScope.push(symbol);
             }
         });
 
         walkNodes(node.body);
-        currentScope = scope.parentScope;
+        currentScope = currentScope.exit();
     }
 
     function walkNodes(nodes) {
@@ -298,7 +326,6 @@ function analysis(code, uri) {
                 parseIfStatement(node);
                 break;
             case 'Chunk':
-                currentScope = moduleType.scope;
                 walkNodes(node.body);
                 break;
             default:

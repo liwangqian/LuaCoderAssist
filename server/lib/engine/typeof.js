@@ -1,7 +1,8 @@
 'use strict';
 
 const _ = require('underscore');
-const { BasicTypes, LazyType, LuaScope } = require('./typedef');
+const { BasicTypes, LazyType } = require('./typedef');
+const { StackNode } = require('./linear-stack');
 const Is = require('./is');
 const { Package } = require('./luaenv');
 
@@ -26,11 +27,11 @@ function typeOf(symbol) {
 }
 
 function deduceType(type) {
-    if (!(type instanceof LazyType)) {
+    if (!Is.lualazy(type)) {
         return type;
     }
 
-    const { value } = type.scope.search(type.name);
+    const value = type.context.search(type.name);
     let namedType = value && value.type;
     if (namedType) {
         return namedType;
@@ -105,12 +106,12 @@ function parseCallExpression(node, type) {
 function parseMemberExpression(node, type) {
     let names = extractBasesName(node);
     let name = names[0];
-    let { value } = type.scope.search(name);
-    if (!value) {
+    let symbol = type.context.search(name);
+    if (!symbol) {
         return null;
     }
 
-    let def = value;
+    let def = symbol;
     for (let i = 1, size = names.length; i < size; ++i) {
         let t = typeOf(def);
         if (!def || !(Is.luatable(t) || Is.luamodule(t))) {
@@ -120,7 +121,7 @@ function parseMemberExpression(node, type) {
         def = t.get(name);
     }
 
-    return def.type;
+    return typeOf(def);
 }
 
 function parseUnaryExpression(node) {
@@ -160,7 +161,7 @@ function parseBinaryExpression(node, type) {
 
 function parseIdentifier(node, type) {
     let { value } = type.scope.search(node.name);
-    return value && value.type;
+    return value && typeOf(value.type);
 }
 
 function parseAstNode(node, type) {
@@ -196,36 +197,14 @@ function parseAstNode(node, type) {
 
 /**
  * Search the most inner scope of range
- * @param {LuaScope} rootScope root scope to begin search
- * @param {Array<Number>} range [start, end]
+ * @param {LinearStack} stack root scope to begin search
+ * @param {Array<Number>} location [start, end]
  */
-function searchInnerScope(rootScope, range) {
-    let targetScope = rootScope;
-    let refScope = new LuaScope(range);
-
-    /**
-     * @param {LuaScope} scope 
-     */
-    const _search = (scope) => {
-        if (!scope || !scope.inScope(range)) {
-            return;
-        }
-
-        let _scopeIndex = _.sortedIndex(scope.subScopes, refScope, (elem) => {
-            return elem.range[0] - range[0];
-        });
-
-        let _scope = scope.subScopes[_scopeIndex - 1];
-        if (!_scope) {
-            return;
-        }
-
-        targetScope = _scope;
-        return _search(_scope);
-    }
-
-    _search(rootScope);
-    return targetScope;
+function searchInnerStackIndex(stack, location) {
+    let refNode = new StackNode({ location });
+    return _.sortedIndex(stack.nodes, refNode, (node) => {
+        return node.data.location[0] - location[0];
+    });
 }
 
 /**
@@ -240,14 +219,14 @@ function findDef(name, uri, range) {
         return null;
     }
 
-    let scope = searchInnerScope(theModule.type.scope, range);
-    let { value } = scope.search(name);
-    return value;
+    let stack = theModule.type.stack;
+    let index = searchInnerStackIndex(stack, range);
+    return stack.search((data) => data.name === name, index);
 }
 
 
 module.exports = {
     typeOf,
     findDef,
-    searchInnerScope
+    searchInnerStackIndex
 }

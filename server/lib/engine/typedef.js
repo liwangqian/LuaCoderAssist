@@ -1,9 +1,11 @@
 'use strict';
 
+const { LinearStack } = require('./linear-stack');
+
 class LuaSymbol {
     /**
-     * 
-     * @param {LuaBoolean|LuaFunction|LuaModule|LuaNil|LuaNumber|LuaString|LuaTable|LuaUnknown|LazyType} type type of the symbol
+     * Construct a lua symbol
+     * @param {LuaBoolean|LuaFunction|LuaModule|LuaAny|LuaNumber|LuaString|LuaTable|LazyType} type type of the symbol
      * @param {String} name name of the symbol
      * @param {Boolean} local is the symbol local
      * @param {Array<Number>} location location of the symbol
@@ -46,6 +48,15 @@ class LuaBoolean extends LuaTypeBase {
     }
 };
 
+class SearchResult {
+    constructor(parent, value) {
+        this.parent = parent;
+        this.value = value;
+    }
+}
+
+const NullResult = new SearchResult();
+
 class LuaTable extends LuaTypeBase {
     constructor(_metatable) {
         super('table');
@@ -76,15 +87,20 @@ class LuaTable extends LuaTypeBase {
         this.metatable = tbl;
     }
 
+    /**
+     * Search the scope to get the symbol
+     * @param {String} key The symbol name to search
+     * @returns {SearchResult} The search result
+     */
     search(key) {
         const _search = (table) => {
             if (!table || !(table instanceof LuaTable)) {
-                return {};
+                return NullResult;
             }
 
             const value = table.get(key);
             if (value) {
-                return { parent: table, value: value };
+                return new SearchResult(table, value);
             }
 
             const result = _search(table.__index)
@@ -92,7 +108,7 @@ class LuaTable extends LuaTypeBase {
 
             const mt = table.getmetatable();
             if (!mt) {
-                return {};
+                return NullResult;
             }
 
             return _search(mt.__index);
@@ -149,9 +165,8 @@ class LuaScope {
 };
 
 class LuaFunction extends LuaTypeBase {
-    constructor(range, parentScope) {
+    constructor() {
         super('function');
-        this.scope = new LuaScope(range, parentScope);
         this.returns = [];
         this.args = [];
     }
@@ -159,29 +174,21 @@ class LuaFunction extends LuaTypeBase {
     get() {
         return this.returns[0];
     }
-};
 
-class LuaModuleEnv extends LuaScope {
-    constructor(range, globalEnv) {
-        super(range);
-        this._G = globalEnv;
+    return(index, symbol) {
+        this.returns[index] = symbol;
     }
 
-    get(name) {
-        let def = super.get(name);
-        if (def) {
-            return def;
-        }
-        return this._G.type.get(name);
+    param(index, symbol) {
+        this.args[index] = symbol;
     }
-
 };
 
 class LuaModule extends LuaTypeBase {
-    constructor(globalEnv, range, uri) {
+    constructor(uri) {
         super('module');
-        this.scope = new LuaModuleEnv(range, globalEnv);
-        this.depends = {};
+        this.stack = new LinearStack();
+        this.imports = {};
         this.exports = {};
         this.moduleMode = false;
         this.uri = uri;
@@ -194,16 +201,26 @@ class LuaModule extends LuaTypeBase {
         this.fileName = matchs[1];
     }
 
-    get(key) {
-        return this.exports[key];
+    /**
+     * Get the symbol with the given name
+     * @param {String} name The name of the symbol.
+     * @returns {LuaSymbol} The symbol with the same name.
+     */
+    get(name) {
+        return this.exports[name];
     }
 
-    set(key, value) {
-        this.exports[key] = value;
+    /**
+     * Import the symbol to the module.
+     * @param {String} name The name of the symbol
+     * @param {LuaSymbol} symbol The symbol
+     */
+    import(symbol) {
+        this.imports[symbol.name] = symbol;
     }
 
-    addDepend(name, value) {
-        this.depends[name] = value;
+    export(symbol) {
+        this.exports[symbol.name] = symbol;
     }
 };
 
@@ -214,17 +231,50 @@ const BasicTypes = {
     bool_t: new LuaBoolean(),
 }
 
+class LuaContext {
+    /**
+     * @param {LuaModule} mod The lua module type.
+     */
+    constructor(mod) {
+        this.module = mod;
+        this.stackOffset = mod.stack.length();
+    }
+
+    search(name) {
+        let symbol = this.module.stack.search((data) => data.name === name, this.stackOffset);
+        if (symbol) return symbol;
+
+        // 查找模块全局变量（导出变量）
+        symbol = this.module.exports[name];
+        if (symbol) return symbol;
+
+        return null;
+    }
+}
+
 class LazyType {
-    constructor(scope, node, name, index) {
-        this.scope = scope;
+    /**
+     * @param {LuaContext} context Context of the `LazyType`.
+     * @param {Object} node AST node provide by luaparse.
+     * @param {String} name The name of the symbol of the LazyType.
+     * @param {Number} index Value index of right expression.
+     */
+    constructor(context, node, name, index) {
+        this.context = context;
         this.node = node;
         this.name = name;
         this.index = index;
     }
 };
 
-function newType(scope, node, name, index) {
-    return new LazyType(scope, node, name, index);
+/**
+ * @param {LuaContext} context Context of the `LazyType`.
+ * @param {Object} node AST node provide by luaparse.
+ * @param {String} name The name of the symbol of the LazyType.
+ * @param {Number} index Value index of right expression.
+ */
+function newType(context, node, name, index) {
+    return new LazyType(context, node, name, index);
 }
 
 class MultiMap {
@@ -251,9 +301,9 @@ module.exports = {
     LuaSymbol,
     BasicTypes,
     LuaTable,
-    LuaScope,
     LuaFunction,
     LuaModule,
+    LuaContext,
     LazyType,
     newType,
     MultiMap
