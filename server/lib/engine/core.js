@@ -227,7 +227,7 @@ function analysis(code, uri) {
     function parseScopeStatement(node) {
         currentScope = (new Scope(stack)).enter(currentScope);
         walkNodes(node.body);
-        currentScope = currentScope.exit();
+        currentScope = currentScope.exit([node.range[1], node.range[1]]);
     }
 
     function parseIfStatement(node) {
@@ -262,7 +262,7 @@ function analysis(code, uri) {
         }
 
         walkNodes(node.body);
-        currentScope = currentScope.exit();
+        currentScope = currentScope.exit([node.range[1], node.range[1]]);
     }
 
     function parseForGenericStatement(node) {
@@ -279,7 +279,7 @@ function analysis(code, uri) {
         });
 
         walkNodes(node.body);
-        currentScope = currentScope.exit();
+        currentScope = currentScope.exit([node.range[1], node.range[1]]);
     }
 
     function walkNodes(nodes) {

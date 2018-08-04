@@ -1,11 +1,39 @@
 {
     "version": "0.2.0",
     "configurations": [
+        // {
+        //     "type": "node",
+        //     "request": "launch",
+        //     "name": "启动程序",
+        //     "program": "${workspaceFolder}\\client\\extension.js"
+        //     // "program": "${workspaceFolder}\\test\\test.engine.js"
+        // }
+        {
+            "type": "extensionHost",
+            "request": "launch",
+            "name": "Launch Client",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceRoot}"
+            ],
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/client/**/*.js"
+            ],
+            // "preLaunchTask": "npm: watch:client"
+        },
         {
             "type": "node",
-            "request": "launch",
-            "name": "启动程序",
-            "program": "${workspaceFolder}\\test\\test.engine.js"
-        }
+            "request": "attach",
+            "name": "Attach to Server",
+            "address": "localhost",
+            "protocol": "inspector",
+            "port": 6004,
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/server/**/*.js"
+            ]
+        },
     ]
 }

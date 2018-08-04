@@ -25,7 +25,7 @@ fs.readFile('./test/textures/test01.lua', (err, data) => {
     // console.log(y);
     // console.log(xx);
     // console.log(engine.typeOf(def.returns[1]));
-    const completionItems = engine.completionProvider(new engine.CompletionContext('pri', [492, 495], uri));
+    const completionItems = engine.completionProvider(new engine.CompletionContext('x.', [492, 495], uri));
     console.log(completionItems);
     console.log(engine.typeOf(completionItems[0]));
 });
