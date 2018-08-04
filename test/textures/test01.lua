@@ -8,3 +8,7 @@ x.abc.d = 1
 function x.abc:name(...)
     return 'x.abc'
 end
+
+x.some = function(a, b)
+    return ''
+end

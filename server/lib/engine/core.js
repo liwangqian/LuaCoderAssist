@@ -169,7 +169,7 @@ function analysis(code, uri) {
              * case 3: `function module.class:foo() end`
              * ...
              */
-            let bName = baseNames(node.identifier.base);
+            let bName = baseNames(node.identifier && node.identifier.base);
             if (bName.length > 0) {
                 let parent = directParent(stack, bName);
                 if (parent && Is.luatable(parent.type)) {
