@@ -113,7 +113,7 @@ function extendTextRange(content, from, options) {
     if (options.backward) {
         while (offset-- >= 0) {
             if (!backwardRegex.test(content.charAt(offset))) {
-                range.start = offset;
+                range.start = offset + 1;
                 break;
             }
         }
@@ -187,8 +187,8 @@ function functionSignature(symbol, details) {
     });
 
     details.push('function ', symbol.name);
-    details.push('(' + type.args.join(', ') + ') : ');
-    details.push(ret.length == 0 ? 'void' : ret.join(','));
+    details.push('(' + type.args.map(p => p.name).join(', ') + ') : ');
+    details.push(ret.length == 0 ? 'void' : ret.join(', '));
 }
 
 exports.functionSignature = functionSignature;

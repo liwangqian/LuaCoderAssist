@@ -1,13 +1,17 @@
 'use strict';
 
-const { Package } = require('./luaenv');
+const { _G, LoadedPackages } = require('./luaenv');
 const { analysis } = require('./core');
 
 function parseDocument(code, uri, logger) {
     try {
         let m = analysis(code, uri);
-        Package.loaded.set(uri, m);
-        Package.uriMap.set(m.name, uri);
+        const loaded = _G.get('package').get('loaded');
+        const loadedModules = loaded.get(m.name) || [];
+        loadedModules.push(m);
+        loaded.set(m.name, loadedModules);
+        // 用于方便查找定义
+        LoadedPackages[uri] = m;
     } catch (err) {
         logger.error(err.stack);
     }

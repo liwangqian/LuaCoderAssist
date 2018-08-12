@@ -4,7 +4,7 @@ const _ = require('underscore');
 const { BasicTypes, LazyType } = require('./typedef');
 const { StackNode } = require('./linear-stack');
 const Is = require('./is');
-const { Package } = require('./luaenv');
+const { LoadedPackages } = require('./luaenv');
 
 /**
  * 
@@ -27,7 +27,7 @@ function typeOf(symbol) {
 }
 
 function deduceType(type) {
-    if (!Is.lualazy(type)) {
+    if (!Is.lazyValue(type)) {
         return type;
     }
 
@@ -198,12 +198,12 @@ function parseAstNode(node, type) {
 /**
  * Search the most inner scope of range
  * @param {LinearStack} stack root scope to begin search
- * @param {Array<Number>} location [start, end]
+ * @param {Number[]} range [start, end]
  */
-function searchInnerStackIndex(stack, location) {
-    let refNode = new StackNode({ location });
+function searchInnerStackIndex(stack, range) {
+    let refNode = new StackNode({ range });
     return _.sortedIndex(stack.nodes, refNode, (node) => {
-        return node.data.location[0] - location[0];
+        return node.data.range[0] - range[0];
     });
 }
 
@@ -214,14 +214,16 @@ function searchInnerStackIndex(stack, location) {
  * @param {Array<Number>} range range of the reference
  */
 function findDef(name, uri, range) {
-    let theModule = Package.loaded.get(uri);
+    let theModule = LoadedPackages[uri]
     if (!theModule) {
         return null;
     }
-
-    let stack = theModule.type.stack;
-    let index = searchInnerStackIndex(stack, range);
-    return stack.search((data) => data.name === name, index);
+    return theModule.type.menv.search(name, range, (data) => {
+        return data.name === name
+    });
+    // let stack = theModule.type.menv.stack;
+    // let index = searchInnerStackIndex(stack, range);
+    // return stack.search((data) => data.name === name, index);
 }
 
 

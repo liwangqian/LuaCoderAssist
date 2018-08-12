@@ -18,7 +18,7 @@ class Logger {
 fs.readFile('./test/textures/test01.lua', (err, data) => {
     let uri = './textures/test01.lua';
     engine.parseDocument(data, uri, new Logger());
-    let x = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('x.some', [591, 604], uri)));
+    let x = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('package', [591, 604], uri))[0]);
     // let y = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('y', [211, 213], uri)));
     // let xx = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('xx', [233, 236], uri)));
     console.log(x);

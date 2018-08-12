@@ -2,13 +2,19 @@ module('test01', package.seeall)
 
 local x = {}
 
-x.abc = {}
-x.abc.d = 1
-
-function x.abc:name(...)
-    return 'x.abc'
+function function_name(a, b, c)
+    local x = 1
+    return x
 end
 
-x.some = function(a, b)
-    return ''
+local y = function(...)
+    -- body
+end
+
+function x.abc(...)
+    -- body
+end
+
+for k, v in pairs(_G.package.loaders) do
+    print(k, v)
 end

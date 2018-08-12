@@ -1,7 +1,6 @@
 'use strict';
 
-const symbol_manager_1 = require('./lib/symbol-manager');
-const utils_1 = require('../lib/symbol/utils');
+const { DefinitionContext, definitionProvider } = require('../lib/engine/definition');
 const utils_2 = require('./lib/utils');
 
 class DefinitionProvider {
@@ -11,33 +10,18 @@ class DefinitionProvider {
 
     provideDefinitions(params) {
         let uri = params.textDocument.uri;
-        let documentSymbol = symbol_manager_1.instance().documentSymbol(uri);
-        if (!documentSymbol) {
-            return [];
-        }
-
+        let position = params.position;
         let document = this.coder.document(uri);
-        let ref = utils_2.symbolAtPosition(params.position, document, { backward: true, forward: true });
-        if (!ref) {
+        let ref = utils_2.symbolAtPosition(position, document, { backward: true, forward: true });
+        if (ref === undefined) {
             return [];
         }
 
-        //todo: 提取函数，考虑bases进去
-        // 调用documentSymbol.findDefinitions(ref)
-        let defsInFile = documentSymbol.definitions().filter(s => {
-            return s.name === ref.name && utils_1.inScope(s.scope, ref.location);
-        });
-
-        // find define in dependences
-        let defsInDep = utils_2.filterDepDefinitions(
-            utils_2.getDefinitionsInDependences(uri, ref, this.coder.tracer),
-            ref, utils_2.preciseCompareName);
-
-        let allDefs = [].concat(defsInFile, defsInDep);
+        let allDefs = definitionProvider(new DefinitionContext(ref.name, ref.range, uri));
 
         return allDefs.map(d => {
             return {
-                uri: d.uri,
+                uri: uri,
                 name: d.name,
                 range: d.location
             };

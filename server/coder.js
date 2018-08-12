@@ -139,7 +139,8 @@ class Coder {
     }
 
     provideDefinitions(params) {
-        return this._definitionProvider.provideDefinitions(params);
+        const defs = this._definitionProvider.provideDefinitions(params);
+        return defs;
     }
 
     provideCompletions(params) {

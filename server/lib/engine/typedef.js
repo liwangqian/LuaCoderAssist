@@ -8,12 +8,14 @@ class LuaSymbol {
      * @param {LuaBoolean|LuaFunction|LuaModule|LuaAny|LuaNumber|LuaString|LuaTable|LazyType} type type of the symbol
      * @param {String} name name of the symbol
      * @param {Boolean} local is the symbol local
-     * @param {Array<Number>} location location of the symbol
+     * @param {Number[]} range range of the symbol
+     * @param {Object} location location of the symbol
      */
-    constructor(type, name, local, location) {
+    constructor(type, name, local, range, location) {
         this.type = type;
         this.name = name;
         this.local = local;
+        this.range = range;
         this.location = location;
     }
 };

@@ -26,19 +26,19 @@ function definitionProvider(context) {
     const names = context.names;
     const length = names.length;
     let def = findDef(names[0], context.uri, context.range);
-    if (!def) return null;
-    if (length === 1) return def;
-    if (!Is.luatable(def.type) && !Is.luamodule(def.type)) return null;
+    if (!def) return [];
+    if (length === 1) return [def];
+    if (!Is.luaTable(def.type) && !Is.luaModule(def.type)) return null;
 
     for (let i = 1; i < (length - 1); i++) {
         const name = names[i];
         def = def.type.get(name);
-        if (!def || !Is.luatable(typeOf(def))) {
-            return null;
+        if (!def || !Is.luaTable(typeOf(def))) {
+            return [];
         }
     }
 
-    return def.type.get(names[length - 1]);
+    return [def.type.search(names[length - 1]).value];
 }
 
 module.exports = {

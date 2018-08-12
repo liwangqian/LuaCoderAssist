@@ -1,43 +1,52 @@
 'use strict';
 
-const { LuaFunction, LuaModule, LuaSymbol, LuaTable, BasicTypes, LazyType } = require('./typedef');
+const {
+    LuaTable,
+    LuaFunction,
+    LuaModule,
+    LuaBasicTypes,
+    LazyValue
+} = require('./symbol');
 
-function luatable(t) {
+function luaTable(t) {
     return t instanceof LuaTable;
 }
 
-function luafunction(t) {
+function luaFunction(t) {
     return t instanceof LuaFunction;
 }
 
-function luamodule(t) {
+function luaModule(t) {
     return t instanceof LuaModule;
 }
 
-function luasymbol(t) {
-    return t instanceof LuaSymbol;
+function luaString(t) {
+    return t === LuaBasicTypes.string;
 }
 
-function luastring(t) {
-    return t === BasicTypes.string_t;
+function luaBoolean(t) {
+    return t === LuaBasicTypes.boolean;
 }
 
-function luaboolean(t) {
-    return t === BasicTypes.bool_t;
+function luaNumber(t) {
+    return t === LuaBasicTypes.number;
 }
 
-function luanumber(t) {
-    return t === BasicTypes.number_t;
+function luaAny(t) {
+    return t === LuaBasicTypes.any;
 }
 
-function luaany(t) {
-    return t === BasicTypes.any_t;
-}
-
-function lualazy(t) {
-    return t instanceof LazyType;
+function lazyValue(t) {
+    return t instanceof LazyValue;
 }
 
 module.exports = {
-    luafunction, luamodule, luasymbol, luatable, luastring, luanumber, luaboolean, luaany, lualazy
+    luaFunction,
+    luaModule,
+    luaTable,
+    luaString,
+    luaNumber,
+    luaBoolean,
+    luaAny,
+    lazyValue
 };

@@ -29,7 +29,7 @@ class CompletionProvider {
 
         this.cache = items;
 
-        return completionItems;
+        return completionItems.length === 0 ? null : completionItems;
 
     }
 

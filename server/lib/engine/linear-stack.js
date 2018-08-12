@@ -9,10 +9,10 @@ class StackNode {
 
 class ScopeEnd extends StackNode {
     /**
-     * @param {Number[]} location 
+     * @param {Number[]} range 
      */
-    constructor(location) {
-        super({ location });
+    constructor(range) {
+        super({ range });
     }
 
     static is(node) {
@@ -59,7 +59,10 @@ class LinearStack {
      * @param {Number} fromIndex The position to start search.
      */
     search(predicate, fromIndex) {
-        fromIndex = (fromIndex || this.length()) - 1;
+        if (fromIndex == null) {
+            fromIndex = this.length();
+        }
+        fromIndex -= 1;
         let node = this.nodes[fromIndex];
         let skip = (n) => ScopeEnd.is(n);
 
@@ -78,15 +81,16 @@ class Scope {
     /**
      * @param {LinearStack} stack
      */
-    constructor(stack) {
-        this._stack = stack;
+    constructor(stack, range) {
+        this.stack = stack;
+        this.range = range;
     }
 
     push(data) {
         let node = new StackNode(data);
         node._prevNode = this._prevNode;
         this._prevNode = node;
-        this._stack.push(node);
+        this.stack.push(node);
     }
 
     /**
@@ -104,10 +108,10 @@ class Scope {
      * Exit the scope and return it's parent scope.
      * @returns {Scope} The parent scope
      */
-    exit(location) {
-        let E = new ScopeEnd(location);
+    exit(range) {
+        let E = new ScopeEnd(range);
         E._prevNode = this._prevNode;
-        this._stack.push(E);
+        this.stack.push(E);
         return this._parent;
     }
 }

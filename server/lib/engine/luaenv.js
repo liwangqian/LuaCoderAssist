@@ -1,20 +1,23 @@
 'use strict';
 
-const { LuaTable, LuaSymbol, MultiMap } = require('./typedef');
-// const { Scope } = require('./linear-stack');
+const { LuaTable, LuaSymbol, LuaSymbolKind } = require('./symbol');
 
-
-let _G = new LuaSymbol(new LuaTable(), '_G', false, null);
-
-let Package = {
-    loaded: new Map(),
-    uriMap: new MultiMap()
+const createTableSymbol = (name, loc, range, local) => {
+    return new LuaSymbol(name, loc, range, local, null, LuaSymbolKind.table, new LuaTable());
 }
+
+const _G = createTableSymbol('_G', [0, 3], [0, Infinity], false);
+const _package = createTableSymbol('package', [0, 7], [0, Infinity], false);
+_package.type.set('loaded', createTableSymbol('loaded', [0, 6], [0, Infinity], false));
+_G.type.set('package', _package);
+
+const LoadedPackages = {};
+
+const global__metatable = createTableSymbol('_G__metatable', [0, 0], [0, Infinity], false);
+global__metatable.type.set('__index', _G);
 
 module.exports = {
     _G,
-    Package
-};
-
-
-
+    LoadedPackages,
+    global__metatable
+}

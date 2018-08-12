@@ -1,6 +1,6 @@
 'use strict';
 
-const { Package } = require('./luaenv');
+const { LoadedPackages } = require('./luaenv');
 const { object2Array } = require('./utils');
 const { typeOf, searchInnerStackIndex } = require('./typeof');
 const { ScopeEnd } = require('./linear-stack');
@@ -28,12 +28,12 @@ class CompletionContext {
  */
 function completionProvider(context) {
     const namesLength = context.names.length;
-    let theModule = Package.loaded.get(context.uri);
+    let theModule = LoadedPackages[context.uri];
     if (!theModule || namesLength === 0) {
         return [];
     }
 
-    let stack = theModule.type.stack;
+    let stack = theModule.type.menv.stack;
     let index = searchInnerStackIndex(stack, context.range);
     let skipNode = (node) => ScopeEnd.is(node);
 
@@ -56,9 +56,9 @@ function completionProvider(context) {
     //TODO: support abc().xx
     const name = context.names[0];
     let value = stack.search((S) => {
-        return (S.name === name) && (!S.local || S.location[1] <= context.range[0])
+        return (S.name === name) && (!S.local || S.range[1] <= context.range[0])
     }, index);
-    if (!Is.luatable(typeOf(value)) && !Is.luamodule(value)) {
+    if (!Is.luaTable(typeOf(value)) && !Is.luaModule(value)) {
         return [];
     }
 
@@ -67,13 +67,13 @@ function completionProvider(context) {
     for (let i = 1; i < size; ++i) {
         let name = context.names[i];
         def = def.type.get(name);
-        if (!def || !Is.luatable(typeOf(def))) {
+        if (!def || !Is.luaTable(typeOf(def))) {
             return [];
         }
     }
 
-    const filter = item => context.functionOnly && !Is.luafunction(item.type);
-    return object2Array(def.type.fields || def.type.exports, filter);
+    const filter = item => context.functionOnly && !Is.luaFunction(item.type);
+    return object2Array(def.type._fields || def.type.returns, filter);
 }
 
 module.exports = {

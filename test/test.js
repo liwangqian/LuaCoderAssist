@@ -53,3 +53,8 @@ class Tester {
 (new Tester()).print(123, 34);
 
 console.log('abc.xyz:'.endsWith(':'));
+
+let xxx = [0, 2];
+let yyy = xxx;
+yyy[0] = 100;
+console.log(xxx);
