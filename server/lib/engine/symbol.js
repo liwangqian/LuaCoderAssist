@@ -307,12 +307,12 @@ class LuaModuleEnv {
     }
 
     search(name, location, filter) {
-        const target = new StackNode(new LuaSymbol(null, location));
-        const index = _.sortedIndex(this.stack, target, (symbol) => {
-            return symbol.data.location[0] - location[0];
+        const target = new StackNode(new LuaSymbol(name, location));
+        const index = _.sortedIndex(this.stack.nodes, target, (node) => {
+            return node.data.location[0] - location[0];
         });
 
-        const symbol = this.stack.search((node) => filter(node.data), index);
+        const symbol = this.stack.search((data) => filter(data), index);
         if (symbol) {
             return symbol;
         }

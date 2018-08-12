@@ -15,6 +15,7 @@ const {
 const is = require('./is');
 const utils_1 = require('./utils');
 const luaenv_1 = require('./luaenv');
+const { typeOf } = require('./typeof');
 const luaparse_1 = require('luaparse');
 
 // _G
@@ -112,41 +113,39 @@ function analysis(code, uri) {
                 prevInitIndex = index;
             }
 
+            // search parent
             const predict = (S) => { return (S.name === name) && (!S.local || S.range[1] <= variable.range[0]) };
             let value;
-            let bName = baseNames(variable.base);
+            let bName = utils_1.baseNames(variable.base);
             if (bName.length > 0) {
-                value = directParent(rootStack, bName);
-                if (!value || !is.luatable(value.type)) {
+                value = utils_1.directParent(rootStack, bName);
+                if (!value || !is.luaTable(value.type)) {
                     return;
                 }
             } else {
                 value = rootStack.search(predict);
-                if (value && !is.luaany(value.type)) {
+                if (value && !is.luaAny(value.type)) {
                     return;
                 }
             }
 
             let idx = index - prevInitIndex;
-            let type = parseInitStatement(init, idx);
-            let symbol = new LuaSymbol(type, name, false, variable.range, variable.loc);
-
-            if (value) {
-                if (is.luatable(typeOf(value))) {
-                    value.type.set(name, symbol);
+            parseInitStatement(init, idx, name, variable.range, false, (symbol) => {
+                if (value) {
+                    if (is.luaTable(typeOf(value))) {
+                        value.set(name, symbol);
+                    } else {
+                        value.type = symbol.type;  // local xzy; xzy = 1
+                    }
                 } else {
-                    value.type = type;  // local xzy; xzy = 1
+                    currentScope.push(symbol); // cached for search
+                    if (moduleType.moduleMode) {
+                        moduleType.set(name, symbol);
+                    } else {
+                        _G.set(name, symbol);
+                    }
                 }
-            } else {
-                currentScope.push(symbol); // cached
-                if (moduleType.moduleMode) {
-                    moduleType.export(symbol);
-                } else {
-                    _G.type.set(name, symbol);
-                }
-            }
-
-            walkNode(init);
+            });
         });
     }
 
@@ -164,7 +163,7 @@ function analysis(code, uri) {
         return table;
     }
 
-    function parseFunctionDeclaration(node, lvName, lvLocation, lvIsLocal) {
+    function parseFunctionDeclaration(node, lvName, lvLocation, lvIsLocal, done) {
         let range = node.range;
         let location, name, isLocal;
         if (node.identifier) {
@@ -181,7 +180,9 @@ function analysis(code, uri) {
         let fsymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.function, type);
         let _self;
 
-        if (fsymbol.isLocal) {
+        if (done) {
+            done(fsymbol);
+        } else if (fsymbol.isLocal) {
             /**
              * case: `local function foo() end`
             */

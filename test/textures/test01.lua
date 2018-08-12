@@ -1,6 +1,8 @@
 module('test01', package.seeall)
 
-local x = {}
+local x
+
+x = {}
 
 function function_name(a, b, c)
     local x = 1

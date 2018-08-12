@@ -9,10 +9,10 @@ class StackNode {
 
 class ScopeEnd extends StackNode {
     /**
-     * @param {Number[]} range 
+     * @param {Number[]} location 
      */
-    constructor(range) {
-        super({ range });
+    constructor(location) {
+        super({ location });
     }
 
     static is(node) {

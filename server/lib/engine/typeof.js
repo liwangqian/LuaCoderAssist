@@ -198,12 +198,12 @@ function parseAstNode(node, type) {
 /**
  * Search the most inner scope of range
  * @param {LinearStack} stack root scope to begin search
- * @param {Number[]} range [start, end]
+ * @param {Number[]} location [start, end]
  */
-function searchInnerStackIndex(stack, range) {
-    let refNode = new StackNode({ range });
+function searchInnerStackIndex(stack, location) {
+    let refNode = new StackNode({ location });
     return _.sortedIndex(stack.nodes, refNode, (node) => {
-        return node.data.range[0] - range[0];
+        return node.data.location[0] - location[0];
     });
 }
 
