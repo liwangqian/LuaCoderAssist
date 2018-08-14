@@ -279,7 +279,7 @@ function analysis(code, uri) {
     }
 
     function parseForNumericStatement(node) {
-        currentScope = (new Scope(rootStack)).enter(currentScope);
+        currentScope = (new Scope(rootStack, node.range)).enter(currentScope);
 
         let variable = node.variable;
         let name = variable.name;
@@ -293,7 +293,7 @@ function analysis(code, uri) {
     }
 
     function parseForGenericStatement(node) {
-        currentScope = (new Scope(rootStack)).enter(currentScope);
+        currentScope = (new Scope(rootStack, node.range)).enter(currentScope);
 
         let variables = node.variables;
         variables.forEach((variable, index) => {

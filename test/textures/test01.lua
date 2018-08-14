@@ -26,3 +26,7 @@ if CPubClass == {} then
 
     load('')
 end
+
+for i, v in ipairs(CPubClass) do
+    print(i, v)
+end
