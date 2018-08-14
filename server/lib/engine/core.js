@@ -69,10 +69,11 @@ function analysis(code, uri) {
         }
 
         let name = param.value.match(/\w+$/)[0];
-        let symbol = newValue(new LuaContext(moduleType), node, name);
+        let symbol = newValue(new LuaContext(moduleType), node, name, 0);
         moduleType.import(symbol);
     }
 
+    // OK
     function parseLocalStatement(node) {
         let prevInit = node.init[0];
         let prevInitIndex = 0;
@@ -92,6 +93,7 @@ function analysis(code, uri) {
         });
     }
 
+    // OK
     function parseAssignmentStatement(node) {
         let prevInit = node.init[0];
         let prevInitIndex = 0;
@@ -149,6 +151,7 @@ function analysis(code, uri) {
         });
     }
 
+    // OK
     function parseTableConstructorExpression(node) {
         let table = new LuaTable();
         node.fields.forEach((field) => {
@@ -157,12 +160,12 @@ function analysis(code, uri) {
             }
             let name = field.key.name;
             parseInitStatement(field.value, 0, name, field.key.range, false, symbol => table.set(name, symbol));
-            walkNode(field.value);
         });
 
         return table;
     }
 
+    // OK
     function parseFunctionDeclaration(node, lvName, lvLocation, lvIsLocal, done) {
         let range = node.range;
         let location, name, isLocal;
@@ -252,7 +255,7 @@ function analysis(code, uri) {
     }
 
     function parseScopeStatement(node) {
-        currentScope = (new Scope(rootStack)).enter(currentScope);
+        currentScope = (new Scope(rootStack, node.range)).enter(currentScope);
         walkNodes(node.body);
         currentScope = currentScope.exit([node.range[1], node.range[1]]);
     }

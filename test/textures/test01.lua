@@ -1,22 +1,28 @@
 module('test01', package.seeall)
 
-local x
+local stdlib = require('lib.stdlib')
 
-x = {}
+CPubClass = {
+    name = 'CPubClass',
+    new = function()
+        return {}
+    end
+}
 
-function function_name(a, b, c)
-    local x = 1
-    return x
+function CPubClass.abc(x, y)
+    return x * y * 2
 end
 
-local y = function(...)
-    -- body
+CPubClass.base = {
+    get = function()
+        -- body
+    end
+}
+function CPubClass.base:print()
 end
 
-function x.abc(...)
-    -- body
-end
+if CPubClass == {} then
+    local xy = 1
 
-for k, v in pairs(_G.package.loaders) do
-    print(k, v)
+    load('')
 end

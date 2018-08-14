@@ -312,7 +312,7 @@ class LuaModuleEnv {
             return node.data.location[0] - location[0];
         });
 
-        const symbol = this.stack.search((data) => filter(data), index);
+        const symbol = this.stack.search(filter, index);
         if (symbol) {
             return symbol;
         }
@@ -327,7 +327,12 @@ class LuaModule extends LuaTable {
         this.typeName = LuaTypes.module; //override
         this.menv = new LuaModuleEnv();
         this.uri = uri;
+        this.imports = [];
         this.return = null;
+    }
+
+    import(moduleName) {
+        this.imports.push(moduleName);
     }
 }
 

@@ -58,7 +58,7 @@ function object2Array(obj, filterout) {
 function directParent(stack, names) {
     let parent = stack.search((data) => data.name === names[0]);
     for (let i = 1; i < names.length; i++) {
-        if (parent && is.luatable(parent.type)) {
+        if (parent && is.luaTable(parent.type)) {
             const result = parent.type.search(names[i]);
             parent = result.value;
             continue;

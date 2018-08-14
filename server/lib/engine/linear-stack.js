@@ -110,7 +110,7 @@ class Scope {
      */
     exit(range) {
         let E = new ScopeEnd(range);
-        E._prevNode = this._prevNode;
+        E._prevNode = this._parent._prevNode;
         this.stack.push(E);
         return this._parent;
     }
