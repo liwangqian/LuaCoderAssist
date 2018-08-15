@@ -27,6 +27,13 @@ if CPubClass == {} then
     load('')
 end
 
-for i, v in ipairs(CPubClass) do
-    print(i, v)
+for index = 1, 10 do
+    print(index)
+    local zz = 'hello world'
+    local foo = zz .. ' sss'
 end
+
+local n1 = 1
+local n2 = n1 + 2
+
+local nb = n1 or (n1 + 2)

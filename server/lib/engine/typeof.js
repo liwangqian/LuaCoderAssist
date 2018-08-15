@@ -1,10 +1,11 @@
 'use strict';
 
 const _ = require('underscore');
-const { BasicTypes, LazyType } = require('./typedef');
+const { LuaBasicTypes, LazyValue } = require('./symbol');
 const { StackNode } = require('./linear-stack');
-const Is = require('./is');
 const { LoadedPackages } = require('./luaenv');
+const Is = require('./is');
+const utils_1 = require('./utils');
 
 /**
  * 
@@ -12,14 +13,14 @@ const { LoadedPackages } = require('./luaenv');
  */
 function typeOf(symbol) {
     if (!symbol) {
-        return BasicTypes.any_t;
+        return LuaBasicTypes.any;
     }
 
     let type
     try {
         type = deduceType(symbol.type);
     } catch (err) {
-        type = BasicTypes.any_t;
+        type = LuaBasicTypes.any;
     }
 
     symbol.type = deduceType(type); // once again
@@ -38,7 +39,7 @@ function deduceType(type) {
     }
 
     let typeSymbol = parseAstNode(type.node, type);
-    return typeSymbol || BasicTypes.any_t;
+    return typeSymbol || LuaBasicTypes.any;
 }
 
 function mergeType(left, right) {
@@ -49,15 +50,15 @@ function mergeType(left, right) {
 }
 
 function typeScore(t) {
-    if (Is.luaany(t)) {
+    if (Is.luaAny(t)) {
         return 0;
-    } else if (Is.luaboolean(t) || Is.luanumber(t) || Is.luastring(t)) {
+    } else if (Is.luaBoolean(t) || Is.luaNumber(t) || Is.luaString(t)) {
         return 1;
-    } else if (Is.luafunction(t)) {
+    } else if (Is.luaFunction(t)) {
         return 2;
-    } else if (Is.luatable(t)) {
+    } else if (Is.luaTable(t)) {
         return 3;
-    } else if (Is.luamodule(t)) {
+    } else if (Is.luaModule(t)) {
         return 4;
     } else {
         return 0;
@@ -65,17 +66,15 @@ function typeScore(t) {
 }
 
 function parseLogicalExpression(node, type) {
-    const scope = type.scope;
+    const context = type.context;
     const name = type.name;
     if (node.operator === 'and') {
-        return parseLogicalExpression(node.right, type);
+        return parseAstNode(node.right, type);
     } else if (node.operator === 'or') {
-        let leftNode = parseLogicalExpression(node.left, type);
-        let rightNode = parseLogicalExpression(node.right, type);
         return parseAstNode({
             type: 'MergeType',
-            left: new LazyType(scope, leftNode, name),
-            right: new LazyType(scope, rightNode, name)
+            left: new LazyValue(context, node.left, name, 0),
+            right: new LazyValue(context, node.right, name, 0)
         }, type);
     } else {
         return null;
@@ -104,7 +103,7 @@ function parseCallExpression(node, type) {
 }
 
 function parseMemberExpression(node, type) {
-    let names = extractBasesName(node);
+    let names = utils_1.baseNames(node);
     let name = names[0];
     let symbol = type.context.search(name);
     if (!symbol) {
@@ -114,7 +113,7 @@ function parseMemberExpression(node, type) {
     let def = symbol;
     for (let i = 1, size = names.length; i < size; ++i) {
         let t = typeOf(def);
-        if (!def || !(Is.luatable(t) || Is.luamodule(t))) {
+        if (!def || !(Is.luaTable(t) || Is.luaModule(t))) {
             return null;
         }
         const name = names[i];
@@ -128,9 +127,9 @@ function parseUnaryExpression(node) {
     switch (node.operator) {
         case '#':
         case '-': // -123
-            return BasicTypes.number_t;
+            return LuaBasicTypes.number;
         case 'not': // not x
-            return BasicTypes.bool_t;
+            return LuaBasicTypes.boolean;
         default:
             return null;
     }
@@ -139,14 +138,14 @@ function parseUnaryExpression(node) {
 function parseBinaryExpression(node, type) {
     switch (node.operator) {
         case '..':
-            return BasicTypes.string_t;
+            return LuaBasicTypes.string;
         case '==':
         case '~=':
         case '>':
         case '<':
         case '>=':
         case '<=':
-            return BasicTypes.bool_t;
+            return LuaBasicTypes.bool;
         case '+':
         case '-':
         case '*':
@@ -160,21 +159,21 @@ function parseBinaryExpression(node, type) {
 }
 
 function parseIdentifier(node, type) {
-    let { value } = type.scope.search(node.name);
-    return value && typeOf(value.type);
+    let symbol = type.context.search(node.name);
+    return symbol && typeOf(symbol);
 }
 
 function parseAstNode(node, type) {
     if (!node) return null;
     switch (node.type) {
         case 'StringLiteral':
-            return BasicTypes.string_t;
+            return LuaBasicTypes.string;
         case 'NumericLiteral':
-            return BasicTypes.number_t;
+            return LuaBasicTypes.number;
         case 'BooleanLiteral':
-            return BasicTypes.bool_t;
+            return LuaBasicTypes.boolean;
         case 'NilLiteral':
-            return BasicTypes.any_t;
+            return LuaBasicTypes.any;
         case 'Identifier':
             return parseIdentifier(node, type);
         case 'UnaryExpression':
@@ -221,9 +220,6 @@ function findDef(name, uri, range) {
     return theModule.type.menv.search(name, range, (data) => {
         return data.name === name
     });
-    // let stack = theModule.type.menv.stack;
-    // let index = searchInnerStackIndex(stack, range);
-    // return stack.search((data) => data.name === name, index);
 }
 
 

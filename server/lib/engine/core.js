@@ -284,7 +284,7 @@ function analysis(code, uri) {
         let variable = node.variable;
         let name = variable.name;
         if (!isPlaceHolder(name)) {
-            let symbol = new LuaSymbol(BasicTypes.number_t, name, true, variable.range, variable.loc);
+            let symbol = new LuaSymbol(name, variable.range, currentScope.range, true, uri, LuaSymbolKind.variable, LuaBasicTypes.number);
             currentScope.push(symbol);
         }
 
@@ -300,7 +300,7 @@ function analysis(code, uri) {
             let name = variable.name;
             if (!isPlaceHolder(name)) {
                 let type = newValue(new LuaContext(moduleType), node.iterators[0], index);
-                let symbol = new LuaSymbol(type, name, true, variable.range, variable.loc);
+                let symbol = new LuaSymbol(name, variable.range, currentScope.range, true, uri, LuaSymbolKind.variable, type);
                 currentScope.push(symbol);
             }
         });

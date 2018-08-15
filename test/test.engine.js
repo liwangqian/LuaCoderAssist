@@ -30,4 +30,12 @@ fs.readFile('./test/textures/test01.lua', (err, data) => {
     console.log(xy);
     let xz = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('xy', [999, 1000], uri))[0]);
     console.log(xz);
+
+    let n1 = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('n1', [999, 1001], uri))[0]);
+    let n2 = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('n2', [999, 1001], uri))[0]);
+    console.log(n1);
+    console.log(n2);
+
+    let nb = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('nb', [999, 1001], uri))[0]);
+    console.log(nb);
 });
