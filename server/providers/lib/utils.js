@@ -85,7 +85,12 @@ exports.mapSymbolKind = mapSymbolKind;
 
 function mapToCompletionKind(kind) {
     switch (kind) {
+        case 'parameter':
+            return langserver_1.CompletionItemKind.Property;
+        case 'property':
+            return langserver_1.CompletionItemKind.Property;
         case 'table':
+        case 'class':
             return langserver_1.CompletionItemKind.Class;
         case 'function':
             return langserver_1.CompletionItemKind.Function;
@@ -173,15 +178,15 @@ function symbolAtPosition(position, doc, options) {
 exports.symbolAtPosition = symbolAtPosition;
 
 function functionSignature(symbol, details) {
-    let type = symbol.type;
-    if (type.name != 'function') {
+    let type = engine.typeOf(symbol);
+    if (type.typeName !== 'function') {
         details.push(symbol.name);
-        details.push(' : ', type.name);
+        details.push(' : ', type.typeName);
         return;
     }
 
     let ret = type.returns.map(item => {
-        let typeName = engine.typeOf(item).name;
+        let typeName = engine.typeOf(item).typeName;
         typeName = typeName.startsWith('@') ? 'any' : typeName;
         return typeName;
     });
@@ -191,7 +196,7 @@ function functionSignature(symbol, details) {
     details.push(ret.length == 0 ? 'void' : ret.join(', '));
 }
 
-exports.functionSignature = functionSignature;
+exports.symbolSignature = functionSignature;
 
 function findDefByNameAndScope(name, location, defs) {
     for (let i = 0; i < defs.length; i++) {

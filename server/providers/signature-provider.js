@@ -52,7 +52,7 @@ class SignatureProvider {
                 param_infos.push(lang_sever.ParameterInformation.create(p));
             });
 
-            let item = lang_sever.SignatureInformation.create(utils.functionSignature(d));
+            let item = lang_sever.SignatureInformation.create(utils.symbolSignature(d));
             item.parameters = param_infos;
             signatures.push(item);
         });

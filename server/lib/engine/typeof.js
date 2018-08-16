@@ -94,7 +94,7 @@ function extractBasesName(node) {
 
 function parseCallExpression(node, type) {
     let ftype = parseMemberExpression(node.base, type);
-    if (!Is.luafunction(ftype)) {
+    if (!Is.luaFunction(ftype)) {
         return null;
     }
 

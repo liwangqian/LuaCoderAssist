@@ -22,7 +22,7 @@ class CompletionProvider {
         let items = engine.completionProvider(new engine.CompletionContext(ref.name, ref.range, uri));
         let completionItems = items.map((item, index) => {
             let symbol = langserver.CompletionItem.create(item.name);
-            symbol.kind = utils.mapToCompletionKind(engine.typeOf(item).name);
+            symbol.kind = utils.mapToCompletionKind(item.kind);
             symbol.data = { index: index };
             return symbol;
         });
@@ -34,15 +34,10 @@ class CompletionProvider {
     }
 
     resolveCompletion(item) {
-        // let islocal = item.data.islocal
-        // let detail = (islocal ? '(local ' : '') + utils.symbolKindDesc(item.data.kind) + (islocal ? ') ' : ' ');
-        // detail = detail + (utils.functionSignature(item.data) || item.data.name);
-        // item.detail = detail;
-        // item.documentation = uri_1.parse(item.data.uri).fsPath;
         let data = this.cache[item.data.index];
         let detail = [];
         detail.push(data.local ? 'local ' : '');
-        utils.functionSignature(data, detail);
+        utils.symbolSignature(data, detail);
         item.detail = detail.join('');
         return item;
     }

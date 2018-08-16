@@ -31,7 +31,7 @@ class HoverProvider {
             let typeDesc = (d.islocal ? '(local ' : '') + utils.symbolKindDesc(d.kind) + (d.islocal ? ') ' : ' ');
             var item = {
                 language: document.languageId,
-                value: typeDesc + (utils.functionSignature(d) || d.name)
+                value: typeDesc + (utils.symbolSignature(d) || d.name)
             }
             return item;
         });

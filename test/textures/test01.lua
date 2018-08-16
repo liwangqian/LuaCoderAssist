@@ -5,7 +5,7 @@ local stdlib = require('lib.stdlib')
 CPubClass = {
     name = 'CPubClass',
     new = function()
-        return {}
+        return CPubClass
     end
 }
 
@@ -37,3 +37,5 @@ local n1 = 1
 local n2 = n1 + 2
 
 local nb = n1 or (n1 + 2)
+
+local xt = CPubClass.new(nb)
