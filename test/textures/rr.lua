@@ -1,15 +1,18 @@
-package.path = package.path .. ';' .. './test/textures/?.lua;'
+print(string.gmatch('hello world from Lua', '%a+'))
 
-require('test01')
+for v in string.gmatch('hello world from Lua', '%a+') do
+    print(v)
+end
 
-function dump(tb)
-    for k, v in pairs(tb) do
-        print(k, v)
+function function_name(...)
+    -- body
+end
+
+for k, v in pairs(debug.getregistry()) do
+    print(k, type(v))
+    for j, x in pairs(v) do
+        print(j, type(x))
     end
 end
 
-dump(package.loaded['test01'])
-
-local x = 2
-local abcdj
-local abcdfgd
+print(debug.getregistry()._LOADLIB.__gc)

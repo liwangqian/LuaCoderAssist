@@ -94,11 +94,11 @@ class LuaSymbol {
     }
 
     get(key) {
-        return this.type.get && this.type.get(key);
+        return this.type.get(key);
     }
 
     set(key, value) {
-        this.type.set && this.type.set(key, value);
+        this.type.set(key, value);
     }
 }
 
@@ -119,6 +119,8 @@ const LuaTypes = {
 class LuaTypeBase {
     constructor(typeName) {
         this.typeName = typeName;
+        this.desc = null;
+        this.detail = null;
     }
 }
 
@@ -232,7 +234,7 @@ class LuaTable extends LuaTypeBase {
                 return SearchResult.null;
             }
 
-            const __index = mt.type.get('__index');
+            const __index = mt.get('__index');
             if (!__index || !(__index.type instanceof LuaTable)) {
                 return SearchResult.null;
             }
@@ -241,6 +243,21 @@ class LuaTable extends LuaTypeBase {
         }
 
         return _search(this);
+    }
+
+    walk(solver) {
+        solver(this._fields);
+        const mt = this.getmetatable();
+        if (!mt || !(mt.type instanceof LuaTable)) {
+            return;
+        }
+
+        const __index = mt.get('__index');
+        if (!__index || !(__index.type instanceof LuaTable)) {
+            return;
+        }
+
+        __index.type.walk(solver);
     }
 }
 
@@ -293,7 +310,7 @@ exports.LuaFunction = LuaFunction;
 
 class LuaModuleEnv {
     constructor() {
-        this.globals = new LuaTable();
+        // this.globals = new LuaTable();
         // this.stack = new LuaTable();
         this.stack = new LinearStack();
     }
@@ -312,12 +329,7 @@ class LuaModuleEnv {
             return node.data.location[0] - location[0];
         });
 
-        const symbol = this.stack.search(filter, index);
-        if (symbol) {
-            return symbol;
-        }
-
-        return this.globals.search(name).value;
+        return this.stack.search(filter, index);
     }
 }
 
@@ -329,10 +341,20 @@ class LuaModule extends LuaTable {
         this.uri = uri;
         this.imports = [];
         this.return = null;
+        this.moduleMode = false;
     }
 
     import(moduleName) {
         this.imports.push(moduleName);
+    }
+
+    search(name, location, filter) {
+        let symbol = this.menv.search(name, location, filter);
+        if (symbol) {
+            return symbol;
+        }
+
+        return super.search(name).value;
     }
 }
 
@@ -350,13 +372,13 @@ class LuaContext {
         this.stackOffset = mdl.menv.stack.length();
     }
 
-    search(name) {
+    search(name, location, filter) {
         let symbol = this.module.menv.stack.search((data) => data.name === name, this.stackOffset);
         if (symbol) return symbol;
 
         // 查找全局变量
-        let result = this.module.search(name);
-        if (result) return result.value;
+        let result = this.module.search(name, location, filter);
+        if (result) return result;
 
         return null;
     }

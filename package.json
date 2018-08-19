@@ -58,6 +58,11 @@
           "default": false,
           "description": "Debug information output enable."
         },
+        "LuaCoderAssist.preloads": {
+          "type": "array",
+          "default": [],
+          "description": "Preload modules path."
+        },
         "LuaCoderAssist.search.filters": {
           "type": "array",
           "default": [],

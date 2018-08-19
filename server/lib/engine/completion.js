@@ -22,6 +22,8 @@ class CompletionContext {
     }
 };
 
+
+let completionMapCache = new Map();
 /**
  * Provide completion items
  * @param {CompletionContext} context 
@@ -43,21 +45,33 @@ function completionProvider(context) {
 
     //Case: abc
     if (namesLength === 1) {
-        let symbols = [];
+        completionMapCache = new Map();
         let node = stack.nodes[index - 1];
         while (node) {
-            !skipNode(node) && symbols.push(node.data);
+            const name = node.data.name;
+            !skipNode(node) && !completionMapCache.has(name) && completionMapCache.set(name, node.data);
             node = node._prevNode;
         };
-        return symbols;
+
+        theModule.type.walk(fields => {
+            for (const name in fields) {
+                const symbol = fields[name];
+                !completionMapCache.has(name) && completionMapCache.set(name, symbol);
+            }
+        });
+
+        let symbolArray = [];
+        completionMapCache.forEach(value => {
+            symbolArray.push(value);
+        });
+
+        return symbolArray;
     }
 
     //Case: abc.x or abc.xy:z ...
     //TODO: support abc().xx
     const name = context.names[0];
-    let value = stack.search((S) => {
-        return (S.name === name) && (!S.local || S.range[1] <= context.range[0])
-    }, index);
+    let value = completionMapCache.get(name);
     if (!Is.luaTable(typeOf(value)) && !Is.luaModule(value)) {
         return [];
     }

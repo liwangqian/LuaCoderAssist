@@ -5,6 +5,7 @@ const fs_1 = require('fs');
 const path_1 = require('path');
 const uri_1 = require('vscode-uri').default;
 const tracer_1 = require('./tracer');
+const preload_1 = require('./preload');
 const symbol_manager_1 = require('./providers/lib/symbol-manager');
 const file_manager_1 = require('./providers/lib/file-manager');
 const symbol_provider_1 = require('./providers/symbol-provider');
@@ -17,8 +18,6 @@ const rename_provider = require('./providers/rename-provider');
 const format_provider = require('./providers/format-provider');
 const ldoc_provider = require('./providers/ldoc-provider');
 const engine = require('./lib/engine');
-const utils = require('./providers/lib/utils');
-const langserver = require('vscode-languageserver');
 
 class Coder {
     constructor() {
@@ -27,6 +26,8 @@ class Coder {
         this.documents = undefined;
         this.settings = undefined;
         this.tracer = tracer_1.instance();
+        this.extensionPath = __dirname + '/../';
+        this.luaversion = '5.1';
 
         this._initialized = false;
     }
@@ -43,6 +44,7 @@ class Coder {
         this.workspaceRoot = context.workspaceRoot;
         this.conn = context.connection;
         this.documents = context.documents;
+        this.exdocuments = new Map();
         this._initialized = true;
 
         this.tracer.init(this);
@@ -71,14 +73,21 @@ class Coder {
             return document;
         }
 
+        document = this.exdocuments.get(uri)
+        if (document) {
+            return document;
+        }
+
         var fileName = uri_1.parse(uri).fsPath;
         document = langserver_1.TextDocument.create(uri, "lua", 0, fs_1.readFileSync(fileName).toString('utf8'));
+        this.exdocuments.set(uri, document);
         return document;
     }
 
     onDidChangeConfiguration(change) {
         let settings = change.settings.LuaCoderAssist;
         this.settings = settings;
+        this.luaversion = settings.luaparse.luaversion;
         let fileManager = file_manager_1.instance();
         fileManager.reset();
 
@@ -86,6 +95,7 @@ class Coder {
             fileManager.setRoots(settings.search.externalPaths.concat(this.workspaceRoot));
         }
 
+        preload_1.loadAll(this);
         fileManager.searchFiles(settings.search, ".lua");
 
         // todo:

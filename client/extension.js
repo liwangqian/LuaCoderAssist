@@ -20,7 +20,7 @@ function activate(context) {
     };
 
     let clientOptions = {
-        documentSelector: ['lua'],
+        documentSelector: { scheme: 'file', language: 'lua' },
         synchronize: {
             configurationSection: 'LuaCoderAssist',
             fileEvents: [vscode.workspace.createFileSystemWatcher('**/*.lua', false, true, false)]

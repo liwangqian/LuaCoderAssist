@@ -28,7 +28,7 @@ let _G = luaenv_1._G;
  */
 function analysis(code, uri) {
     let moduleType = new LuaModule(uri);
-    moduleType.menv.globals.setmetatable(luaenv_1.global__metatable);
+    moduleType.setmetatable(luaenv_1.global__metatable);
     let matchs = uri.match(/(\w+)(\.lua)?$/);
     let rootRange = Range.new(0, Infinity);
     let rootStack = moduleType.menv.stack;
@@ -140,7 +140,6 @@ function analysis(code, uri) {
                         value.type = symbol.type;  // local xzy; xzy = 1
                     }
                 } else {
-                    currentScope.push(symbol); // cached for search
                     if (moduleType.moduleMode) {
                         moduleType.set(name, symbol);
                     } else {
@@ -167,7 +166,6 @@ function analysis(code, uri) {
 
     // OK
     function parseFunctionDeclaration(node, lvName, lvLocation, lvIsLocal, done) {
-        let range = node.range;
         let location, name, isLocal;
         if (node.identifier) {
             location = node.identifier.range;
@@ -179,6 +177,7 @@ function analysis(code, uri) {
             isLocal = lvIsLocal;
         }
 
+        let range = isLocal ? node.range : rootRange;
         let type = new LuaFunction();
         let fsymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.function, type);
         let _self;
@@ -209,7 +208,6 @@ function analysis(code, uri) {
                     }
                 }
             } else {
-                currentScope.push(fsymbol); /* for search at hand */
                 moduleType.set(name, fsymbol);
             }
         }
@@ -266,7 +264,7 @@ function analysis(code, uri) {
 
     function parseReturnStatement(node) {
         node.arguments.forEach((arg, index) => {
-            parseInitStatement(arg, index, 'R' + index, arg.range, false, (symbol) => {
+            parseInitStatement(arg, 0, 'R' + index, arg.range, false, (symbol) => {
                 if (currentFunc) {
                     // return from function
                     currentFunc.type.return(index, symbol);

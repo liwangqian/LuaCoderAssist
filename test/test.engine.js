@@ -41,4 +41,18 @@ fs.readFile('./test/textures/test01.lua', (err, data) => {
 
     let xt = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('xt', [1999, 2001], uri))[0]);
     console.log(xt);
+
+    let isnumber = engine.typeOf(engine.definitionProvider(new engine.DefinitionContext('isnumber', [1999, 2008], uri))[0]);
+    console.log(engine.typeOf(isnumber.returns[0]));
+
+    let execute = engine.definitionProvider(new engine.DefinitionContext('_os.execute', [1999, 2001], uri))[0];
+    console.log(execute);
 });
+
+// const loadLib_1 = require('../server/lib/engine/loadlib');
+// const symbols = loadLib_1.loadFile("./exlibs/std_5_3.json");
+// symbols.then((ss) => {
+//     console.log(JSON.stringify(ss, null, 2));
+// }, err => {
+//     console.log(JSON.stringify(err));
+// })

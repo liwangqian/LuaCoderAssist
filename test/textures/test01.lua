@@ -39,3 +39,10 @@ local n2 = n1 + 2
 local nb = n1 or (n1 + 2)
 
 local xt = CPubClass.new(nb)
+
+function isnumber(s)
+    local xt = 1
+    return s(xt) == 1
+end
+
+local handle = io.open('.')

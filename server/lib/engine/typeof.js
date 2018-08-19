@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('underscore');
-const { LuaBasicTypes, LazyValue } = require('./symbol');
+const { LuaBasicTypes, LazyValue, LuaSymbolKind } = require('./symbol');
 const { StackNode } = require('./linear-stack');
 const { LoadedPackages } = require('./luaenv');
 const Is = require('./is');
@@ -19,23 +19,24 @@ function typeOf(symbol) {
     let type
     try {
         type = deduceType(symbol.type);
+        type = deduceType(type); // once again
     } catch (err) {
         type = LuaBasicTypes.any;
     }
 
-    symbol.type = deduceType(type); // once again
+    if (Is.luaTable(type)) {
+        symbol.kind = LuaSymbolKind.class;
+    } else if (Is.luaFunction(type)) {
+        symbol.kind = LuaSymbolKind.function;
+    }
+
+    symbol.type = type;
     return symbol.type;
 }
 
 function deduceType(type) {
     if (!Is.lazyValue(type)) {
         return type;
-    }
-
-    const value = type.context.search(type.name);
-    let namedType = value && value.type;
-    if (namedType) {
-        return namedType;
     }
 
     let typeSymbol = parseAstNode(type.node, type);
@@ -81,17 +82,6 @@ function parseLogicalExpression(node, type) {
     }
 }
 
-function extractBasesName(node) {
-    let bases = [];
-    const _walk = (base) => {
-        if (!base) return;
-        _walk(base.base);
-        bases.push(base.name || base.identifier.name);
-    }
-    _walk(node);
-    return bases;
-}
-
 function parseCallExpression(node, type) {
     let ftype = parseMemberExpression(node.base, type);
     if (!Is.luaFunction(ftype)) {
@@ -105,7 +95,7 @@ function parseCallExpression(node, type) {
 function parseMemberExpression(node, type) {
     let names = utils_1.baseNames(node);
     let name = names[0];
-    let symbol = type.context.search(name);
+    let symbol = type.context.search(name, node.range, d => d.name === name);
     if (!symbol) {
         return null;
     }
@@ -145,7 +135,7 @@ function parseBinaryExpression(node, type) {
         case '<':
         case '>=':
         case '<=':
-            return LuaBasicTypes.bool;
+            return LuaBasicTypes.boolean;
         case '+':
         case '-':
         case '*':
@@ -217,7 +207,7 @@ function findDef(name, uri, range) {
     if (!theModule) {
         return null;
     }
-    return theModule.type.menv.search(name, range, (data) => {
+    return theModule.type.search(name, range, (data) => {
         return data.name === name
     });
 }
