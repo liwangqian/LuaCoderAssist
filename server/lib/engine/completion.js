@@ -39,10 +39,6 @@ function completionProvider(context) {
     let index = searchInnerStackIndex(stack, context.range);
     let skipNode = (node) => ScopeEnd.is(node);
 
-    if (index === 0) {
-        return [];
-    }
-
     //Case: abc
     if (namesLength === 1) {
         completionMapCache = new Map();

@@ -91,6 +91,7 @@ class LuaSymbol {
         this.uri = uri;
         this.kind = kind;
         this.type = type;
+        this.state = null;
     }
 
     get(key) {
@@ -99,6 +100,10 @@ class LuaSymbol {
 
     set(key, value) {
         this.type.set(key, value);
+    }
+
+    get valid() {
+        return this.state && this.state.valid;
     }
 }
 
@@ -191,8 +196,8 @@ class LuaTable extends LuaTypeBase {
         this._fields = {};
     }
 
-    set(key, value) {
-        if (this._fields[key]) {
+    set(key, value, force) {
+        if (!force && this._fields[key]) {
             return;
         }
 
@@ -342,6 +347,7 @@ class LuaModule extends LuaTable {
         this.imports = [];
         this.return = null;
         this.moduleMode = false;
+        this.state = { valid: true };
     }
 
     import(moduleName) {
@@ -355,6 +361,14 @@ class LuaModule extends LuaTable {
         }
 
         return super.search(name).value;
+    }
+
+    get valid() {
+        return this.state.valid;
+    }
+
+    invalidate() {
+        this.state.valid = false;
     }
 }
 
