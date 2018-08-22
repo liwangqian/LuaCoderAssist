@@ -122,4 +122,3 @@ documents.onDidClose(event => {
 documents.listen(connection);
 // Listen on the connection
 connection.listen();
-//# sourceMappingURL=server.js.map

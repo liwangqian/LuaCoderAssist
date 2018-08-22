@@ -7,9 +7,11 @@ const createTableSymbol = (name, loc, range, local) => {
 }
 
 const _G = createTableSymbol('_G', [0, 3], [0, Infinity], false);
+_G.state = { valid: true };
 const LoadedPackages = {};
 
 const global__metatable = createTableSymbol('_G__metatable', [0, 0], [0, Infinity], false);
+global__metatable.state = { valid: true };
 global__metatable.set('__index', _G);
 
 module.exports = {

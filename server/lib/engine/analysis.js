@@ -6,23 +6,42 @@ const { typeOf } = require('./typeof');
 
 function parseDocument(code, uri, logger) {
     try {
-        let m = analysis(code, uri);
+        invalidateModuleSymbols(uri);
+
+        let mdl = analysis(code, uri);
         const _package = _G.get('package');
         if (_package) {
             typeOf(_package); // deduce type.
             const loaded = _package.get('loaded');
-            let loadedModules = loaded.get(m.name);
+            let loadedModules = loaded.get(mdl.name);
             if (!loadedModules) {
                 loadedModules = {};
-                loaded.set(m.name, loadedModules);
+                loaded.set(mdl.name, loadedModules);
             }
-            loadedModules[m.uri] = m;
+            loadedModules[uri] = mdl;
         }
 
         // 用于方便查找定义
-        LoadedPackages[uri] = m;
+        LoadedPackages[uri] = mdl;
+        clearInvalidSymbols();
     } catch (err) {
         logger.error(err.stack);
+    }
+}
+
+function invalidateModuleSymbols(uri) {
+    const _package = LoadedPackages[uri];
+    if (_package) {
+        _package.invalidate();
+    }
+}
+
+function clearInvalidSymbols() {
+    let globals = _G.type._fields;
+    for (const name in globals) {
+        if (!globals[name].valid) {
+            delete globals[name];
+        }
     }
 }
 

@@ -19,7 +19,6 @@ function typeOf(symbol) {
     let type
     try {
         type = deduceType(symbol.type);
-        type = deduceType(type); // once again
     } catch (err) {
         type = LuaBasicTypes.any;
     }
@@ -40,7 +39,7 @@ function deduceType(type) {
     }
 
     let typeSymbol = parseAstNode(type.node, type);
-    return typeSymbol || LuaBasicTypes.any;
+    return deduceType(typeSymbol) || LuaBasicTypes.any;
 }
 
 function mergeType(left, right) {

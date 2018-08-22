@@ -539,3 +539,60 @@ end
 function next(tbl, index)
     return _as.number('next index') or nil, _as.any('value')
 end
+
+function pairs(t)
+    return next, _as.table(t), nil
+end
+
+function pcall(f, arg1, ...)
+    return _as.boolean('excution state'), _as.string('error message') or
+        _as.any('returns from f(arg1, ...)')
+end
+
+function print(...)
+end
+
+function rawget(table, index)
+    return _as.any('the value')
+end
+
+function rawequal(v1, v2)
+    return v1 == v2
+end
+
+function rawset(table, index, value)
+    return _as.table(table)
+end
+
+function select(index, ...)
+    return _as.any('value') or _as.number('for index is #')
+end
+
+function setfenv(f, table)
+    return _as.func(f)
+end
+
+function setmetatable(table, metatable)
+    return _as.table(table)
+end
+
+function tonumber(e, base)
+    return _as.number() or nil
+end
+
+function tostring(e)
+    return _as.string()
+end
+
+function type(v)
+    return _as.string('type name')
+end
+
+function unpack(list, i, j)
+    return _as.any()
+end
+
+function xpcall(f, err)
+    return _as.boolean('excution state'), _as.string('error message') or
+        _as.any('returns from f(arg1, ...)')
+end

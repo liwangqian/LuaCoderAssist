@@ -91,7 +91,7 @@ class LuaSymbol {
         this.uri = uri;
         this.kind = kind;
         this.type = type;
-        this.state = null;
+        this.state = null; //refer to module's state
     }
 
     get(key) {
@@ -103,11 +103,16 @@ class LuaSymbol {
     }
 
     get valid() {
-        return this.state && this.state.valid;
+        return this.state.valid;
+    }
+
+    invalidate() {
+        this.state.valid = false;
     }
 }
 
 LuaSymbol.nil = new LuaSymbol();
+LuaSymbol.nil.state = { valid: false };
 exports.LuaSymbol = LuaSymbol;
 
 const LuaTypes = {
@@ -124,8 +129,6 @@ const LuaTypes = {
 class LuaTypeBase {
     constructor(typeName) {
         this.typeName = typeName;
-        this.desc = null;
-        this.detail = null;
     }
 }
 
@@ -196,8 +199,9 @@ class LuaTable extends LuaTypeBase {
         this._fields = {};
     }
 
-    set(key, value, force) {
-        if (!force && this._fields[key]) {
+    set(key, value) {
+        const ov = this._fields[key];
+        if (ov && ov.valid) {
             return;
         }
 
@@ -361,14 +365,6 @@ class LuaModule extends LuaTable {
         }
 
         return super.search(name).value;
-    }
-
-    get valid() {
-        return this.state.valid;
-    }
-
-    invalidate() {
-        this.state.valid = false;
     }
 }
 
