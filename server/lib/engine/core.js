@@ -45,8 +45,7 @@ function analysis(code, uri) {
     }
 
     function parseInitStatement(init, index, name, location, isLocal, done) {
-        if (!init) return;
-        if (init.type === 'TableConstructorExpression') {
+        if (init && init.type === 'TableConstructorExpression') {
             let type = parseTableConstructorExpression(init);
             let kind = LuaSymbolKind.table;
             let range = Range.rangeOf(location, currentScope.range);
@@ -54,11 +53,11 @@ function analysis(code, uri) {
             table.state = theModule.state;
             done(table);
             return;
-        } else if (init.type === 'FunctionDeclaration') {
+        } else if (init && init.type === 'FunctionDeclaration') {
             parseFunctionDeclaration(init, name, location, isLocal, done);
             return;
         } else {
-            let type = newValue(new LuaContext(moduleType), init, utils_1.safeName(init), index);
+            let type = init ? newValue(new LuaContext(moduleType), init, utils_1.safeName(init), index) : LuaBasicTypes.any;
             let range = Range.rangeOf(location, currentScope.range);
             let lazy = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.variable, type);
             lazy.state = theModule.state;

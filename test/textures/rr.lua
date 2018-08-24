@@ -1,6 +1,7 @@
-local x = 0
+local xyz
 
-coroutine.create()
-function function_name( ... )
-    -- body
-end
+xyz = {
+    name = 'xyz'
+}
+
+xyz.name = ''
