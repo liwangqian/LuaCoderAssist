@@ -39,6 +39,7 @@ class CompletionProvider {
         detail.push(data.local ? 'local ' : '');
         utils.symbolSignature(data, detail);
         item.detail = detail.join('');
+        utils.functionSnippet(item, data);
         return item;
     }
 };

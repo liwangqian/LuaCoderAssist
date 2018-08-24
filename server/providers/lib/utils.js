@@ -198,6 +198,19 @@ function functionSignature(symbol, details) {
 
 exports.symbolSignature = functionSignature;
 
+function functionSnippet(item, symbol) {
+    const args = symbol.type.args;
+    if (symbol.type.typeName !== 'function') {
+        return;
+    }
+
+    let snippet = symbol.name + '(' + args.map((p, i) => `\${${i + 1}:${p.name}}`).join(', ') + ')';
+    item.insertText = snippet;
+    item.insertTextFormat = langserver_1.InsertTextFormat.Snippet;
+}
+
+exports.functionSnippet = functionSnippet;
+
 function findDefByNameAndScope(name, location, defs) {
     for (let i = 0; i < defs.length; i++) {
         let d = defs[i];
