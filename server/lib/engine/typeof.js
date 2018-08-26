@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('underscore');
-const { LuaBasicTypes, LazyValue, LuaSymbolKind, LuaSymbol } = require('./symbol');
+const { LuaBasicTypes, LazyValue, LuaSymbolKind, LuaSymbol, LuaTable } = require('./symbol');
 const { StackNode } = require('./linear-stack');
 const { LoadedPackages } = require('./luaenv');
 const Is = require('./is');
@@ -92,8 +92,35 @@ function parseCallExpression(node, type) {
         return null;
     }
 
+    // 推导调用参数类型，用来支持推导返回值类型
+    const func_argt = type.node.arguments.map((arg, index) => {
+        return { name: ftype.args[index].name, type: parseAstNode(arg, type) };
+    });
+
+    let rt = parseForStdlibFunction(node.base.name, func_argt, type);
+    if (rt) {
+        return rt;
+    }
+
     let R = ftype.returns[type.index || 0];
+    R.type.context.func_argt = func_argt; // dynamic add
+
     return typeOf(R); //deduce the type
+}
+
+function parseForStdlibFunction(funcName, argsType, type) {
+    switch (funcName) {
+        case 'setmetatable':
+            let table = argsType[0].type;
+            if (Is.luaTable(table)) {
+                let mt = new LuaSymbol('__mt', null, null, true, type.context.module.uri, LuaSymbolKind.table, argsType[1].type);
+                table.setmetatable(mt);
+            }
+            return table;
+        case 'require':
+        default:
+            break;
+    }
 }
 
 function parseMemberExpression(node, type) {
@@ -152,9 +179,39 @@ function parseBinaryExpression(node, type) {
     }
 }
 
+function parseTableConstructorExpression(node, type) {
+    let table = new LuaTable();
+    node.fields.forEach(field => {
+        if (field.type !== 'TableKeyString') {
+            return;
+        }
+
+        let name = field.key.name;
+        let ft = parseAstNode(field.value, type);
+        let fs = new LuaSymbol(name, field.key.range, node.range, true, type.context.module.uri, LuaSymbolKind.property, ft);
+        table.set(name, fs);
+    });
+    return table;
+}
+
 function parseIdentifier(node, type) {
+    let func_argt = type.context.func_argt;
+    let identType;
+    func_argt && func_argt.forEach(argt => {
+        if (argt.name === node.name) {
+            identType = argt.type;
+        }
+    });
+    if (identType && !Is.luaAny(identType)) {
+        return identType;
+    }
+
     let symbol = type.context.search(node.name);
     return symbol && typeOf(symbol);
+}
+
+function parseVarargLiteral(node, type) {
+    return parseIdentifier({ name: node.value }, type);
 }
 
 function parseAstNode(node, type) {
@@ -181,6 +238,10 @@ function parseAstNode(node, type) {
             return parseCallExpression(node, type);
         case 'LogicalExpression':
             return parseLogicalExpression(node, type);
+        case 'TableConstructorExpression':
+            return parseTableConstructorExpression(node, type);
+        case 'VarargLiteral':
+            return parseVarargLiteral(node, type);
         case 'MergeType':
             return mergeType(node.left, node.right);
         default:

@@ -222,7 +222,7 @@ class LuaTable extends LuaTypeBase {
     }
 
     setmetatable(mt) {
-        if (mt.type instanceof LuaTable) {
+        if (mt === null || mt.type instanceof LuaTable) {
             this._metatable = mt;
         }
     }
