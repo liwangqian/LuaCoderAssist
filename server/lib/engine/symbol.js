@@ -91,6 +91,7 @@ class LuaSymbol {
         this.uri = uri;
         this.kind = kind;
         this.type = type;
+        this.container = null;
         this.state = null; //refer to module's state
     }
 
@@ -212,6 +213,10 @@ class LuaTable extends LuaTypeBase {
         return this._fields[key];
     }
 
+    get fields() {
+        return this._fields;
+    }
+
     getmetatable() {
         return this._metatable;
     }
@@ -319,7 +324,7 @@ exports.LuaFunction = LuaFunction;
 
 class LuaModuleEnv {
     constructor() {
-        // this.globals = new LuaTable();
+        this.globals = new LuaTable();
         // this.stack = new LuaTable();
         this.stack = new LinearStack();
     }
@@ -359,6 +364,7 @@ class LuaModule extends LuaTable {
     }
 
     search(name, location, filter) {
+        filter = filter || (symbol => symbol.name === name);
         let symbol = this.menv.search(name, location, filter);
         if (symbol) {
             return symbol;

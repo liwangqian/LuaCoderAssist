@@ -1,32 +1,54 @@
 'use strict';
 
-const traits = require('../lib/symbol/symbol-traits');
-const utils_1 = require('./lib/utils');
-const symbol_manager_1 = require('./lib/symbol-manager');
+const { LoadedPackages, _G } = require('../lib/engine/luaenv');
+const { LuaSymbolKind } = require('../lib/engine/symbol');
+const is = require('../lib/engine/is');
+const utils_1 = require('../lib/engine/utils');
 const langserver_1 = require('vscode-languageserver');
+
+function mapSymbolKind(kind) {
+    switch (kind) {
+        case LuaSymbolKind.function: return langserver_1.SymbolKind.Function;
+        case LuaSymbolKind.class: return langserver_1.SymbolKind.Class;
+        case LuaSymbolKind.table: return langserver_1.SymbolKind.Class;
+        case LuaSymbolKind.module: return langserver_1.SymbolKind.Module;
+        case LuaSymbolKind.property: return langserver_1.SymbolKind.Property;
+        default: return langserver_1.SymbolKind.Variable;
+    }
+}
 
 class SymbolProvider {
     constructor(coder) {
         this.coder = coder;
-        this.symbolManager = symbol_manager_1.instance();
-        this.symbolManager.init(coder);
     }
 
     provideDocumentSymbols(uri) {
-        var documentSymbol = this.symbolManager.documentSymbol(uri);
-        var definitions = documentSymbol && documentSymbol.definitions();
-        definitions = definitions || [];
+        const mdl = LoadedPackages[uri];
+        if (!mdl) {
+            return [];
+        }
 
+        let defs = utils_1.object2Array(mdl.type.fields).concat(...utils_1.object2Array(mdl.type.menv.globals.fields));
+        let stack = mdl.type.menv.stack;
         let showFunctionGlobalOnly = this.coder.settings.symbol.showFunctionGlobalOnly;
-        return definitions.filter(def => {
-            return (def.name !== '_') && (showFunctionGlobalOnly ? !def.islocal || def.kind === traits.SymbolKind.function : true);
-        }).map(def => {
+        stack.forEach((def) => {
+            if (!showFunctionGlobalOnly || !def.isLocal || is.luaFunction(def.type) || is.luaTable(def.type)) {
+                defs.push(def);
+                if (is.luaTable(def.type)) {
+                    defs.push(...utils_1.object2Array(def.type.fields));
+                }
+            }
+        });
+
+        return defs.map(def => {
+            const document = this.coder.document(def.uri);
+            const start = document.positionAt(def.location[0]);
+            const end = document.positionAt(def.location[1]);
             return langserver_1.SymbolInformation.create(
                 def.name,
-                utils_1.mapSymbolKind(def.kind),
-                def.location,
-                def.uri,
-                def.bases[def.bases.length - 1] || def.container.name);
+                mapSymbolKind(def.kind),
+                langserver_1.Range.create(start, end),
+                def.uri, def.container);
         });
     }
 };

@@ -18,9 +18,9 @@ class DefinitionProvider {
             return [];
         }
 
-        let allDefs = definitionProvider(new DefinitionContext(ref.name, ref.range, uri));
+        let defs = definitionProvider(new DefinitionContext(ref.name, ref.range, uri));
 
-        return allDefs.map(d => {
+        return defs.map(d => {
             const document = this.coder.document(d.uri);
             const start = document.positionAt(d.location[0]);
             const end = document.positionAt(d.location[1]);

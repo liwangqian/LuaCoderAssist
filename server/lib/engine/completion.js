@@ -46,7 +46,7 @@ function completionProvider(context) {
         while (node) {
             const name = node.data.name;
             !skipNode(node) && !completionMapCache.has(name) && completionMapCache.set(name, node.data);
-            node = node._prevNode;
+            node = node.prev;
         };
 
         theModule.type.walk(fields => {
@@ -83,7 +83,7 @@ function completionProvider(context) {
     }
 
     const filter = item => context.functionOnly && !Is.luaFunction(item.type);
-    return object2Array(def.type._fields || def.type.returns, filter);
+    return object2Array(def.type.fields || def.type.returns, filter);
 }
 
 module.exports = {

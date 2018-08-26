@@ -46,7 +46,7 @@ function analysis(code, uri) {
 
     function parseInitStatement(init, index, name, location, isLocal, done) {
         if (init && init.type === 'TableConstructorExpression') {
-            let type = parseTableConstructorExpression(init);
+            let type = parseTableConstructorExpression(init, name);
             let kind = LuaSymbolKind.table;
             let range = Range.rangeOf(location, currentScope.range);
             let table = new LuaSymbol(name, location, range, isLocal, uri, kind, type);
@@ -121,33 +121,35 @@ function analysis(code, uri) {
 
             // search parent
             const predict = (S) => { return (S.name === name) && (!S.local || S.range[1] <= variable.range[0]) };
-            let value;
+            let parent;
             let bName = utils_1.baseNames(variable.base);
             if (bName.length > 0) {
-                value = utils_1.directParent(rootStack, bName);
-                if (!value || !is.luaTable(value.type)) {
+                parent = utils_1.directParent(rootStack, bName);
+                if (!parent || !is.luaTable(parent.type)) {
                     return;
                 }
             } else {
-                value = rootStack.search(predict);
-                if (value && !is.luaAny(value.type)) {
+                parent = rootStack.search(predict);
+                if (parent && !is.luaAny(parent.type)) {
                     return;
                 }
             }
 
             let idx = index - prevInitIndex;
             parseInitStatement(init, idx, name, variable.range, false, (symbol) => {
-                if (value) {
-                    if (is.luaTable(typeOf(value))) {
-                        value.set(name, symbol);
+                if (parent) {
+                    if (is.luaTable(typeOf(parent))) {
+                        parent.set(name, symbol);
+                        symbol.container = parent.name;
                     } else {
-                        value.type = symbol.type;  // local xzy; xzy = 1
+                        parent.type = symbol.type;  // local xzy; xzy = 1
                     }
                 } else {
                     if (moduleType.moduleMode) {
                         moduleType.set(name, symbol);
                     } else {
                         _G.set(name, symbol);
+                        moduleType.menv.globals.set(name, symbol);
                     }
                 }
             });
@@ -155,14 +157,17 @@ function analysis(code, uri) {
     }
 
     // OK
-    function parseTableConstructorExpression(node) {
+    function parseTableConstructorExpression(node, container) {
         let table = new LuaTable();
         node.fields.forEach((field) => {
             if (field.type !== 'TableKeyString') {
                 return;
             }
             let name = field.key.name;
-            parseInitStatement(field.value, 0, name, field.key.range, false, symbol => table.set(name, symbol));
+            parseInitStatement(field.value, 0, name, field.key.range, false, symbol => {
+                table.set(name, symbol);
+                symbol.container = container;
+            });
         });
 
         return table;
@@ -208,6 +213,7 @@ function analysis(code, uri) {
                 if (parent && is.luaTable(parent.type)) {
                     parent.kind = LuaSymbolKind.class;
                     parent.set(name, fsymbol);
+                    fsymbol.container = parent.name;
                     if (node.identifier.indexer === ':') {
                         _self = new LuaSymbol('self', parent.location, range, true, parent.kind, parent.type);
                         _self.state = theModule.state;
@@ -218,6 +224,7 @@ function analysis(code, uri) {
                     moduleType.set(name, fsymbol);
                 } else {
                     _G.set(name, fsymbol);
+                    moduleType.menv.globals.set(name, fsymbol);
                 }
 
             }
@@ -252,15 +259,13 @@ function analysis(code, uri) {
             moduleType.moduleMode = true;
         }
 
-        if (moduleType.moduleMode) {
-            if (fname === 'require') {
-                let param = (node.argument || node.arguments[0]);
-                parseDependence(node, param);
-            } else if (fname === 'pcall' && node.arguments[0].value === 'require') {
-                parseDependence(node, node.arguments[1]);
-            } else {
-                //empty
-            }
+        if (fname === 'require') {
+            let param = (node.argument || node.arguments[0]);
+            parseDependence(node, param);
+        } else if (fname === 'pcall' && node.arguments[0].value === 'require') {
+            parseDependence(node, node.arguments[1]);
+        } else {
+            //empty
         }
     }
 
@@ -380,8 +385,8 @@ function analysis(code, uri) {
 
     walkNode(node);
 
-    if (theModule.name == null) {
-        theModule.name = theModule.kind.fileName;
+    if (moduleType.moduleMode) {
+        _G.set(theModule.name, theModule);
     }
 
     return theModule;

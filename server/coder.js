@@ -97,23 +97,14 @@ class Coder {
 
         preload_1.loadAll(this);
         fileManager.searchFiles(settings.search, ".lua");
-
-        // todo:
-        symbol_manager_1.instance().updateOptions(settings);
     }
 
     onDidChangeContent(change) {
         let uri = change.document.uri;
-        // symbol_manager_1.instance().parseDocument(
-        //     uri,
-        //     change.document.getText(),
-        //     change.document.lineCount
-        // ).then(ok => {
-        //     if (this.settings.luacheck.onTyping) {
-        //         this._diagnosticProvider.provideDiagnostics(uri);
-        //     }
-        // });
-        engine.parseDocument(change.document.getText(), uri, this.tracer);
+        const mdl = engine.parseDocument(change.document.getText(), uri, this.tracer);
+        if (mdl) {
+            setTimeout(parseDependences, 0, mdl, this);
+        }
     }
 
     onDidSave(params) {
@@ -149,6 +140,8 @@ class Coder {
     }
 
     provideDefinitions(params) {
+        // 针对刚开始打开文件时，工程目录下的文件还没找出来，导致无法提供符号跳转
+        setTimeout(parseDependences, 0, engine.LoadedPackages[params.textDocument.uri], this);
         const defs = this._definitionProvider.provideDefinitions(params);
         return defs;
     }
@@ -212,6 +205,25 @@ function instance() {
     }
 
     return _coderInstance;
+}
+
+function parseDependences(mdl, coder) {
+    if (!mdl) {
+        return;
+    }
+
+    const fileManager = file_manager_1.instance();
+    mdl.type.imports.forEach(dep => {
+        const files = fileManager.getFiles(dep.name);
+        files.forEach(file => {
+            const uri = uri_1.file(file).toString();
+            if (engine.LoadedPackages[uri]) {
+                return;
+            }
+            const doc = coder.document(uri);
+            engine.parseDocument(doc.getText(), uri, coder, coder.tracer)
+        })
+    })
 }
 
 exports.instance = instance;

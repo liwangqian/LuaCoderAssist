@@ -4,4 +4,4 @@ xyz = {
     name = 'xyz'
 }
 
-xyz.name = ''
+local x = setmetatable({}, {__index = xyz})

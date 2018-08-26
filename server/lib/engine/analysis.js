@@ -24,8 +24,10 @@ function parseDocument(code, uri, logger) {
         // 用于方便查找定义
         LoadedPackages[uri] = mdl;
         clearInvalidSymbols();
+        return mdl;
     } catch (err) {
         logger.error(err.stack);
+        return null;
     }
 }
 
@@ -37,7 +39,7 @@ function invalidateModuleSymbols(uri) {
 }
 
 function clearInvalidSymbols() {
-    let globals = _G.type._fields;
+    let globals = _G.type.fields;
     for (const name in globals) {
         if (!globals[name].valid) {
             delete globals[name];

@@ -16,17 +16,22 @@ function typeOf(symbol) {
         return LuaBasicTypes.any;
     }
 
-    let type
+    let type = symbol.type;
+    let isLazy = Is.lazyValue(type);
     try {
-        type = deduceType(symbol.type);
+        type = deduceType(type);
     } catch (err) {
         type = LuaBasicTypes.any;
     }
 
-    if (Is.luaTable(type)) {
-        symbol.kind = LuaSymbolKind.class;
-    } else if (Is.luaFunction(type)) {
-        symbol.kind = LuaSymbolKind.function;
+    if (isLazy) {
+        if (Is.luaModule(type)) {
+            symbol.kind = LuaSymbolKind.module;
+        } else if (Is.luaTable(type)) {
+            symbol.kind = LuaSymbolKind.class;
+        } else if (Is.luaFunction(type)) {
+            symbol.kind = LuaSymbolKind.function;
+        }
     }
 
     symbol.type = type;
