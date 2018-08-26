@@ -215,7 +215,7 @@ function analysis(code, uri) {
                     parent.set(name, fsymbol);
                     fsymbol.container = parent.name;
                     if (node.identifier.indexer === ':') {
-                        _self = new LuaSymbol('self', parent.location, range, true, parent.kind, parent.type);
+                        _self = new LuaSymbol('self', parent.location, range, true, parent.uri, parent.kind, parent.type);
                         _self.state = theModule.state;
                     }
                 }

@@ -52,7 +52,7 @@ function definitionProvider(context) {
         }
     }
 
-    def = def.type.search(names[length - 1], context.range);
+    def = def.type.search(names[length - 1], context.range).value;
     if (def) {
         return [def];
     }

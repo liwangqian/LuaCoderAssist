@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('underscore');
-const { LuaBasicTypes, LazyValue, LuaSymbolKind } = require('./symbol');
+const { LuaBasicTypes, LazyValue, LuaSymbolKind, LuaSymbol } = require('./symbol');
 const { StackNode } = require('./linear-stack');
 const { LoadedPackages } = require('./luaenv');
 const Is = require('./is');
@@ -201,10 +201,11 @@ function searchInnerStackIndex(stack, location) {
 }
 
 /**
- * 
+ * Find the definition of symbol with name in document(uri)
  * @param {String} name symbol name 
  * @param {String} uri uri of the document
  * @param {Array<Number>} range range of the reference
+ * @return {LuaSymbol} The symbol
  */
 function findDef(name, uri, range) {
     let theModule = LoadedPackages[uri]
@@ -213,7 +214,7 @@ function findDef(name, uri, range) {
     }
     return theModule.type.search(name, range, (data) => {
         return data.name === name
-    });
+    }).value;
 }
 
 

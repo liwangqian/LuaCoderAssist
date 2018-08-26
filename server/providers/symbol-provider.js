@@ -1,6 +1,6 @@
 'use strict';
 
-const { LoadedPackages, _G } = require('../lib/engine/luaenv');
+const { LoadedPackages } = require('../lib/engine/luaenv');
 const { LuaSymbolKind } = require('../lib/engine/symbol');
 const is = require('../lib/engine/is');
 const utils_1 = require('../lib/engine/utils');
@@ -33,6 +33,9 @@ class SymbolProvider {
         let showFunctionGlobalOnly = this.coder.settings.symbol.showFunctionGlobalOnly;
         stack.forEach((def) => {
             if (!showFunctionGlobalOnly || !def.isLocal || is.luaFunction(def.type) || is.luaTable(def.type)) {
+                if (def.name === 'self') {
+                    return;
+                }
                 defs.push(def);
                 if (is.luaTable(def.type)) {
                     defs.push(...utils_1.object2Array(def.type.fields));

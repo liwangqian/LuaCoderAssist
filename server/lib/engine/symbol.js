@@ -337,6 +337,13 @@ class LuaModuleEnv {
         this.stack.push(symbol);
     }
 
+    /**
+     * Search a symbol in the module.
+     * @param {String} name The symbol name
+     * @param {Number[]} location The location of the symbol refer
+     * @param {Function} filter The filter function
+     * @return {LuaSymbol} The symbol
+     */
     search(name, location, filter) {
         const target = new StackNode(new LuaSymbol(name, location));
         const index = _.sortedIndex(this.stack.nodes, target, (node) => {
@@ -367,10 +374,10 @@ class LuaModule extends LuaTable {
         filter = filter || (symbol => symbol.name === name);
         let symbol = this.menv.search(name, location, filter);
         if (symbol) {
-            return symbol;
+            return new SearchResult(null, name, symbol);
         }
 
-        return super.search(name).value;
+        return super.search(name);
     }
 }
 
@@ -394,9 +401,7 @@ class LuaContext {
 
         // 查找全局变量
         let result = this.module.search(name, location, filter);
-        if (result) return result;
-
-        return null;
+        return result.value;
     }
 }
 
