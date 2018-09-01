@@ -6,7 +6,7 @@
   "version": "2.0.1",
   "publisher": "liwangqian",
   "engines": {
-    "vscode": "^1.11.0"
+    "vscode": "^1.25.0"
   },
   "categories": [
     "Programming Languages",
@@ -228,8 +228,8 @@
     "luaparse": "^0.2.1",
     "opn": "^5.1.0",
     "tree-kill": "^1.2.0",
-    "vscode-languageclient": "^3.4.5",
-    "vscode-languageserver": "^3.4.3",
+    "vscode-languageclient": "^5.0.0",
+    "vscode-languageserver": "^5.0.0",
     "vscode-uri": "^1.0.1",
     "walk": "^2.3.9",
     "underscore": "^1.9.0"

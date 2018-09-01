@@ -35,10 +35,7 @@ class CompletionProvider {
 
     resolveCompletion(item) {
         let data = this.cache[item.data.index];
-        let detail = [];
-        detail.push(data.local ? 'local ' : '');
-        utils.symbolSignature(data, detail);
-        item.detail = detail.join('');
+        item.detail = utils.symbolSignature(data);
         utils.functionSnippet(item, data);
         return item;
     }

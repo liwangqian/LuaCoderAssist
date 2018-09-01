@@ -177,12 +177,14 @@ function symbolAtPosition(position, doc, options) {
 
 exports.symbolAtPosition = symbolAtPosition;
 
-function functionSignature(symbol, details) {
+function functionSignature(symbol) {
+    let details = [];
+    details.push(symbol.isLocal ? 'local ' : '');
     let type = engine.typeOf(symbol);
     if (type.typeName !== 'function') {
         details.push(symbol.name);
         details.push(' : ', type.typeName);
-        return;
+        return details.join('');
     }
 
     let ret = type.returns.map(item => {
@@ -194,6 +196,7 @@ function functionSignature(symbol, details) {
     details.push('function ', symbol.name);
     details.push('(' + type.args.map(p => p.name).join(', ') + ') : ');
     details.push(ret.length == 0 ? 'void' : ret.join(', '));
+    return details.join('');
 }
 
 exports.symbolSignature = functionSignature;

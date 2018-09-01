@@ -49,10 +49,4 @@ fs.readFile('./test/textures/test01.lua', (err, data) => {
     console.log(execute);
 });
 
-// const loadLib_1 = require('../server/lib/engine/loadlib');
-// const symbols = loadLib_1.loadFile("./exlibs/std_5_3.json");
-// symbols.then((ss) => {
-//     console.log(JSON.stringify(ss, null, 2));
-// }, err => {
-//     console.log(JSON.stringify(err));
-// })
+console.log(void 0 === null);

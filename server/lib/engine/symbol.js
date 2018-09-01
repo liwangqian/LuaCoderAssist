@@ -19,6 +19,16 @@ const { LinearStack, StackNode } = require('./linear-stack');
 const _ = require('underscore');
 
 /**
+ * Deduce the type of symbol
+ * Define this function to resolve the dependence loop between symbol.js and typeof.js
+ * @param {LuaSymbol} symbol 
+ */
+function typeOf(symbol) {
+    const _typeOf = require('./typeof');
+    return _typeOf.typeOf(symbol);
+}
+
+/**
  * Range concept definition
  * A Range is half open [start(Number), end(Number))
  */
@@ -222,9 +232,7 @@ class LuaTable extends LuaTypeBase {
     }
 
     setmetatable(mt) {
-        if (mt === null || mt.type instanceof LuaTable) {
-            this._metatable = mt;
-        }
+        this._metatable = mt;
     }
 
     /**
@@ -234,22 +242,18 @@ class LuaTable extends LuaTypeBase {
      */
     search(key) {
         const _search = (table) => {
-            if (!table) {
-                return SearchResult.null;
-            }
-
             const value = table.get(key);
             if (value) {
                 return new SearchResult(table, key, value);
             }
 
-            const mt = table.getmetatable();
-            if (!mt || !(mt.type instanceof LuaTable)) {
+            const metatable = table.getmetatable();
+            if (!metatable || !(typeOf(metatable) instanceof LuaTable)) {
                 return SearchResult.null;
             }
 
-            const __index = mt.get('__index');
-            if (!__index || !(__index.type instanceof LuaTable)) {
+            const __index = metatable.get('__index');
+            if (!__index || !(typeOf(__index) instanceof LuaTable)) {
                 return SearchResult.null;
             }
 
@@ -261,13 +265,13 @@ class LuaTable extends LuaTypeBase {
 
     walk(solver) {
         solver(this._fields);
-        const mt = this.getmetatable();
-        if (!mt || !(mt.type instanceof LuaTable)) {
+        const metatable = this.getmetatable();
+        if (!metatable || !(typeOf(metatable) instanceof LuaTable)) {
             return;
         }
 
-        const __index = mt.get('__index');
-        if (!__index || !(__index.type instanceof LuaTable)) {
+        const __index = metatable.get('__index');
+        if (!__index || !(typeOf(__index) instanceof LuaTable)) {
             return;
         }
 
@@ -350,7 +354,7 @@ class LuaModuleEnv {
             return node.data.location[0] - location[0];
         });
 
-        return this.stack.search(filter, index);
+        return this.stack.search(filter, index) || this.globals.get(name);
     }
 }
 

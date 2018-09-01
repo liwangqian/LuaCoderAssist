@@ -1,3 +1,18 @@
+/******************************************************************************
+ *    Copyright 2018 The LuaCoderAssist Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
 'use strict';
 
 const { Scope } = require('./linear-stack');
@@ -253,19 +268,32 @@ function analysis(code, uri) {
 
     function parseCallExpression(node) {
         let fname = utils_1.identName(node.base);
-        if (fname === 'module') {
-            let mname = (node.argument || node.arguments[0]).value;
-            theModule.name = mname;
-            moduleType.moduleMode = true;
-        }
-
-        if (fname === 'require') {
-            let param = (node.argument || node.arguments[0]);
-            parseDependence(node, param);
-        } else if (fname === 'pcall' && node.arguments[0].value === 'require') {
-            parseDependence(node, node.arguments[1]);
-        } else {
-            //empty
+        switch (fname) {
+            case 'module':
+                let mname = (node.argument || node.arguments[0]).value;
+                theModule.name = mname;
+                moduleType.moduleMode = true;
+                return;
+            case 'require':
+                let param = (node.argument || node.arguments[0]);
+                parseDependence(node, param);
+                return;
+            case 'pcall':
+                if (node.arguments[0].value === 'require') {
+                    parseDependence(node, node.arguments[1]);
+                }
+                return;
+            case 'setmetatable':
+                // 第一个参数肯定是Identifier并且是定义可见的, 第二个参数是各种表达式
+                const tableNode = node.arguments[0];
+                const tableSymbol = moduleType.search(tableNode.name, tableNode.range).value;
+                if (is.luaTable(typeOf(tableSymbol))) {
+                    let mtt = newValue(new LuaContext(moduleType), node.arguments[1], '__mt');
+                    let mt = new LuaSymbol('__mt', null, null, true, uri, LuaSymbolKind.table, mtt);
+                    tableSymbol.type.setmetatable(mt);
+                }
+            default:
+                break;
         }
     }
 
