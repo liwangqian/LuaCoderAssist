@@ -101,8 +101,8 @@ class LuaSymbol {
         this.uri = uri;
         this.kind = kind;
         this.type = type;
-        this.container = null;
-        this.state = null; //refer to module's state
+        this.state = undefined; //refer to module's state
+        this.children = undefined;
     }
 
     get(key) {
@@ -119,6 +119,10 @@ class LuaSymbol {
 
     invalidate() {
         this.state.valid = false;
+    }
+
+    addChild(child) {
+        this.children.push(child);
     }
 }
 

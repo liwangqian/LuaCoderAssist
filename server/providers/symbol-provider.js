@@ -1,7 +1,7 @@
 'use strict';
 
 const { LoadedPackages } = require('../lib/engine/luaenv');
-const { LuaSymbolKind } = require('../lib/engine/symbol');
+const { LuaSymbolKind, LuaSymbol } = require('../lib/engine/symbol');
 const { typeOf } = require('../lib/engine/typeof');
 const is = require('../lib/engine/is');
 const utils_1 = require('../lib/engine/utils');
@@ -30,20 +30,12 @@ class SymbolProvider {
             return [];
         }
 
-        let defs = utils_1.object2Array(mdl.type.fields).concat(...utils_1.object2Array(mdl.type.menv.globals.fields));
-        let stack = mdl.type.menv.stack;
-        let showFunctionGlobalOnly = this.coder.settings.symbol.showFunctionGlobalOnly;
-        stack.forEach((def) => {
-            if (!showFunctionGlobalOnly || !def.isLocal || is.luaFunction(def.type) || is.luaTable(def.type)) {
-                if (def.name === 'self') {
-                    return;
-                }
-                defs.push(def);
-            }
-        });
-
         let mapper;
         mapper = (def) => {
+            if (!(def instanceof LuaSymbol)) {
+                return void 0;
+            }
+
             const document = this.coder.document(def.uri);
             const rstart = document.positionAt(def.range[0]);
             const rend = document.positionAt(def.range[1]);
@@ -55,13 +47,15 @@ class SymbolProvider {
                 mapSymbolKind(def.kind),
                 langserver_1.Range.create(rstart, rend),
                 langserver_1.Range.create(sstart, send),
-                is.luaTable(typeOf(def))
-                    ? utils_1.object2Array(def.type.fields).map(mapper)
-                    : void 0
+                def.children
+                    ? def.children.map(mapper)
+                    : (is.luaTable(typeOf(def))
+                        ? utils_1.object2Array(def.type.fields).map(mapper)
+                        : void 0)
             );
         }
 
-        let symbols = defs.map(mapper);
+        let symbols = mdl.children.map(mapper);
         return symbols;
     }
 };

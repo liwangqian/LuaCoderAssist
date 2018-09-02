@@ -17,27 +17,22 @@
 
 const { _G, LoadedPackages } = require('./luaenv');
 const { analysis } = require('./core');
-const { typeOf } = require('./typeof');
 
 function parseDocument(code, uri, logger) {
     try {
         invalidateModuleSymbols(uri);
 
         let mdl = analysis(code, uri);
-        const _package = _G.get('package');
-        if (_package) {
-            typeOf(_package); // deduce type.
-            const loaded = _package.get('loaded');
-            let loadedModules = loaded.get(mdl.name);
-            if (!loadedModules) {
-                loadedModules = {};
-                loaded.set(mdl.name, loadedModules);
-            }
-            loadedModules[uri] = mdl;
-        }
 
         // 用于方便查找定义
         LoadedPackages[uri] = mdl;
+        let packages = LoadedPackages[mdl.name];
+        if (!packages) {
+            packages = {};
+            LoadedPackages[mdl.name] = packages;
+        }
+        packages[mdl.uri] = mdl;
+
         clearInvalidSymbols();
         return mdl;
     } catch (err) {

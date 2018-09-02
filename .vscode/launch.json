@@ -4,9 +4,16 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "启动程序",
+            "name": "调试engine",
             // "program": "${workspaceFolder}\\client\\extension.js"
             "program": "${workspaceFolder}\\test\\test.engine.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "调试test",
+            // "program": "${workspaceFolder}\\client\\extension.js"
+            "program": "${workspaceFolder}\\test\\test.js"
         },
         {
             "type": "extensionHost",

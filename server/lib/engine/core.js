@@ -51,6 +51,7 @@ function analysis(code, uri) {
     let currentScope = new Scope(rootStack, rootRange);
     let theModule = new LuaSymbol(matchs[1], Range.new(0, 1), rootRange, false, uri, LuaSymbolKind.module, moduleType);
     theModule.state = { valid: true };
+    theModule.children = [];
 
     let funcStack = [];
     let currentFunc = null;
@@ -72,7 +73,12 @@ function analysis(code, uri) {
             parseFunctionDeclaration(init, name, location, isLocal, done);
             return;
         } else {
-            let type = init ? newValue(new LuaContext(moduleType), init, utils_1.safeName(init), index) : LuaBasicTypes.any;
+            let type;
+            if (init && init.name === name) {
+                // local string = string
+                type = typeOf(_G.get(name));
+            }
+            type = type || (init ? newValue(new LuaContext(moduleType), init, utils_1.safeName(init), index) : LuaBasicTypes.any);
             let range = Range.rangeOf(location, currentScope.range);
             let lazy = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.variable, type);
             lazy.state = theModule.state;
@@ -108,7 +114,10 @@ function analysis(code, uri) {
                 prevInitIndex = index;
             }
             let idx = index - prevInitIndex; // in case: local x, y, z = true, abc()
-            parseInitStatement(prevInit, idx, name, variable.range, true, symbol => currentScope.push(symbol));
+            parseInitStatement(prevInit, idx, name, variable.range, true, symbol => {
+                currentScope.push(symbol);
+                (currentFunc || theModule).addChild(symbol);
+            });
         });
     }
 
@@ -155,7 +164,6 @@ function analysis(code, uri) {
                 if (parent) {
                     if (is.luaTable(typeOf(parent))) {
                         parent.set(name, symbol);
-                        symbol.container = parent.name;
                     } else {
                         parent.type = symbol.type;  // local xzy; xzy = 1
                     }
@@ -172,7 +180,7 @@ function analysis(code, uri) {
     }
 
     // OK
-    function parseTableConstructorExpression(node, container) {
+    function parseTableConstructorExpression(node) {
         let table = new LuaTable();
         node.fields.forEach((field) => {
             if (field.type !== 'TableKeyString') {
@@ -181,7 +189,6 @@ function analysis(code, uri) {
             let name = field.key.name;
             parseInitStatement(field.value, 0, name, field.key.range, false, symbol => {
                 table.set(name, symbol);
-                symbol.container = container;
             });
         });
 
@@ -191,6 +198,7 @@ function analysis(code, uri) {
     // OK
     function parseFunctionDeclaration(node, lvName, lvLocation, lvIsLocal, done) {
         let location, name, isLocal;
+        let range = isLocal ? node.range : rootRange;
         if (node.identifier) {
             location = node.identifier.range;
             name = utils_1.identName(node.identifier);
@@ -199,12 +207,13 @@ function analysis(code, uri) {
             location = lvLocation;
             name = lvName;
             isLocal = lvIsLocal;
+            range[0] = location[0]; // enlarge to include the location
         }
 
-        let range = isLocal ? node.range : rootRange;
-        let type = new LuaFunction();
-        let fsymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.function, type);
+        let ftype = new LuaFunction();
+        let fsymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.function, ftype);
         fsymbol.state = theModule.state;
+        fsymbol.children = [];
         let _self;
 
         if (done) {
@@ -213,6 +222,7 @@ function analysis(code, uri) {
             /**
              * case: `local function foo() end`
             */
+            (currentFunc || theModule).addChild(fsymbol);
             currentScope.push(fsymbol);
         } else {
 
@@ -228,13 +238,13 @@ function analysis(code, uri) {
                 if (parent && is.luaTable(parent.type)) {
                     parent.kind = LuaSymbolKind.class;
                     parent.set(name, fsymbol);
-                    fsymbol.container = parent.name;
                     if (node.identifier.indexer === ':') {
                         _self = new LuaSymbol('self', parent.location, range, true, parent.uri, parent.kind, parent.type);
                         _self.state = theModule.state;
                     }
                 }
             } else {
+                (currentFunc || theModule).addChild(fsymbol);
                 if (moduleType.moduleMode) {
                     moduleType.set(name, fsymbol);
                 } else {
@@ -251,8 +261,9 @@ function analysis(code, uri) {
             let name = param.name || param.value;
             let symbol = new LuaSymbol(name, param.range, currentScope.range, true, uri, LuaSymbolKind.parameter, LuaBasicTypes.any);
             symbol.state = theModule.state;
+            fsymbol.addChild(symbol);
             currentScope.push(symbol);
-            type.param(index, symbol);
+            ftype.param(index, symbol);
         });
 
         /* self is defined after the params */
@@ -329,6 +340,7 @@ function analysis(code, uri) {
         if (!isPlaceHolder(name)) {
             let symbol = new LuaSymbol(name, variable.range, currentScope.range, true, uri, LuaSymbolKind.variable, LuaBasicTypes.number);
             symbol.state = theModule.state;
+            (currentFunc || theModule).addChild(symbol);
             currentScope.push(symbol);
         }
 
@@ -346,6 +358,7 @@ function analysis(code, uri) {
                 let type = newValue(new LuaContext(moduleType), node.iterators[0], index);
                 let symbol = new LuaSymbol(name, variable.range, currentScope.range, true, uri, LuaSymbolKind.variable, type);
                 symbol.state = theModule.state;
+                (currentFunc || theModule).addChild(symbol);
                 currentScope.push(symbol);
             }
         });
