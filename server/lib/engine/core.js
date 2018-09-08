@@ -168,7 +168,9 @@ function analysis(code, uri) {
                         parent.type = symbol.type;  // local xzy; xzy = 1
                     }
                 } else {
+                    (currentFunc || theModule).addChild(symbol);
                     if (moduleType.moduleMode) {
+                        currentScope.push(symbol);
                         moduleType.set(name, symbol);
                     } else {
                         _G.set(name, symbol);

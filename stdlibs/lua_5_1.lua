@@ -41,7 +41,7 @@ function _new.iterator()
 end
 
 function _as.table()
-    return _table
+    return {}
 end
 
 function _as.number()
@@ -562,6 +562,10 @@ end
 
 function rawset(table, index, value)
     return _as.table(table)
+end
+
+function require(fileName)
+    return _as.table()
 end
 
 function select(index, ...)

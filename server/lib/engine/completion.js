@@ -98,16 +98,21 @@ function completionProvider(context) {
     }
 
     const filter = item => context.functionOnly && !Is.luaFunction(item.type);
-    const children = Object.create(null);
-    def.type.walk(fields => {
-        for (const name in fields) {
-            const symbol = fields[name];
-            if (!children[name]) {
-                children[name] = symbol;
+    let children
+    if (Is.luaModule(def.type)) {
+        children = def.type.fields;
+    } else {
+        children = Object.create(null);
+        def.type.walk(fields => {
+            for (const name in fields) {
+                const symbol = fields[name];
+                if (!children[name]) {
+                    children[name] = symbol;
+                }
             }
-        }
+        });
+    }
 
-    });
     return object2Array(def.type.return || children, filter);
 }
 

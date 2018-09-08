@@ -60,7 +60,7 @@ function definitionProvider(context) {
 
     for (let i = 1; i < (length - 1); i++) {
         const name = names[i];
-        def = def.type.search(name).value;
+        def = def.type.search(name, context.range).value;
         if (!def || !Is.luaTable(typeOf(def))) {
             return [];
         }

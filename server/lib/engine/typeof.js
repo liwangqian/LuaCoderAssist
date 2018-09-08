@@ -54,7 +54,7 @@ function typeOf(symbol) {
     }
 
     symbol.type = type;
-    return symbol.type;
+    return type;
 }
 
 function deduceType(type) {
@@ -111,13 +111,29 @@ function parseCallExpression(node, type) {
         return null;
     }
 
+    const fname = node.base.name;
+    if (fname === 'require') {
+        let moduleName = node.arguments[0].value;
+        let shortPath = moduleName.replace('.', '/');
+        let mdls = LoadedPackages[moduleName]
+        // TODO：增加配置项，用来配置搜索路径，然后模拟lua的搜索方法搜索最优匹配模块
+        for (const uri in mdls) {
+            if (uri.includes(shortPath)) { // 查找最优匹配，如果存在多个最优匹配，则返回第一个
+                const ret = mdls[uri].type.return;
+                return ret && ret.type;
+            }
+        }
+
+        return null;
+    }
+
     let R = ftype.returns[type.index || 0];
     if (!Is.lazyValue(R.type)) {
         return R.type;
     }
 
     // 推导调用参数类型，用来支持推导返回值类型
-    const func_argt = type.node.arguments.map((arg, index) => {
+    const func_argt = node.arguments.map((arg, index) => {
         return { name: ftype.args[index].name, type: parseAstNode(arg, type) };
     });
 
@@ -161,7 +177,7 @@ function parseMemberExpression(node, type) {
             return null;
         }
         const name = names[i];
-        def = t.search(name).value;
+        def = t.search(name, node.base.range).value;
     }
 
     return typeOf(def);
