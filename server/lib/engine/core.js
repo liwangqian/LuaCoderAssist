@@ -78,11 +78,18 @@ function analysis(code, uri) {
                 // local string = string
                 type = typeOf(_G.get(name));
             }
-            type = type || (init ? newValue(new LuaContext(moduleType), init, utils_1.safeName(init), index) : LuaBasicTypes.any);
-            let range = Range.rangeOf(location, currentScope.range);
-            let lazy = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.variable, type);
-            lazy.state = theModule.state;
-            done(lazy);
+
+            let symbol;
+            if (init && init.type === 'CallExpression' && init.base.name === 'setmetatable') {
+                symbol = parseSetmetatable(init);
+            } else {
+                type = type || (init ? newValue(new LuaContext(moduleType), init, utils_1.safeName(init), index) : LuaBasicTypes.any);
+                let range = Range.rangeOf(location, currentScope.range);
+                symbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.variable, type);
+                symbol.state = theModule.state;
+            }
+
+            done(symbol);
             walkNode(init);
             return;
         }
@@ -297,17 +304,23 @@ function analysis(code, uri) {
                 }
                 return;
             case 'setmetatable':
-                // 第一个参数肯定是Identifier并且是定义可见的, 第二个参数是各种表达式
-                const tableNode = node.arguments[0];
-                const tableSymbol = moduleType.search(tableNode.name, tableNode.range).value;
-                if (is.luaTable(typeOf(tableSymbol))) {
-                    let mtt = newValue(new LuaContext(moduleType), node.arguments[1], '__mt');
-                    let mt = new LuaSymbol('__mt', null, null, true, uri, LuaSymbolKind.table, mtt);
-                    tableSymbol.type.setmetatable(mt);
-                }
+                parseSetmetatable(node);
+                return;
             default:
                 break;
         }
+    }
+
+    function parseSetmetatable(node) {
+        // 第一个参数肯定是Identifier并且是定义可见的, 第二个参数是各种表达式
+        const tableNode = node.arguments[0];
+        const tableSymbol = moduleType.search(tableNode.name, tableNode.range).value;
+        if (is.luaTable(typeOf(tableSymbol))) {
+            let mtt = newValue(new LuaContext(moduleType), node.arguments[1], '__mt');
+            let mt = new LuaSymbol('__mt', null, null, true, uri, LuaSymbolKind.table, mtt);
+            tableSymbol.type.setmetatable(mt);
+        }
+        return tableSymbol;
     }
 
     function parseScopeStatement(node) {
