@@ -279,6 +279,8 @@ function parseAstNode(node, type) {
             return parseLogicalExpression(node, type);
         case 'TableConstructorExpression':
             return parseTableConstructorExpression(node, type);
+        // case 'FunctionDeclaration':
+        //     return parseFunctionDeclaration(node, type);
         case 'VarargLiteral':
             return parseVarargLiteral(node, type);
         case 'MergeType':

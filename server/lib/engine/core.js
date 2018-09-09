@@ -80,15 +80,15 @@ function analysis(code, uri) {
             }
 
             let symbol;
+            let range = Range.rangeOf(location, currentScope.range);
             if (init && init.type === 'CallExpression' && init.base.name === 'setmetatable') {
-                symbol = parseSetmetatable(init);
+                symbol = parseSetmetatable(init, name, location, range, isLocal);
             } else {
                 type = type || (init ? newValue(new LuaContext(moduleType), init, utils_1.safeName(init), index) : LuaBasicTypes.any);
-                let range = Range.rangeOf(location, currentScope.range);
                 symbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.variable, type);
-                symbol.state = theModule.state;
             }
 
+            symbol && (symbol.state = theModule.state);
             done(symbol);
             walkNode(init);
             return;
@@ -122,6 +122,9 @@ function analysis(code, uri) {
             }
             let idx = index - prevInitIndex; // in case: local x, y, z = true, abc()
             parseInitStatement(prevInit, idx, name, variable.range, true, symbol => {
+                if (!symbol) {
+                    return;
+                }
                 currentScope.push(symbol);
                 (currentFunc || theModule).addChild(symbol);
             });
@@ -311,14 +314,28 @@ function analysis(code, uri) {
         }
     }
 
-    function parseSetmetatable(node) {
-        // 第一个参数肯定是Identifier并且是定义可见的, 第二个参数是各种表达式
+    function parseSetmetatable(node, name, location, range, isLocal) {
         const tableNode = node.arguments[0];
-        const tableSymbol = moduleType.search(tableNode.name, tableNode.range).value;
+        let tableSymbol;
+        if (tableNode.type === 'Identifier') {
+            tableSymbol = moduleType.search(tableNode.name, tableNode.range).value;
+        } else {
+            if (tableNode.type === 'TableConstructorExpression') {
+                let nodeType = parseTableConstructorExpression(tableNode);
+                tableSymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.table, nodeType);
+            }
+        }
         if (is.luaTable(typeOf(tableSymbol))) {
-            let mtt = newValue(new LuaContext(moduleType), node.arguments[1], '__mt');
-            let mt = new LuaSymbol('__mt', null, null, true, uri, LuaSymbolKind.table, mtt);
-            tableSymbol.type.setmetatable(mt);
+            let nodeType;
+            let metaNode = node.arguments[1];
+            if (metaNode.type === 'TableConstructorExpression') {
+                nodeType = parseTableConstructorExpression(metaNode);
+            } else {
+                nodeType = newValue(new LuaContext(moduleType), node.arguments[1], '__mt');
+            }
+
+            let metatable = new LuaSymbol('__mt', null, null, true, uri, LuaSymbolKind.table, nodeType);
+            tableSymbol.type.setmetatable(metatable);
         }
         return tableSymbol;
     }
