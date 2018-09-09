@@ -29,8 +29,11 @@ const global__metatable = createTableSymbol('_G__metatable', [0, 0], [0, Infinit
 global__metatable.state = { valid: true };
 global__metatable.set('__index', _G);
 
+const namedTypes = new Map();
+
 module.exports = {
     _G,
     LoadedPackages,
+    namedTypes,
     global__metatable
 }

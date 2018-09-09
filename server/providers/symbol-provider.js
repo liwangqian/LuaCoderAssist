@@ -30,32 +30,48 @@ class SymbolProvider {
             return [];
         }
 
-        let mapper;
-        mapper = (def) => {
+        let depth = 0, maxDepth = 5; //防止循环引用导致死循环
+        let walker, forall;
+        walker = (def, collection) => {
             if (!(def instanceof LuaSymbol)) {
-                return void 0;
+                return;
+            }
+
+            if (def.uri === null) {
+                return;
+            }
+
+            if (depth++ >= maxDepth) {
+                return;
             }
 
             const document = this.coder.document(def.uri);
-            const rstart = document.positionAt(def.range[0]);
-            const rend = document.positionAt(def.range[1]);
-            const sstart = document.positionAt(def.location[0]);
-            const send = document.positionAt(def.location[1]);
-            return langserver_1.DocumentSymbol.create(
-                def.name,
-                utils_2.symbolSignature(def),
-                mapSymbolKind(def.kind),
-                langserver_1.Range.create(rstart, rend),
-                langserver_1.Range.create(sstart, send),
+            const RangeOf = (loc) => {
+                return langserver_1.Range.create(document.positionAt(loc[0]), document.positionAt(loc[1]));
+            }
+            const symbol = langserver_1.DocumentSymbol.create(
+                def.name, utils_2.symbolSignature(def), mapSymbolKind(def.kind),
+                RangeOf(def.range), RangeOf(def.location),
                 def.children
-                    ? def.children.map(mapper)
+                    ? forall(def.children)
                     : (is.luaTable(typeOf(def))
-                        ? utils_1.object2Array(def.type.fields).map(mapper)
+                        ? forall(utils_1.object2Array(def.type.fields))
                         : void 0)
             );
+
+            collection.push(symbol);
+            depth--;
         }
 
-        let symbols = mdl.children.map(mapper);
+        forall = (children) => {
+            const collection = [];
+            children.forEach(child => {
+                walker(child, collection);
+            });
+            return collection;
+        }
+
+        let symbols = forall(mdl.children);
         return symbols;
     }
 };

@@ -4,6 +4,12 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "test-extend",
+            "program": "${workspaceFolder}\\server\\lib\\engine\\extend.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "调试engine",
             // "program": "${workspaceFolder}\\client\\extension.js"
             "program": "${workspaceFolder}\\test\\test.engine.js"
@@ -38,7 +44,6 @@
             "protocol": "inspector",
             "port": 6004,
             "sourceMaps": true,
-            "timeout": 100000,
             "outFiles": [
                 "${workspaceRoot}/server/**/*.js"
             ]

@@ -18,7 +18,7 @@
 const _ = require('underscore');
 const { LuaBasicTypes, LazyValue, LuaSymbolKind, LuaSymbol, LuaTable } = require('./symbol');
 const { StackNode } = require('./linear-stack');
-const { LoadedPackages } = require('./luaenv');
+const { LoadedPackages, namedTypes } = require('./luaenv');
 const Is = require('./is');
 const utils_1 = require('./utils');
 
@@ -65,6 +65,51 @@ function deduceType(type) {
     let typeSymbol = parseAstNode(type.node, type);
     return deduceType(typeSymbol) || LuaBasicTypes.any;
 }
+
+function parseAstNode(node, type) {
+    if (!node) return null;
+    switch (node.type) {
+        case 'ref':
+            return parseRefNode(node);
+        case 'StringLiteral':
+            return LuaBasicTypes.string;
+        case 'NumericLiteral':
+            return LuaBasicTypes.number;
+        case 'BooleanLiteral':
+            return LuaBasicTypes.boolean;
+        case 'NilLiteral':
+            return LuaBasicTypes.any;
+        case 'Identifier':
+            return parseIdentifier(node, type);
+        case 'UnaryExpression':
+            return parseUnaryExpression(node, type);
+        case 'BinaryExpression':
+            return parseBinaryExpression(node, type);
+        case 'MemberExpression':
+            return parseMemberExpression(node, type);
+        case 'StringCallExpression':
+        case 'CallExpression':
+            return parseCallExpression(node, type);
+        case 'LogicalExpression':
+            return parseLogicalExpression(node, type);
+        case 'TableConstructorExpression':
+            return parseTableConstructorExpression(node, type);
+        // case 'FunctionDeclaration':
+        //     return parseFunctionDeclaration(node, type);
+        case 'VarargLiteral':
+            return parseVarargLiteral(node, type);
+        case 'MergeType':
+            return mergeType(node.left, node.right);
+        default:
+            return null;
+    }
+}
+
+function parseRefNode(node) {
+    const refSymbol = namedTypes.get(node.name);
+    return refSymbol && refSymbol.type;
+}
+
 
 function mergeType(left, right) {
     let leftType = deduceType(left);
@@ -142,8 +187,9 @@ function parseCallExpression(node, type) {
         return rt;
     }
 
-    R.type.context.func_argt = func_argt; // dynamic add
-
+    if (R.type.context) {
+        R.type.context.func_argt = func_argt; // dynamic add
+    }
     return typeOf(R); //deduce the type
 }
 
@@ -251,43 +297,6 @@ function parseIdentifier(node, type) {
 
 function parseVarargLiteral(node, type) {
     return parseIdentifier({ name: node.value }, type);
-}
-
-function parseAstNode(node, type) {
-    if (!node) return null;
-    switch (node.type) {
-        case 'StringLiteral':
-            return LuaBasicTypes.string;
-        case 'NumericLiteral':
-            return LuaBasicTypes.number;
-        case 'BooleanLiteral':
-            return LuaBasicTypes.boolean;
-        case 'NilLiteral':
-            return LuaBasicTypes.any;
-        case 'Identifier':
-            return parseIdentifier(node, type);
-        case 'UnaryExpression':
-            return parseUnaryExpression(node, type);
-        case 'BinaryExpression':
-            return parseBinaryExpression(node, type);
-        case 'MemberExpression':
-            return parseMemberExpression(node, type);
-        case 'StringCallExpression':
-        case 'CallExpression':
-            return parseCallExpression(node, type);
-        case 'LogicalExpression':
-            return parseLogicalExpression(node, type);
-        case 'TableConstructorExpression':
-            return parseTableConstructorExpression(node, type);
-        // case 'FunctionDeclaration':
-        //     return parseFunctionDeclaration(node, type);
-        case 'VarargLiteral':
-            return parseVarargLiteral(node, type);
-        case 'MergeType':
-            return mergeType(node.left, node.right);
-        default:
-            return null;
-    }
 }
 
 /**

@@ -20,7 +20,9 @@ class DefinitionProvider {
 
         let defs = definitionProvider(new DefinitionContext(ref.name, ref.range, uri));
 
-        return defs.map(d => {
+        return defs.filter(d => {
+            return d.uri !== null;
+        }).map(d => {
             const document = this.coder.document(d.uri);
             const start = document.positionAt(d.location[0]);
             const end = document.positionAt(d.location[1]);

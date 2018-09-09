@@ -221,7 +221,7 @@ function parseDependences(mdl, coder) {
                 return;
             }
             const doc = coder.document(uri);
-            engine.parseDocument(doc.getText(), uri, coder, coder.tracer)
+            engine.parseDocument(doc.getText(), uri, coder.tracer)
         })
     })
 }

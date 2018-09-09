@@ -23,7 +23,7 @@ const {
     LuaTable,
     LuaModule,
     LuaContext,
-    newValue,
+    lazyType,
     Range,
     LuaBasicTypes
 } = require('./symbol');
@@ -84,7 +84,7 @@ function analysis(code, uri) {
             if (init && init.type === 'CallExpression' && init.base.name === 'setmetatable') {
                 symbol = parseSetmetatable(init, name, location, range, isLocal);
             } else {
-                type = type || (init ? newValue(new LuaContext(moduleType), init, utils_1.safeName(init), index) : LuaBasicTypes.any);
+                type = type || (init ? lazyType(new LuaContext(moduleType), init, utils_1.safeName(init), index) : LuaBasicTypes.any);
                 symbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.variable, type);
             }
 
@@ -101,7 +101,7 @@ function analysis(code, uri) {
         }
 
         let name = param.value.match(/\w+$/)[0];
-        let symbol = newValue(new LuaContext(moduleType), node, name, 0);
+        let symbol = lazyType(new LuaContext(moduleType), node, name, 0);
         moduleType.import(symbol);
     }
 
@@ -331,7 +331,7 @@ function analysis(code, uri) {
             if (metaNode.type === 'TableConstructorExpression') {
                 nodeType = parseTableConstructorExpression(metaNode);
             } else {
-                nodeType = newValue(new LuaContext(moduleType), node.arguments[1], '__mt');
+                nodeType = lazyType(new LuaContext(moduleType), node.arguments[1], '__mt');
             }
 
             let metatable = new LuaSymbol('__mt', null, null, true, uri, LuaSymbolKind.table, nodeType);
@@ -387,7 +387,7 @@ function analysis(code, uri) {
         variables.forEach((variable, index) => {
             let name = variable.name;
             if (!isPlaceHolder(name)) {
-                let type = newValue(new LuaContext(moduleType), node.iterators[0], index);
+                let type = lazyType(new LuaContext(moduleType), node.iterators[0], index);
                 let symbol = new LuaSymbol(name, variable.range, currentScope.range, true, uri, LuaSymbolKind.variable, type);
                 symbol.state = theModule.state;
                 (currentFunc || theModule).addChild(symbol);

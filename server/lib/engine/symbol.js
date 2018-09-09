@@ -103,6 +103,11 @@ class LuaSymbol {
         this.type = type;
         this.state = undefined; //refer to module's state
         this.children = undefined;
+
+        /*add for extend 3rd libraries in json format*/
+        this.displayName = undefined;
+        this.description = undefined;
+        this.link = undefined;
     }
 
     get(key) {
@@ -144,6 +149,8 @@ const LuaTypes = {
 class LuaTypeBase {
     constructor(typeName) {
         this.typeName = typeName;
+        this.description = undefined;
+        this.link = undefined;
     }
 }
 
@@ -298,6 +305,9 @@ class LuaFunction extends LuaTypeBase {
         this.args = [];
         this.returns = [];
         this.fenv = new LuaFunctionEnv();
+
+        /*support for override functions with different params*/
+        this.variants = undefined;
     }
 
     /**
@@ -438,8 +448,8 @@ exports.LazyValue = LazyValue;
  * @param {String} name The name of the symbol of the LazyType.
  * @param {Number} index Value index of right expression.
  */
-function newValue(context, node, name, index) {
+function lazyType(context, node, name, index) {
     return new LazyValue(context, node, name, index);
 }
 
-exports.newValue = newValue;
+exports.lazyType = lazyType;
