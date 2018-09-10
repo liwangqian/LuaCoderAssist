@@ -27,9 +27,9 @@ const { namedTypes, _G } = require('./luaenv');
 const fs_1 = require('fs');
 
 function loadExtentLib(filePath) {
-    fs_1.readFile(filePath, (error, data) => {
+    fs_1.readFile(filePath, 'utf8', (error, data) => {
         if (!error) {
-            const lib = JSON.parse(data.toString());
+            const lib = JSON.parse(data);
             parseNamedTypes(lib);
             parseModule(lib);
         }

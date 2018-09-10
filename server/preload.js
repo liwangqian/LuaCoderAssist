@@ -3,32 +3,27 @@
 const engine = require('./lib/engine');
 const uri_1 = require('vscode-uri').default;
 const extend_1 = require('./lib/engine/extend');
-const fs_1 = require('fs');
 
 const STD_PRELOADS = {
-    '5.1': 'stdlibs/lua_5_1.lua',
-    '5.2': 'stdlibs/lua_5_2.lua',
-    '5.3': 'stdlibs/lua_5_3.lua'
+    '5.1': 'stdlibs/5_1.json',
+    '5.2': 'stdlibs/5_2.json',
+    '5.3': 'stdlibs/5_3.json'
 }
 
 function loadAll(coder) {
     const preloads = coder.settings.preloads;
     const luaversion = coder.luaversion;
-    const filePath = coder.extensionPath + (STD_PRELOADS[luaversion] || 'stdlibs/lua_5_3.lua');
+    const filePath = coder.extensionPath + (STD_PRELOADS[luaversion] || 'stdlibs/5_3.json');
 
-    load(filePath, coder);
+    extend_1.loadExtentLib(filePath); // load stdlib
 
     preloads.forEach(filePath => {
-        load(filePath, coder);
+        extend_1.loadExtentLib(filePath);
     });
 
     // TODO: add watcher for the modification of the rc file to avoid reload vscode.
     const rcFilePath = coder.workspaceRoot + '\\.luacompleterc';
-    fs_1.exists(rcFilePath, (exist) => {
-        if (exist) {
-            extend_1.loadExtentLib(rcFilePath);
-        }
-    });
+    extend_1.loadExtentLib(rcFilePath);
 }
 
 function load(filePath, coder) {
