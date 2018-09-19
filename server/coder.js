@@ -155,6 +155,7 @@ class Coder {
     }
 
     provideHover(params) {
+        setTimeout(parseDependences, 0, engine.LoadedPackages[params.textDocument.uri], this);
         return {
             contents: this._hoverProvider.provideHover(params)
         };
@@ -199,6 +200,9 @@ class Coder {
 };
 
 var _coderInstance = undefined;
+/**
+ * @returns {Coder}
+ */
 function instance() {
     if (_coderInstance === undefined) {
         _coderInstance = new Coder();

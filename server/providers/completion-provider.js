@@ -44,16 +44,14 @@ class CompletionProvider {
         let data = this.cache[item.data.index];
         const override = item.data.override;
         item.detail = utils.symbolSignature(data, override);
-        const description = data.type.description;
+        const description = data.type.description || '';
         const link = data.type.link;
-        if (description) {
-            const desc = (override !== undefined) ? description[override] : description;
-            item.documentation = {
-                kind: langserver.MarkupKind.Markdown,
-                value: desc + (link ? `  \r\n[more...](${link})` : '')
-            };
-        }
-        utils.functionSnippet(item, data);
+        const desc = (override !== undefined) ? data.type.variants[override].description : description;
+        item.documentation = {
+            kind: langserver.MarkupKind.Markdown,
+            value: desc + (link ? `  \r\n[more...](${link})` : '')
+        };
+        utils.functionSnippet(item, data, override);
         return item;
     }
 

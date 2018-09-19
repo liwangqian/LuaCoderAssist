@@ -1,7 +1,8 @@
 'use strict';
 
-const symbol_manager = require('./lib/symbol-manager');
+const { DefinitionContext, definitionProvider } = require('../lib/engine/definition');
 const utils = require('./lib/utils');
+const langserver_1 = require('vscode-languageserver');
 
 class HoverProvider {
     constructor(coder) {
@@ -21,36 +22,33 @@ class HoverProvider {
             return undefined;
         }
 
-        // find in current module
-        let defs = this._findDefInCurrentModule(uri, ref);
+        let defs = definitionProvider(new DefinitionContext(ref.name, ref.range, uri));
 
-        // find in dependence
-        defs = defs.concat(this._findDefInDependence(uri, ref));
-
-        return defs.map(d => {
-            let typeDesc = (d.islocal ? '(local ' : '') + utils.symbolKindDesc(d.kind) + (d.islocal ? ') ' : ' ');
-            var item = {
-                language: document.languageId,
-                value: typeDesc + (utils.symbolSignature(d) || d.name)
+        let hovers = [];
+        defs.forEach(d => {
+            const variants = d.type.variants;
+            if (!variants) {
+                let hover = this._makeHover(d);
+                hovers.push(hover);
+            } else {
+                variants.forEach((_, override) => {
+                    let hover = this._makeHover(d, override);
+                    hovers.push(hover);
+                });
             }
-            return item;
         });
+
+        return {
+            kind: langserver_1.MarkupKind.Markdown,
+            value: hovers.join('  \r\n')
+        };
     }
 
-    _findDefInCurrentModule(uri, ref) {
-        let sm = symbol_manager.instance();
-        let docsym = sm.documentSymbol(uri);
-        if (!docsym) {
-            return [];
-        }
-
-        return utils.filterModDefinitions(docsym.definitions(), ref, utils.preciseCompareName);
-    }
-
-    _findDefInDependence(uri, ref) {
-        return utils.filterDepDefinitions(
-            utils.getDefinitionsInDependences(uri, ref, this.coder.tracer),
-            ref, utils.preciseCompareName);
+    _makeHover(symbol, override) {
+        const desc = (override !== undefined) ? symbol.type.variants[override].description : (symbol.type.description || '');
+        const link = symbol.type.link;
+        const more = (link ? `  \r\n[more...](${link})` : '');
+        return `\`\`\`lua\n${utils.symbolSignature(symbol, override)}\`\`\`` + `\r\n${desc}${more}`;
     }
 };
 

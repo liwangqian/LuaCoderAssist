@@ -57,6 +57,9 @@ class FileManager {
 };
 
 var _instance = undefined;
+/**
+ * @returns {FileManager}
+ */
 exports.instance = () => {
     if (_instance === undefined) {
         _instance = new FileManager()

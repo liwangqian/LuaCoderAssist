@@ -177,7 +177,7 @@ function symbolAtPosition(position, doc, options) {
 
 exports.symbolAtPosition = symbolAtPosition;
 
-function functionSignature(symbol, override) {
+function symbolSignature(symbol, override) {
     let details = [];
     details.push(symbol.isLocal ? 'local ' : '');
     let type = engine.typeOf(symbol);
@@ -190,23 +190,24 @@ function functionSignature(symbol, override) {
         return details.join('');
     }
 
-    let ret = type.returns.map(item => {
+    let returns = (override !== undefined) ? type.variants[override].returns : type.returns;
+    let ret = returns.map(item => {
         let typeName = engine.typeOf(item).typeName;
         typeName = typeName.startsWith('@') ? 'any' : typeName;
         return typeName;
     });
 
-    const args = override ? type.variants[override] : type.args;
+    let args = (override !== undefined) ? type.variants[override].args : type.args;
     details.push('function ', symbol.name);
-    details.push('(' + args.map(p => symbol.displayName || p.name).join(', ') + ') : ');
+    details.push('(' + args.map(p => p.displayName || p.name).join(', ') + ') -> ');
     details.push(ret.length == 0 ? 'void' : ret.join(', '));
     return details.join('');
 }
 
-exports.symbolSignature = functionSignature;
+exports.symbolSignature = symbolSignature;
 
-function functionSnippet(item, symbol) {
-    const args = symbol.type.args;
+function functionSnippet(item, symbol, override) {
+    const args = (override === undefined) ? symbol.type.args : symbol.type.variants[override].args;
     if (symbol.type.typeName !== 'function') {
         return;
     }

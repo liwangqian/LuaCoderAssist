@@ -77,7 +77,9 @@ const LuaSymbolKind = {
     table: 'table',
     class: 'class',
     module: 'module',
-    function: 'function'
+    function: 'function',
+    thread: 'thread',
+    userdata: 'userdata'
 }
 
 exports.LuaSymbolKind = LuaSymbolKind;
@@ -143,6 +145,8 @@ const LuaTypes = {
     table: 'table',
     function: 'function',
     module: 'module',
+    thread: 'thread',
+    userdata: 'userdata',
     lazy: 'lazy'
 }
 
@@ -178,6 +182,22 @@ class LuaString extends LuaTypeBase {
 
 exports.LuaString = LuaString;
 
+class LuaThread extends LuaTypeBase {
+    constructor() {
+        super(LuaTypes.thread);
+    }
+}
+
+exports.LuaThread = LuaThread;
+
+class LuaUserData extends LuaTypeBase {
+    constructor() {
+        super(LuaTypes.userdata);
+    }
+}
+
+exports.LuaUserData = LuaUserData;
+
 class LuaAny extends LuaTypeBase {
     constructor() {
         super(LuaTypes.any);
@@ -190,6 +210,8 @@ const LuaBasicTypes = {
     number: new LuaNumber(),
     boolean: new LuaBoolean(),
     string: new LuaString(),
+    thread: new LuaThread(),
+    userdata: new LuaUserData(),
     any: new LuaAny()
 };
 
@@ -213,6 +235,54 @@ class SearchResult {
 /* static null result */
 SearchResult.null = new SearchResult();
 exports.SearchResult = SearchResult;
+
+class TypeGroup {
+    constructor() {
+        this.symbols = [];
+    }
+
+    has(predictor) {
+        return this.indexOf(predictor) < this.symbols.length;
+    }
+
+    indexOf(predictor) {
+        const length = this.symbol.length;
+        for (let i = 0; i < length; i++) {
+            const symbol = this.symbols[i];
+            if (predictor(symbol)) {
+                return i;
+            }
+        }
+        return length;
+    }
+
+    add(symbol) {
+        const index = this.indexOf(s => s.uri === symbol.uri);
+        delete this.symbols[index];
+        this.symbols[index] = symbol;
+        return index;
+    }
+
+    del(symbol) {
+        const index = this.indexOf(s => s.uri === symbol.uri);
+        delete this.symbols.splice(index, 1)[0];
+    }
+
+    get(name, modulePath) {
+        const symbols = [];
+        this.symbols.forEach(symbol => {
+            if (!symbol.uri || symbol.uri.includes(modulePath)) {
+                if (symbol.type instanceof LuaTable) {
+                    let field = symbol.get(name);
+                    field && symbols.push(field);
+                }
+            }
+        });
+        return symbols;
+    }
+}
+
+exports.TypeGroup = TypeGroup;
 
 class LuaTable extends LuaTypeBase {
     constructor(metatable) {

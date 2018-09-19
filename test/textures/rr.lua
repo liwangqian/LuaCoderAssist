@@ -1,13 +1,10 @@
-local xyz
-
-xyz = {
-    name = 'xyz'
-}
-
-local x = setmetatable({}, {__index = xyz})
-
-function xyz:print()
-    return self
+for k, v in pairs(coroutine) do
+    print(k, v)
 end
 
-x.print()
+local xx = function(x)
+    local y = x + 1
+    return function()
+        return y + 1
+    end
+end

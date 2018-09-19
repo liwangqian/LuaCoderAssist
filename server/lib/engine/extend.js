@@ -87,7 +87,7 @@ function parseJsonObject(node, name) {
         return undefined;
     }
 
-    if (!node.type && (node instanceof Object)) {
+    if (!name && (node instanceof Object)) {
         const object = {};
         for (const key in node) {
             const value = node[key];
@@ -141,11 +141,12 @@ function parseVariantsArgumentsObject(variants, func) {
         return;
     }
 
-    func.description = [];
-    func.variants = variants.map((variant, index) => {
-        let desc = variant.description;
-        func.description[index] = desc || '';
-        return parseArgumentsObject(variant.args);
+    func.variants = variants.map(variant => {
+        return {
+            description: variant.description || '',
+            args: parseArgumentsObject(variant.args),
+            returns: parseReturnsObject(variant.returnTypes)
+        };
     });
 }
 
@@ -185,5 +186,5 @@ function parseRefJsonObject(node, name) {
 }
 
 
-// loadExtentLib('../../../stdlibs/love.json');
-// console.log(namedTypes);
+loadExtentLib('./stdlibs/5_1.json');
+console.log(namedTypes);
