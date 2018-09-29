@@ -1,7 +1,7 @@
 'use strict';
 
 const { DefinitionContext, definitionProvider } = require('../lib/engine/definition');
-const utils_2 = require('./lib/utils');
+const utils_1 = require('./lib/utils');
 const langserver_1 = require('vscode-languageserver');
 
 class DefinitionProvider {
@@ -13,7 +13,7 @@ class DefinitionProvider {
         let uri = params.textDocument.uri;
         let position = params.position;
         let document = this.coder.document(uri);
-        let ref = utils_2.symbolAtPosition(position, document, { backward: true, forward: true });
+        let ref = utils_1.symbolAtPosition(position, document, { backward: true, forward: true });
         if (ref === undefined) {
             return [];
         }

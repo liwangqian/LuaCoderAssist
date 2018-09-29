@@ -549,6 +549,11 @@
             "type": "table",
             "displayName": "metatable: table"
           }
+        ],
+        "returnTypes": [
+          {
+            "type": "table"
+          }
         ]
       },
       "tonumber": {

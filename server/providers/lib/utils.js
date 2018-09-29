@@ -109,30 +109,95 @@ function symbolKindDesc(kind) {
 
 exports.symbolKindDesc = symbolKindDesc;
 
-const backwardRegex = /[a-zA-Z0-9_.:]/; // parse all the bases
-const forwardRegex = /[a-zA-Z0-9_]/;   // parse only the name
-function extendTextRange(content, from, options) {
-    let range = { start: from, end: from };
+function isalpha(c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
 
-    let offset = from;
-    if (options.backward) {
-        while (offset-- >= 0) {
-            if (!backwardRegex.test(content.charAt(offset))) {
-                range.start = offset + 1;
+function isdigit(c) {
+    return c >= '0' && c <= '9';
+}
+
+function skip(pattern, content, offset, step) {
+    while (pattern.test(content.charAt(offset))) {
+        offset += step;
+    }
+    return offset;
+}
+
+function backward(content, offset, collection) {
+    let bracketDepth = 0;
+    while (true) {
+        let c = content.charAt(offset);
+        if (c === '.' || c === ':') {
+            if (bracketDepth === 0) {
+                collection.push(c);
+            }
+            offset--;
+            offset = skip(/\s/, content, offset, -1);
+            continue;
+        }
+
+        if (c === ')') {
+            bracketDepth++;
+            offset--;
+            continue;
+        }
+
+        if (c === '(') {
+            bracketDepth--;
+            if (bracketDepth < 0) {
                 break;
             }
+            offset--;
+            continue;
         }
+
+        if (isalpha(c) || isdigit(c) || c === '_') {
+            offset--;
+            if (bracketDepth === 0) {
+                collection.push(c);
+            }
+            continue;
+        }
+
+        if (c === ' ' || c === ',') {
+            if (bracketDepth === 0) {
+                break;
+            }
+            offset--;
+            continue;
+        }
+
+        break;
+    }
+
+    collection.reverse();
+    return offset + 1;
+}
+
+const forwardRegex = /[a-zA-Z0-9_]/;   // parse only the name
+function extendTextRange(content, from, options) {
+    let range = { start: from, end: from, text: '' };
+    let offset = from;
+    let collection = [];
+    if (options.backward) {
+        offset = backward(content, offset, collection);
+        range.start = offset;
     }
 
     if (options.forward) {
         offset = from;
         while (offset++ <= content.length) {
-            if (!forwardRegex.test(content.charAt(offset))) {
+            let c = content.charAt(offset);
+            if (!forwardRegex.test(c)) {
                 range.end = offset;
                 break;
             }
+            collection.push(c);
         }
     }
+
+    range.text = collection.join('');
 
     return range;
 }
@@ -168,10 +233,7 @@ function symbolAtPosition(position, doc, options) {
         return undefined;
     }
 
-    // let ref = parseContext(text.substring(range.start, range.end));
-    let ref = { name: text.substring(range.start, range.end), range: [range.start, range.end] };
-    // ref.location = { start: position, end: position };    // used for scope filter
-
+    let ref = { name: range.text, range: [range.start, range.end] };
     return ref;
 }
 
@@ -190,7 +252,11 @@ function symbolSignature(symbol, override) {
         return details.join('');
     }
 
-    let returns = (override !== undefined) ? type.variants[override].returns : type.returns;
+    let returns = type.returns;
+    if (!returns && override !== undefined) {
+        returns = type.variants[override].returns;
+    }
+    returns = returns || [];
     let ret = returns.map(item => {
         let typeName = engine.typeOf(item).typeName;
         typeName = typeName.startsWith('@') ? 'any' : typeName;

@@ -14,6 +14,7 @@ class CompletionProvider {
     provideCompletions(params) {
         let uri = params.textDocument.uri;
         let position = params.position;
+        position.character--;
         let document = this.coder.document(uri);
         let ref = utils.symbolAtPosition(position, document, { backward: true });
         if (ref === undefined) {

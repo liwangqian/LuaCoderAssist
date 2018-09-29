@@ -56,6 +56,7 @@ function parseNamedTypes(json) {
     for (const name in types) {
         const value = types[name];
         const symbol = parseJsonObject(value, name);
+        symbol.type.typeName = name;
         symbol && namedTypes.set(name, symbol);
     }
 }
@@ -82,6 +83,13 @@ function parseModule(json) {
     }
 }
 
+/**
+ * Parse the json format interface desc data.
+ * @param {*} node JSON object 
+ * @param {String} name Name of the node
+ * 
+ * @returns {LuaSymbol}
+ */
 function parseJsonObject(node, name) {
     if (!node) {
         return undefined;
@@ -164,7 +172,7 @@ function parseArgumentsObject(args) {
 
 function parseReturnsObject(returns) {
     if (!returns) {
-        return [];
+        return undefined;
     }
     return returns.map((rt, index) => {
         return parseJsonObject(rt, rt.name || `R${index}`);
@@ -187,4 +195,3 @@ function parseRefJsonObject(node, name) {
 
 
 loadExtentLib('./stdlibs/5_1.json');
-console.log(namedTypes);

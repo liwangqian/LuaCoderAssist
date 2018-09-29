@@ -31,13 +31,13 @@ class SymbolProvider {
         }
 
         let depth = 0, maxDepth = 5; //防止循环引用导致死循环
-        let walker, forall;
+        let walker, collectAllChildren;
         walker = (def, collection) => {
             if (!(def instanceof LuaSymbol)) {
                 return;
             }
 
-            if (def.uri === null) {
+            if (def.uri !== uri) {
                 return;
             }
 
@@ -53,9 +53,9 @@ class SymbolProvider {
                 def.name, utils_2.symbolSignature(def), mapSymbolKind(def.kind),
                 RangeOf(def.range), RangeOf(def.location),
                 def.children
-                    ? forall(def.children)
+                    ? collectAllChildren(def.children)
                     : (is.luaTable(typeOf(def))
-                        ? forall(utils_1.object2Array(def.type.fields))
+                        ? collectAllChildren(utils_1.object2Array(def.type.fields))
                         : void 0)
             );
 
@@ -63,7 +63,7 @@ class SymbolProvider {
             depth--;
         }
 
-        forall = (children) => {
+        collectAllChildren = (children) => {
             const collection = [];
             children.forEach(child => {
                 walker(child, collection);
@@ -71,7 +71,7 @@ class SymbolProvider {
             return collection;
         }
 
-        let symbols = forall(mdl.children);
+        let symbols = collectAllChildren(mdl.children);
         return symbols;
     }
 };

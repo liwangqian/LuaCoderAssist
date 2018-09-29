@@ -17,7 +17,7 @@
 
 const { LoadedPackages } = require('./luaenv');
 const { object2Array } = require('./utils');
-const { typeOf, searchInnerStackIndex } = require('./typeof');
+const { typeOf, findDef, searchInnerStackIndex } = require('./typeof');
 const { ScopeEnd } = require('./linear-stack');
 const Is = require('./is');
 
@@ -83,6 +83,9 @@ function completionProvider(context) {
     //TODO: support abc().xx
     const name = context.names[0];
     let value = completionMapCache.get(name);
+    if (!value) {
+        value = findDef(name, context.uri, context.range);
+    }
     if (!Is.luaTable(typeOf(value)) && !Is.luaModule(value)) {
         return [];
     }
@@ -92,7 +95,21 @@ function completionProvider(context) {
     for (let i = 1; i < size; ++i) {
         let name = context.names[i];
         def = def.type.get(name);
-        if (!def || !Is.luaTable(typeOf(def))) {
+        if (!def) {
+            return [];
+        }
+
+        let type = typeOf(def);
+
+        // func().abc
+        if (Is.luaFunction(type)) {
+            def = type.returns[0];
+            type = typeOf(def);
+        }
+
+        if (Is.luaTable(type)) {
+            continue;
+        } else {
             return [];
         }
     }
