@@ -285,6 +285,67 @@ function functionSnippet(item, symbol, override) {
 
 exports.functionSnippet = functionSnippet;
 
+function signatureContext(content, offset) {
+    function leftBrace(content, offset, lower_bound) {
+        let match_brace = 1;
+        while (offset-- >= lower_bound && match_brace > 0) {
+            let c = content.charAt(offset);
+            if (c === ')') {
+                match_brace++;
+            } else if (c === '(') {
+                if (--match_brace === 0) {
+                    return offset;
+                }
+            }
+        }
+
+        // 如果没有找到，或者超出了最大搜索字符数，则搜索失败
+        return -1;
+    }
+
+    function paramIndex(content, offset, lower_bound) {
+        let balance = 0;
+        let counter = 0;
+        while (offset-- > lower_bound) {
+            let c = content.charAt(offset);
+            if (c === ',' && balance === 0) {
+                counter++;
+            } else if (c === ')') {
+                balance++;
+            } else if (c === '(') {
+                if (--balance < 0) {
+                    // 达到左括号了，结束查找
+                    return counter;
+                }
+            }
+        }
+        return -1;
+    }
+
+    let max_search_char = 200;
+    let lower_bound = Math.max(0, offset - max_search_char);
+
+    // 向前搜索，查找offset所在函数的左括号位置
+    let end_pos = leftBrace(content, offset, lower_bound);
+    end_pos = skip(/\s/, content, end_pos - 1, -1);
+
+    let collection = [];
+    let start_pos = backward(content, end_pos, collection);
+    if (start_pos < lower_bound) {
+        return undefined;
+    }
+
+    let param_id = paramIndex(content, offset, lower_bound);
+
+    return {
+        param_id: param_id,
+        name: collection.join(''),
+        range: [start_pos, end_pos]
+    };
+}
+
+exports.signatureContext = signatureContext;
+
 function findDefByNameAndScope(name, location, defs) {
     for (let i = 0; i < defs.length; i++) {
         let d = defs[i];

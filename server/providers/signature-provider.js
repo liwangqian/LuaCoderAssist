@@ -1,10 +1,9 @@
 'use strict';
 
-const traits = require('../lib/symbol/symbol-traits');
-const symbol_manager = require('./lib/symbol-manager');
 const utils = require('./lib/utils');
-const helper = require('./lib/signature-helper');
-const lang_sever = require('vscode-languageserver');
+const engine = require('../lib/engine');
+const is = require('../lib/engine/is');
+const langsever = require('vscode-languageserver');
 
 class SignatureProvider {
     constructor(coder) {
@@ -12,72 +11,56 @@ class SignatureProvider {
     }
 
     provideSignatureHelp(params) {
-        let logger = this.coder.tracer.info.bind(this.coder.tracer);
-        let position = params.position;
         let uri = params.textDocument.uri;
-        let document = this.coder.document(uri);
-        let offset = document.offsetAt(position);
-
-        let ctx = helper.signature_context(
-            document.getText().toString('utf8'),
-            offset,
-            logger
-        );
-
-        if (ctx === undefined || ctx.ref === undefined) {
+        let pos = params.position;
+        let doc = this.coder.document(uri);
+        let ref = utils.signatureContext(doc.getText(), doc.offsetAt(pos));
+        if (ref === undefined) {
             return undefined;
         }
 
-        // 将位置信息附上去，用于符号查找
-        ctx.ref.location = { start: position, end: position };
-
-        let defs = this._findDefInCurrentModule(uri, ctx.ref);
-
-        // 如果是函数定义，就直接返回了
-        if (defs && defs[0] && defs[0].location.start.line === position.line) {
-            return undefined;
-        }
-
-        // 在依赖模块中查找定义
-        defs = (defs || []).concat(this._findDefInDependence(uri, ctx.ref));
-
+        let defs = engine.definitionProvider(new engine.DefinitionContext(ref.name, ref.range, uri));
         let signatures = [];
         defs.forEach(d => {
-            if (d.kind !== traits.SymbolKind.function) {
+            if (!is.luaFunction(d.type)) {
                 return;
             }
 
-            let param_infos = [];
-            d.params.forEach(p => {
-                param_infos.push(lang_sever.ParameterInformation.create(p));
-            });
+            if (!d.type.variants) {
+                let item = this._newSignature(d, d.type.args, d.type.description);
+                signatures.push(item);
+            } else {
+                d.type.variants.forEach((variant, idx) => {
+                    let desc = variant.description || d.type.description;
+                    let item = this._newSignature(d, variant.args, desc, idx);
+                    signatures.push(item);
+                });
+            }
 
-            let item = lang_sever.SignatureInformation.create(utils.symbolSignature(d));
-            item.parameters = param_infos;
-            signatures.push(item);
         });
 
         return {
             signatures: signatures,
             activeSignature: signatures.length > 0 ? 0 : null,
-            activeParameter: signatures.length > 0 ? ctx.ctx.param_id : null
+            activeParameter: signatures.length > 0 ? ref.param_id : null
         };
     }
 
-    _findDefInCurrentModule(uri, ref) {
-        let sm = symbol_manager.instance();
-        let docsym = sm.documentSymbol(uri);
-        if (!docsym) {
-            return undefined;
-        }
+    _newSignature(d, args, doc, idx) {
+        let item = langsever.SignatureInformation.create(utils.symbolSignature(d, idx));
+        item.documentation = this._newDocumentation(doc);
+        args.forEach(p => {
+            item.parameters.push(langsever.ParameterInformation.create(p.name));
+        });
 
-        return utils.filterModDefinitions(docsym.definitions(), ref, utils.preciseCompareName);
+        return item;
     }
 
-    _findDefInDependence(uri, ref) {
-        return utils.filterDepDefinitions(
-            utils.getDefinitionsInDependences(uri, ref, this.coder.tracer),
-            ref, utils.preciseCompareName);
+    _newDocumentation(doc) {
+        return doc && {
+            kind: langsever.MarkupKind.Markdown,
+            value: doc
+        };
     }
 };
 
