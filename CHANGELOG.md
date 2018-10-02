@@ -2,6 +2,18 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.0.8 @ 2018-10-02
+
+- 新增：更新符号解析方案，提供有限的符号类型推导功能
+- 新增：基于类型符号推导，提供更全面和强大的符号补全功能，支持.luacmpleterc文件配置
+- 新增：支持setmetatable，支持部分面向对象式编程风格
+- 新增：支持函数返回值类型推导和符号补全
+- 新增：文件符号列表支持树形显示父子关系
+- 新增：集成love、jit库的接口描述文件，用于支持代码补全和符号Hover信息提示
+- 修复：由于文件编码格式不一致导致的符号定义跳转行不准确的问题
+- 优化：在错误信息中显示luacheck的错误码
+- 优化：将部分luacheck的参数提取到配置luacheck.options中
+
 ## 1.3.8 @ 2018-03-17
 
 - Fix file detection for the luacheck option `--config`, contribute by `FireSiku`
