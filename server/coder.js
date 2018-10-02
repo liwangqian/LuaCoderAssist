@@ -1,7 +1,6 @@
 'use strict';
 
 const langserver_1 = require('vscode-languageserver');
-const fs_1 = require('fs');
 const path_1 = require('path');
 const uri_1 = require('vscode-uri').default;
 const tracer_1 = require('./tracer');
@@ -67,7 +66,8 @@ class Coder {
                 physicalLineMax: 80,
                 cyclomaticMax: 10,
                 maintainabilityMin: 60
-            }};
+            }
+        };
         this.tracer = tracer_1.instance();
         this.extensionPath = __dirname + '/../';
         this.luaversion = '5.1';
