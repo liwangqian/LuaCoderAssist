@@ -12,8 +12,8 @@ const logger_1 = require('./lib/logger');
 const CodeMetricsProvider = require('./providers/codemetrics-provider');
 
 function activate(context) {
-    let serverModule = context.asAbsolutePath(path.join('server', 'server.js'));
-    let debugOptions = { execArgv: ["--nolazy", "--inspect=6004"] };
+    let serverModule = context.asAbsolutePath(path.join('server', 'server-ipc.js'));
+    let debugOptions = { execArgv: ["--nolazy", "--debug=6004"] };
     let serverOptions = {
         run: { module: serverModule, transport: languageclient.TransportKind.ipc },
         debug: { module: serverModule, transport: languageclient.TransportKind.ipc, options: debugOptions }

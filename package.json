@@ -244,6 +244,9 @@
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "node ./node_modules/vscode/bin/test"
   },
+  "bin": {
+    "lua-coder-assist": "server/server-stdio.js"
+  },
   "dependencies": {
     "autodetect-decoder-stream": "^1.0.0",
     "check-types": "~4",

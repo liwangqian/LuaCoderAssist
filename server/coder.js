@@ -26,7 +26,48 @@ class Coder {
         this.workspaceRoot = undefined;
         this.conn = undefined;
         this.documents = undefined;
-        this.settings = undefined;
+        this.settings = {
+            luacheck: {
+                enable: true,
+                onSave: true,
+                onTyping: true,
+                execPath: null,
+                std: ["lua51", "busted"],
+                ignore: [],
+                jobs: 1,
+                fileSizeLimit: 100,
+                maxProblems: 250,
+                configFilePath: "",
+                keepAfterClosed: true
+            },
+            search: {
+                filters: [],
+                externalPaths: [],
+                followLinks: false
+            },
+            luaparse: {
+                luaversion: "5.1",
+                allowDefined: false
+            },
+            symbol: {
+                showFunctionGlobalOnly: true
+            },
+            format: {
+                lineWidth: 120,
+                indentCount: 4,
+                quotemark: "single"
+            },
+            ldoc: {
+                authorInFunctionLevel: true,
+                authorName: "",
+            },
+            metric: {
+                enable: true,
+                logicalLineMax: 50,
+                physicalLineMax: 80,
+                cyclomaticMax: 10,
+                maintainabilityMin: 60
+            }};
         this.tracer = tracer_1.instance();
         this.extensionPath = __dirname + '/../';
         this.luaversion = '5.1';
@@ -95,6 +136,10 @@ class Coder {
     }
 
     onDidChangeConfiguration(change) {
+        if (!change.settings || !change.settings.LuaCoderAssist) {
+            return;
+        }
+
         let settings = change.settings.LuaCoderAssist;
         this.settings = settings;
         this.luaversion = settings.luaparse.luaversion;
@@ -206,6 +251,10 @@ class Coder {
         if (!this.settings.luacheck.keepAfterClosed) {
             this.sendDiagnostics(doc.uri, []);
         }
+    }
+
+    onWillSaveWaitUntil(params) {
+        return false;
     }
 };
 
