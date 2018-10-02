@@ -73,6 +73,14 @@
           "default": false,
           "description": "Use `LuaJit` libraries."
         },
+        "LuaCoderAssist.luaPath": {
+          "type": "string",
+          "default": "",
+          "description": "Provide the lua path to help find the rigth module path, when there is some modules with same file name.",
+          "examples": [
+            "{workspaceRoot}/pathA/subPath0/subPath1/?.lua;{workspaceRoot}/pathB/subPath0/subPath1/?.lua"
+          ]
+        },
         "LuaCoderAssist.search.filters": {
           "type": "array",
           "default": [],

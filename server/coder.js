@@ -103,6 +103,7 @@ class Coder {
 
         if (this.workspaceRoot) {
             fileManager.setRoots(settings.search.externalPaths.concat(this.workspaceRoot));
+            fileManager.setLuaPath(settings.luaPath.replace(/\{workspaceRoot\}/g, this.workspaceRoot));
         }
 
         preload_1.loadAll(this);
