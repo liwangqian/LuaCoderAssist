@@ -2,6 +2,7 @@
 
 const { DefinitionContext, definitionProvider } = require('../lib/engine/definition');
 const utils = require('./lib/utils');
+const awaiter = require('./lib/awaiter');
 const langserver_1 = require('vscode-languageserver');
 
 class HoverProvider {
@@ -10,38 +11,42 @@ class HoverProvider {
     }
 
     provideHover(params) {
-        let position = params.position;
-        if (position.character == 0) {
-            return undefined;
-        }
-
-        let uri = params.textDocument.uri;
-        let document = this.coder.document(uri);
-        let ref = utils.symbolAtPosition(position, document, { backward: true, forward: true });
-        if (ref === undefined) {
-            return undefined;
-        }
-
-        let defs = definitionProvider(new DefinitionContext(ref.name, ref.range, uri));
-
-        let hovers = [];
-        defs.forEach(d => {
-            const variants = d.type.variants;
-            if (!variants) {
-                let hover = this._makeHover(d);
-                hovers.push(hover);
-            } else {
-                variants.forEach((_, override) => {
-                    let hover = this._makeHover(d, override);
-                    hovers.push(hover);
-                });
+        return awaiter.await(this, void 0, void 0, function* () {
+            let position = params.position;
+            if (position.character == 0) {
+                return undefined;
             }
-        });
 
-        return {
-            kind: langserver_1.MarkupKind.Markdown,
-            value: hovers.join('  \r\n')
-        };
+            let uri = params.textDocument.uri;
+            let document = yield this.coder.document(uri);
+            let ref = utils.symbolAtPosition(position, document, { backward: true, forward: true });
+            if (ref === undefined) {
+                return undefined;
+            }
+
+            let defs = definitionProvider(new DefinitionContext(ref.name, ref.range, uri));
+
+            let hovers = [];
+            defs.forEach(d => {
+                const variants = d.type.variants;
+                if (!variants) {
+                    let hover = this._makeHover(d);
+                    hovers.push(hover);
+                } else {
+                    variants.forEach((_, override) => {
+                        let hover = this._makeHover(d, override);
+                        hovers.push(hover);
+                    });
+                }
+            });
+
+            return {
+                contents: {
+                    kind: langserver_1.MarkupKind.Markdown,
+                    value: hovers.join('  \r\n')
+                }
+            };
+        });
     }
 
     _makeHover(symbol, override) {

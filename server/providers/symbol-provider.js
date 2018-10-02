@@ -6,6 +6,7 @@ const { typeOf } = require('../lib/engine/typeof');
 const is = require('../lib/engine/is');
 const utils_1 = require('../lib/engine/utils');
 const utils_2 = require('./lib/utils');
+const awaiter = require('./lib/awaiter');
 const langserver_1 = require('vscode-languageserver');
 
 function mapSymbolKind(kind) {
@@ -25,54 +26,61 @@ class SymbolProvider {
     }
 
     provideDocumentSymbols(uri) {
-        const mdl = LoadedPackages[uri];
-        if (!mdl) {
-            return [];
-        }
-
-        let depth = 0, maxDepth = 5; //防止循环引用导致死循环
-        let walker, collectAllChildren;
-        walker = (def, collection) => {
-            if (!(def instanceof LuaSymbol)) {
-                return;
+        return awaiter.await(this, void 0, void 0, function* () {
+            const mdl = LoadedPackages[uri];
+            if (!mdl) {
+                return [];
             }
 
-            if (def.uri !== uri) {
-                return;
+            let depth = 0, maxDepth = 5; //防止循环引用导致死循环
+            let walker, collectAllChildren;
+            walker = (def, collection) => {
+                return awaiter.await(this, void 0, void 0, function* () {
+                    if (!(def instanceof LuaSymbol)) {
+                        return;
+                    }
+
+                    if (def.uri !== uri) {
+                        return;
+                    }
+
+                    if (depth++ >= maxDepth) {
+                        return;
+                    }
+
+                    const document = yield this.coder.document(def.uri);
+                    const RangeOf = (loc) => {
+                        return langserver_1.Range.create(document.positionAt(loc[0]), document.positionAt(loc[1]));
+                    }
+                    const symbol = langserver_1.DocumentSymbol.create(
+                        def.name, utils_2.symbolSignature(def), mapSymbolKind(def.kind),
+                        RangeOf(def.range), RangeOf(def.location),
+                        def.children
+                            ? yield collectAllChildren(def.children)
+                            : (is.luaTable(typeOf(def))
+                                ? yield collectAllChildren(utils_1.object2Array(def.type.fields))
+                                : void 0)
+                    );
+
+                    collection.push(symbol);
+                    depth--;
+                });
             }
 
-            if (depth++ >= maxDepth) {
-                return;
+            collectAllChildren = (children) => {
+                return awaiter.await(this, void 0, void 0, function* () {
+                    const collection = [];
+                    for (let i = 0; i < children.length; i++) {
+                        const child = children[i];
+                        yield walker(child, collection);
+                    }
+                    return collection;
+                });
             }
 
-            const document = this.coder.document(def.uri);
-            const RangeOf = (loc) => {
-                return langserver_1.Range.create(document.positionAt(loc[0]), document.positionAt(loc[1]));
-            }
-            const symbol = langserver_1.DocumentSymbol.create(
-                def.name, utils_2.symbolSignature(def), mapSymbolKind(def.kind),
-                RangeOf(def.range), RangeOf(def.location),
-                def.children
-                    ? collectAllChildren(def.children)
-                    : (is.luaTable(typeOf(def))
-                        ? collectAllChildren(utils_1.object2Array(def.type.fields))
-                        : void 0)
-            );
-
-            collection.push(symbol);
-            depth--;
-        }
-
-        collectAllChildren = (children) => {
-            const collection = [];
-            children.forEach(child => {
-                walker(child, collection);
-            });
-            return collection;
-        }
-
-        let symbols = collectAllChildren(mdl.children);
-        return symbols;
+            let symbols = yield collectAllChildren(mdl.children);
+            return symbols;
+        });
     }
 };
 

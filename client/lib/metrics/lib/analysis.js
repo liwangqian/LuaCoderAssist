@@ -1,12 +1,10 @@
 'use strict';
 
-const Promise = require('bluebird');
+const walker = require('./walker');
 const escomplex = require('escomplex');
 const luaparse = require('luaparse');
-const walker = require('./walker');
 const fs = require('fs');
-
-const readFileAsync = Promise.promisify(fs.readFile, fs);
+const adds = require('autodetect-decoder-stream');
 
 const defaultConfig = {
     logicalor: true,
@@ -45,13 +43,15 @@ function analyseProject(filesPath) {
     }
 
     let jobs = filesPath.map(filePath => {
-        return readFileAsync(filePath, 'utf8')
-            .then(data => {
-                return {
+        return new Promise((resolve) => {
+            let stream = fs.createReadStream(filePath).pipe(new adds());
+            stream.collect((error, data) => {
+                resolve({
                     path: filePath,
                     ast: luaparse.parse(data, { locations: true, comments: false })
-                }
+                });
             });
+        });
     });
     return Promise.all(jobs)
         .then(modules => {

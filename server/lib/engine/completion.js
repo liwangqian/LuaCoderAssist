@@ -94,7 +94,7 @@ function completionProvider(context) {
     const size = namesLength - 1;
     for (let i = 1; i < size; ++i) {
         let name = context.names[i];
-        def = def.type.get(name);
+        def = def.type.search(name, context.range).value;
         if (!def) {
             return [];
         }

@@ -1,6 +1,7 @@
 'use strict';
 const fmt = require('lua-fmt');
 const langserver = require('vscode-languageserver');
+const awaiter = require('./lib/awaiter');
 
 class FormatProvider {
     constructor(coder) {
@@ -20,25 +21,27 @@ class FormatProvider {
     }
 
     formatRangeText(params) {
-        let uri = params.textDocument.uri;
-        let opt = this.coder.settings.format;
+        return awaiter.await(this, void 0, void 0, function* () {
+            let uri = params.textDocument.uri;
+            let opt = this.coder.settings.format;
 
-        let document = this.coder.document(uri);
+            let document = yield this.coder.document(uri);
 
-        let text
-        let range = params.range;
+            let text
+            let range = params.range;
 
-        text = document.getText().toString('utf8');
-        if (!range) {
-            let endPos = document.positionAt(text.length);
-            range = langserver.Range.create(0, 0, endPos.line, endPos.character);
-        } else {
-            text = text.substring(document.offsetAt(range.start), document.offsetAt(range.end));
-        }
+            text = document.getText();
+            if (!range) {
+                let endPos = document.positionAt(text.length);
+                range = langserver.Range.create(0, 0, endPos.line, endPos.character);
+            } else {
+                text = text.substring(document.offsetAt(range.start), document.offsetAt(range.end));
+            }
 
-        let formattedText = fmt.formatText(text, this._formatOptions(opt));
+            let formattedText = fmt.formatText(text, this._formatOptions(opt));
 
-        return [langserver.TextEdit.replace(range, formattedText)];
+            return [langserver.TextEdit.replace(range, formattedText)];
+        });
     }
 
     _formatOptions(userOptions) {

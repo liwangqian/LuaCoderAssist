@@ -69,6 +69,9 @@ function definitionProvider(context) {
 
         // func().abc
         if (Is.luaFunction(type)) {
+            if (!type.returns) {
+                return [];
+            }
             def = type.returns[0];
             type = typeOf(def);
         }

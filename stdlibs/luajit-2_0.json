@@ -14,16 +14,27 @@
         "args": [
           {
             "name": "v"
+          },
+          {
+            "name": "message",
+            "displayName": "message?"
           }
-        ],
-        "argsDisplay": "v [, message]"
+        ]
       },
       "collectgarbage": {
         "link": "https://www.lua.org/manual/5.1/manual.html#pdf-collectgarbage",
         "description": "This function is a generic interface to the garbage collector. It performs different functions according to its first argument, opt:",
         "type": "function",
-        "args": [],
-        "argsDisplay": "[opt [, arg]]"
+        "args": [
+          {
+            "name": "opt",
+            "displayName": "opt?"
+          },
+          {
+            "name": "arg",
+            "displayName": "arg?"
+          }
+        ]
       },
       "dofile": {
         "link": "https://www.lua.org/manual/5.1/manual.html#pdf-dofile",
@@ -316,13 +327,19 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "displayName": "x: number"
               },
               {
-                "name": "n"
+                "name": "n",
+                "displayName": "n: number"
               }
             ],
-            "argsDisplay": "x, n"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "band": {
             "link": "https://bitop.luajit.org/api.html#bor",
@@ -330,10 +347,22 @@
             "type": "function",
             "args": [
               {
-                "name": "x1"
+                "name": "x1",
+                "displayName": "x1: number"
+              },
+              {
+                "name": "x2",
+                "displayName": "x2?: number"
+              },
+              {
+                "name": "..."
               }
             ],
-            "argsDisplay": "x1, [, x2, ...]"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "bnot": {
             "link": "https://bitop.luajit.org/api.html#bnot",
@@ -341,10 +370,15 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "bor": {
             "link": "https://bitop.luajit.org/api.html#bor",
@@ -352,10 +386,22 @@
             "type": "function",
             "args": [
               {
-                "name": "x1"
+                "name": "x1",
+                "displayName": "x1: number"
+              },
+              {
+                "name": "x2",
+                "displayName": "x2?: number"
+              },
+              {
+                "name": "..."
               }
             ],
-            "argsDisplay": "x1, [, x2, ...]"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "bswap": {
             "link": "https://bitop.luajit.org/api.html#bswap",
@@ -363,10 +409,15 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "bxor": {
             "link": "https://bitop.luajit.org/api.html#bor",
@@ -374,10 +425,22 @@
             "type": "function",
             "args": [
               {
-                "name": "x1"
+                "name": "x1",
+                "displayName": "x1: number"
+              },
+              {
+                "name": "x2",
+                "displayName": "x2?: number"
+              },
+              {
+                "name": "..."
               }
             ],
-            "argsDisplay": "x1, [, x2, ...]"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "lshift": {
             "link": "https://bitop.luajit.org/api.html#lshift",
@@ -385,13 +448,19 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "displayName": "x: number"
               },
               {
-                "name": "n"
+                "name": "n",
+                "displayName": "n: number"
               }
             ],
-            "argsDisplay": "x, n"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "rol": {
             "link": "https://bitop.luajit.org/api.html#rol",
@@ -399,13 +468,19 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "displayName": "x: number"
               },
               {
-                "name": "n"
+                "name": "n",
+                "displayName": "n: number"
               }
             ],
-            "argsDisplay": "x, n"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "ror": {
             "link": "https://bitop.luajit.org/api.html#rol",
@@ -413,13 +488,19 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "displayName": "x: number"
               },
               {
-                "name": "n"
+                "name": "n",
+                "displayName": "n: number"
               }
             ],
-            "argsDisplay": "x, n"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "rshift": {
             "link": "https://bitop.luajit.org/api.html#lshift",
@@ -427,13 +508,19 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "displayName": "x: number"
               },
               {
-                "name": "n"
+                "name": "n",
+                "displayName": "n: number"
               }
             ],
-            "argsDisplay": "x, n"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "tobit": {
             "link": "https://bitop.luajit.org/api.html#tobit",
@@ -441,10 +528,15 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "tohex": {
             "link": "https://bitop.luajit.org/api.html#tohex",
@@ -452,10 +544,19 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "displayName": "x: number"
+              },
+              {
+                "name": "n",
+                "displayName": "n?: number"
               }
             ],
-            "argsDisplay": "x [, n]"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           }
         }
       },
@@ -713,10 +814,15 @@
             "description": "Returns true if param (a Lua string) applies for the target ABI (Application Binary Interface). Returns false otherwise.",
             "args": [
               {
-                "name": "param"
+                "name": "param",
+                "displayName": "param: string"
               }
             ],
-            "argsDisplay": "param"
+            "returnTypes": [
+              {
+                "type": "boolean"
+              }
+            ]
           },
           "alignof": {
             "type": "function",
@@ -724,10 +830,15 @@
             "description": "Returns the minimum required alignment for ct in bytes.",
             "args": [
               {
-                "name": "ct"
+                "name": "ct",
+                "displayName": "ct: any"
               }
             ],
-            "argsDisplay": "ct"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "arch": {
             "type": "string",

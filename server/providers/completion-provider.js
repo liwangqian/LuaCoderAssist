@@ -4,6 +4,7 @@ const langserver = require('vscode-languageserver');
 const utils = require('./lib/utils');
 const engine = require('../lib/engine');
 const is = require('../lib/engine/is');
+const awaiter = require('./lib/awaiter');
 
 class CompletionProvider {
     constructor(coder) {
@@ -12,33 +13,34 @@ class CompletionProvider {
     }
 
     provideCompletions(params) {
-        let uri = params.textDocument.uri;
-        let position = params.position;
-        position.character--;
-        let document = this.coder.document(uri);
-        let ref = utils.symbolAtPosition(position, document, { backward: true });
-        if (ref === undefined) {
-            return undefined;
-        }
-
-        let items = engine.completionProvider(new engine.CompletionContext(ref.name, ref.range, uri));
-        let completionItems = [];
-        items.forEach((item, index) => {
-            if (is.luaFunction(item.type)) {
-                this._completeFunction(item, index, completionItems);
-                return;
-            } else {
-                let symbol = langserver.CompletionItem.create(item.name);
-                symbol.kind = utils.mapToCompletionKind(item.kind);
-                symbol.data = { index: index };
-                completionItems.push(symbol);
+        return awaiter.await(this, void 0, void 0, function* () {
+            let uri = params.textDocument.uri;
+            let position = params.position;
+            position.character--;
+            let document = yield this.coder.document(uri);
+            let ref = utils.symbolAtPosition(position, document, { backward: true });
+            if (ref === undefined) {
+                return undefined;
             }
+
+            let items = engine.completionProvider(new engine.CompletionContext(ref.name, ref.range, uri));
+            let completionItems = [];
+            items.forEach((item, index) => {
+                if (is.luaFunction(item.type)) {
+                    this._completeFunction(item, index, completionItems);
+                    return;
+                } else {
+                    let symbol = langserver.CompletionItem.create(item.name);
+                    symbol.kind = utils.mapToCompletionKind(item.kind);
+                    symbol.data = { index: index };
+                    completionItems.push(symbol);
+                }
+            });
+
+            this.cache = items;
+
+            return completionItems.length === 0 ? null : completionItems;
         });
-
-        this.cache = items;
-
-        return completionItems.length === 0 ? null : completionItems;
-
     }
 
     resolveCompletion(item) {

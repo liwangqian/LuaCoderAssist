@@ -1,6 +1,7 @@
 'use strict';
 
 const { DefinitionContext, definitionProvider } = require('../lib/engine/definition');
+const awaiter = require('./lib/awaiter');
 const utils_1 = require('./lib/utils');
 const langserver_1 = require('vscode-languageserver');
 
@@ -10,27 +11,33 @@ class DefinitionProvider {
     }
 
     provideDefinitions(params) {
-        let uri = params.textDocument.uri;
-        let position = params.position;
-        let document = this.coder.document(uri);
-        let ref = utils_1.symbolAtPosition(position, document, { backward: true, forward: true });
-        if (ref === undefined) {
-            return [];
-        }
+        return awaiter.await(this, void 0, void 0, function* () {
+            let uri = params.textDocument.uri;
+            let position = params.position;
+            let document = yield this.coder.document(uri);
+            let ref = utils_1.symbolAtPosition(position, document, { backward: true, forward: true });
+            if (ref === undefined) {
+                return [];
+            }
 
-        let defs = definitionProvider(new DefinitionContext(ref.name, ref.range, uri));
+            let symbols = definitionProvider(new DefinitionContext(ref.name, ref.range, uri))
+                .filter(symbol => {
+                    return symbol.uri !== null;
+                });
 
-        return defs.filter(d => {
-            return d.uri !== null;
-        }).map(d => {
-            const document = this.coder.document(d.uri);
-            const start = document.positionAt(d.location[0]);
-            const end = document.positionAt(d.location[1]);
-            return {
-                uri: d.uri,
-                name: d.name,
-                range: langserver_1.Range.create(start, end)
-            };
+            const defs = [];
+            for (let i = 0; i < symbols.length; ++i) {
+                const symbol = symbols[i];
+                const document = yield this.coder.document(symbol.uri);
+                const start = document.positionAt(symbol.location[0]);
+                const end = document.positionAt(symbol.location[1]);
+                defs.push({
+                    uri: symbol.uri,
+                    name: symbol.name,
+                    range: langserver_1.Range.create(start, end)
+                });
+            }
+            return defs;
         });
     }
 };

@@ -4,11 +4,8 @@ const langserver_1 = require('vscode-languageserver');
 const cp_1 = require('child_process');
 const walk_1 = require('walk');
 const fs_1 = require('fs');
-const uri_1 = require('vscode-uri').default;
 const traits_1 = require('../../lib/symbol/symbol-traits');
 const utils_1 = require('../../lib/symbol/utils');
-const symbol_manager = require('./symbol-manager');
-const file_manager = require('./file-manager');
 const engine = require('../../lib/engine');
 
 function searchFile(startpath, options, onFile, onEnd) {
@@ -356,68 +353,6 @@ function findDefByNameAndScope(name, location, defs) {
 
     return undefined;
 }
-
-function getDefinitionsInDependences(uri, ref, tracer) {
-    let sm = symbol_manager.instance();
-    let docsym = sm.documentSymbol(uri);
-    if (!docsym) {
-        return [];
-    }
-
-    let baseSymbol = undefined;
-    let base = ref.bases[0];
-    // 如果是base.property这种表达式，则尝试进行精确匹配
-    if (base) {
-        // 先查看依赖的模块名，如果base==depName，则符号肯定是从模块depName中获取
-        baseSymbol = findDefByNameAndScope(base, ref.location, docsym.dependences());
-        // 如果不在依赖的模块里面，再看下是否有本地定义，解决local x = require("mm")的问题，
-        // 此时，base === x.alias === 'mm'
-        if (!baseSymbol) {
-            baseSymbol = findDefByNameAndScope(base, ref.location, docsym.definitions());
-        }
-    }
-
-    // 线尝试解析依赖模块的符号，这个是性能点，后续考虑优化
-    sm.parseDependence(uri);
-
-    let defs = [];
-    let deps = docsym.dependences();
-    deps.filter(d => {
-        // 根据前面的计算，尝试进行精确匹配
-        return baseSymbol ? (d.name === baseSymbol.name || d.name === baseSymbol.alias)
-            : true;
-    }).forEach(d => {
-        let fileManager = file_manager.instance();
-        let files = fileManager.getFiles(d.name);
-        if (files.length === 0) {
-            return;
-        }
-
-        // for require('pl.tablex')，精准匹配
-        if (d.shortPath) {
-            files = files.filter(file => {
-                return file.includes(d.shortPath);
-            });
-        }
-
-        files.forEach(file => {
-            let uri = uri_1.file(file).toString();
-            let _docsym = sm.documentSymbol(uri);
-            if (!_docsym) {
-                return;
-            }
-
-            let exportSymbols = _docsym.isReturnMode() ? _docsym.returns() : _docsym.definitions();
-            defs = defs.concat(exportSymbols.filter(d => {
-                return (d.returnMode === true) || !d.islocal;
-            }) || []);
-        });
-    });
-
-    return defs;
-}
-
-exports.getDefinitionsInDependences = getDefinitionsInDependences;
 
 function fuzzyCompareName(srcName, dstName) {
     return dstName.includes(srcName);

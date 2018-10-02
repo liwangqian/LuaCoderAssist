@@ -318,7 +318,13 @@ function analysis(code, uri) {
         const tableNode = node.arguments[0];
         let tableSymbol;
         if (tableNode.type === 'Identifier') {
-            tableSymbol = moduleType.search(tableNode.name, tableNode.range).value;
+            let baseTable = moduleType.search(tableNode.name, tableNode.range).value;
+            // setmetatable returns a table with new name.
+            if (name !== tableNode.name) {
+                tableSymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.table, baseTable.type);
+            } else {
+                tableSymbol = baseTable;
+            }
         } else {
             if (tableNode.type === 'TableConstructorExpression') {
                 let nodeType = parseTableConstructorExpression(tableNode);
@@ -450,7 +456,7 @@ function analysis(code, uri) {
         }
     };
 
-    const node = luaparse_1.parse(code.toString('utf8'), {
+    const node = luaparse_1.parse(code, {
         comments: false,
         scope: true,
         ranges: true,

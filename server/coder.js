@@ -6,7 +6,7 @@ const path_1 = require('path');
 const uri_1 = require('vscode-uri').default;
 const tracer_1 = require('./tracer');
 const preload_1 = require('./preload');
-const symbol_manager_1 = require('./providers/lib/symbol-manager');
+const awaiter = require('./providers/lib/awaiter');
 const file_manager_1 = require('./providers/lib/file-manager');
 const symbol_provider_1 = require('./providers/symbol-provider');
 const definition_provider_1 = require('./providers/definition-provider');
@@ -18,6 +18,8 @@ const rename_provider = require('./providers/rename-provider');
 const format_provider = require('./providers/format-provider');
 const ldoc_provider = require('./providers/ldoc-provider');
 const engine = require('./lib/engine');
+const adds = require('autodetect-decoder-stream');
+const fs = require('fs');
 
 class Coder {
     constructor() {
@@ -68,20 +70,28 @@ class Coder {
     }
 
     document(uri) {
-        var document = this.documents.get(uri);
-        if (document) {
-            return document;
-        }
+        return awaiter.await(this, void 0, void 0, function* () {
+            let document = this.documents.get(uri);
+            if (document) {
+                return document;
+            }
 
-        document = this.exdocuments.get(uri)
-        if (document) {
-            return document;
-        }
+            document = this.exdocuments.get(uri)
+            if (document) {
+                return document;
+            }
 
-        var fileName = uri_1.parse(uri).fsPath;
-        document = langserver_1.TextDocument.create(uri, "lua", 0, fs_1.readFileSync(fileName).toString('utf8'));
-        this.exdocuments.set(uri, document);
-        return document;
+            let _this = this;
+            return new Promise((resolve) => {
+                let fileName = uri_1.parse(uri).fsPath;
+                let stream = fs.createReadStream(fileName).pipe(new adds());
+                stream.collect((error, content) => {
+                    document = langserver_1.TextDocument.create(uri, "lua", 0, content);
+                    _this.exdocuments.set(uri, document);
+                    resolve(document);
+                });
+            });
+        });
     }
 
     onDidChangeConfiguration(change) {
@@ -105,6 +115,10 @@ class Coder {
         if (mdl) {
             setTimeout(parseDependences, 0, mdl, this);
         }
+
+        if (this.settings.luacheck.onTyping) {
+            this._diagnosticProvider.provideDiagnostics(uri);
+        }
     }
 
     onDidSave(params) {
@@ -120,14 +134,12 @@ class Coder {
             let filePath = uri_1.parse(uri).fsPath;
             let fileName = path_1.basename(filePath, '.lua');
             let fileManager = file_manager_1.instance();
-            let symbolManager = symbol_manager_1.instance();
             switch (etype) {
                 case 1: //create
                     fileManager.addFile(fileName, filePath);
                     break;
                 case 3: //delete
                     fileManager.delFile(fileName, filePath);
-                    symbolManager.deleteDocument(uri);
                 default:
                     break;
             }
@@ -142,8 +154,7 @@ class Coder {
     provideDefinitions(params) {
         // 针对刚开始打开文件时，工程目录下的文件还没找出来，导致无法提供符号跳转
         setTimeout(parseDependences, 0, engine.LoadedPackages[params.textDocument.uri], this);
-        const defs = this._definitionProvider.provideDefinitions(params);
-        return defs;
+        return this._definitionProvider.provideDefinitions(params);
     }
 
     provideCompletions(params) {
@@ -156,9 +167,7 @@ class Coder {
 
     provideHover(params) {
         setTimeout(parseDependences, 0, engine.LoadedPackages[params.textDocument.uri], this);
-        return {
-            contents: this._hoverProvider.provideHover(params)
-        };
+        return this._hoverProvider.provideHover(params);
     }
 
     provideSignatureHelp(params) {
@@ -220,14 +229,16 @@ function parseDependences(mdl, coder) {
     mdl.type.imports.forEach(dep => {
         const files = fileManager.getFiles(dep.name);
         files.forEach(file => {
-            const uri = uri_1.file(file).toString();
-            if (engine.LoadedPackages[uri]) {
-                return;
-            }
-            const doc = coder.document(uri);
-            engine.parseDocument(doc.getText(), uri, coder.tracer)
-        })
-    })
+            awaiter.await(void 0, void 0, void 0, function* () {
+                const uri = uri_1.file(file).toString();
+                if (engine.LoadedPackages[uri]) {
+                    return;
+                }
+                const doc = yield coder.document(uri);
+                engine.parseDocument(doc.getText(), uri, coder.tracer);
+            });
+        });
+    });
 }
 
 exports.instance = instance;

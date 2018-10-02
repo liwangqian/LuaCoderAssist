@@ -4,7 +4,6 @@ const uri_1 = require('vscode-uri').default;
 const langserver_1 = require('vscode-languageserver');
 const path_1 = require('path');
 const fs_1 = require('fs');
-const symbol_manager_1 = require('./symbol-manager');
 
 // default to 64-bit windows luacheck.exe, from https://github.com/mpeterv/luacheck/releases
 const default_luacheck_executor = path_1.resolve(__dirname, '../../../3rd/luacheck/luacheck.exe');
@@ -56,8 +55,9 @@ class Luacheck {
             args.push('-j', jobs);
         }
 
-        let smi = symbol_manager_1.instance();
-        let docSym = smi.documentSymbol(document.uri);
+        // let smi = symbol_manager_1.symbolManager();
+        // let docSym = smi.documentSymbol(document.uri);
+        let docSym = undefined;
         let globals = [];
         if (docSym) {
             globals = docSym.dependences().map((dep) => {
@@ -113,7 +113,7 @@ class Luacheck {
             let echar = parseInt(matched[4]);
             let eType = this._toDiagnosticSeverity(matched[5]);
             let eCode = parseInt(matched[6])
-            let errMsg = matched[7];
+            let errMsg = `(${eCode}) ${matched[7]}`;
 
             diagnostics.push(langserver_1.Diagnostic.create(
                 langserver_1.Range.create(lineNo - 1, schar - 1, lineNo - 1, echar),
