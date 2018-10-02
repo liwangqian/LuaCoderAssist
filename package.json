@@ -111,6 +111,14 @@
           "default": true,
           "description": "Enable/Disable luacheck for static diagnostics."
         },
+        "LuaCoderAssist.luacheck.options": {
+          "type": "array",
+          "default": [
+            "-m",
+            "-t"
+          ],
+          "description": "Cli options for luacheck, see [luacheck](https://luacheck.readthedocs.io/en/stable/cli.html#command-line-options) for details."
+        },
         "LuaCoderAssist.luacheck.onSave": {
           "type": "boolean",
           "default": true,
