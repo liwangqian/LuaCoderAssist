@@ -36,8 +36,18 @@ class Luacheck {
             args.push('--config', path_1.resolve(settings.configFilePath, ".luacheckrc"));
         }
 
-        if (settings.std.length > 0) {
-            args.push('--std', settings.std.join('+'));
+        let std = settings.std;
+        let luaversion = this.coder.settings.luaversion;
+        if (luaversion < 5.2) {
+            std.push('lua51');
+        } else if (luaversion < 5.3) {
+            std.push('lua52');
+        } else if (luaversion < 5.4) {
+            std.push('lua54');
+        }
+
+        if (std.length > 0) {
+            args.push('--std', std.join('+'));
         }
 
         if (settings.ignore.length > 0) {
