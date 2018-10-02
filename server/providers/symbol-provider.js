@@ -1,32 +1,85 @@
 'use strict';
 
-const traits = require('../lib/symbol/symbol-traits');
-const utils_1 = require('./lib/utils');
-const symbol_manager_1 = require('./lib/symbol-manager');
+const { LoadedPackages } = require('../lib/engine/luaenv');
+const { LuaSymbolKind, LuaSymbol } = require('../lib/engine/symbol');
+const { typeOf } = require('../lib/engine/typeof');
+const is = require('../lib/engine/is');
+const utils_1 = require('../lib/engine/utils');
+const utils_2 = require('./lib/utils');
+const awaiter = require('./lib/awaiter');
 const langserver_1 = require('vscode-languageserver');
+
+function mapSymbolKind(kind) {
+    switch (kind) {
+        case LuaSymbolKind.function: return langserver_1.SymbolKind.Function;
+        case LuaSymbolKind.class: return langserver_1.SymbolKind.Class;
+        case LuaSymbolKind.table: return langserver_1.SymbolKind.Class;
+        case LuaSymbolKind.module: return langserver_1.SymbolKind.Module;
+        case LuaSymbolKind.property: return langserver_1.SymbolKind.Property;
+        default: return langserver_1.SymbolKind.Variable;
+    }
+}
 
 class SymbolProvider {
     constructor(coder) {
         this.coder = coder;
-        this.symbolManager = symbol_manager_1.instance();
-        this.symbolManager.init(coder);
     }
 
     provideDocumentSymbols(uri) {
-        var documentSymbol = this.symbolManager.documentSymbol(uri);
-        var definitions = documentSymbol && documentSymbol.definitions();
-        definitions = definitions || [];
+        return awaiter.await(this, void 0, void 0, function* () {
+            const mdl = LoadedPackages[uri];
+            if (!mdl) {
+                return [];
+            }
 
-        let showFunctionGlobalOnly = this.coder.settings.symbol.showFunctionGlobalOnly;
-        return definitions.filter(def => {
-            return (def.name !== '_') && (showFunctionGlobalOnly ? !def.islocal || def.kind === traits.SymbolKind.function : true);
-        }).map(def => {
-            return langserver_1.SymbolInformation.create(
-                def.name,
-                utils_1.mapSymbolKind(def.kind),
-                def.location,
-                def.uri,
-                def.bases[def.bases.length - 1] || def.container.name);
+            let depth = 0, maxDepth = 5; //防止循环引用导致死循环
+            let walker, collectAllChildren;
+            walker = (def, collection) => {
+                return awaiter.await(this, void 0, void 0, function* () {
+                    if (!(def instanceof LuaSymbol)) {
+                        return;
+                    }
+
+                    if (def.uri !== uri) {
+                        return;
+                    }
+
+                    if (depth++ >= maxDepth) {
+                        return;
+                    }
+
+                    const document = yield this.coder.document(def.uri);
+                    const RangeOf = (loc) => {
+                        return langserver_1.Range.create(document.positionAt(loc[0]), document.positionAt(loc[1]));
+                    }
+                    const symbol = langserver_1.DocumentSymbol.create(
+                        def.name, utils_2.symbolSignature(def), mapSymbolKind(def.kind),
+                        RangeOf(def.range), RangeOf(def.location),
+                        def.children
+                            ? yield collectAllChildren(def.children)
+                            : (is.luaTable(typeOf(def))
+                                ? yield collectAllChildren(utils_1.object2Array(def.type.fields))
+                                : void 0)
+                    );
+
+                    collection.push(symbol);
+                    depth--;
+                });
+            }
+
+            collectAllChildren = (children) => {
+                return awaiter.await(this, void 0, void 0, function* () {
+                    const collection = [];
+                    for (let i = 0; i < children.length; i++) {
+                        const child = children[i];
+                        yield walker(child, collection);
+                    }
+                    return collection;
+                });
+            }
+
+            let symbols = yield collectAllChildren(mdl.children);
+            return symbols;
         });
     }
 };

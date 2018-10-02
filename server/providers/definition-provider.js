@@ -1,8 +1,9 @@
 'use strict';
 
-const symbol_manager_1 = require('./lib/symbol-manager');
-const utils_1 = require('../lib/symbol/utils');
-const utils_2 = require('./lib/utils');
+const { DefinitionContext, definitionProvider } = require('../lib/engine/definition');
+const awaiter = require('./lib/awaiter');
+const utils_1 = require('./lib/utils');
+const langserver_1 = require('vscode-languageserver');
 
 class DefinitionProvider {
     constructor(coder) {
@@ -10,37 +11,33 @@ class DefinitionProvider {
     }
 
     provideDefinitions(params) {
-        let uri = params.textDocument.uri;
-        let documentSymbol = symbol_manager_1.instance().documentSymbol(uri);
-        if (!documentSymbol) {
-            return [];
-        }
+        return awaiter.await(this, void 0, void 0, function* () {
+            let uri = params.textDocument.uri;
+            let position = params.position;
+            let document = yield this.coder.document(uri);
+            let ref = utils_1.symbolAtPosition(position, document, { backward: true, forward: true });
+            if (ref === undefined) {
+                return [];
+            }
 
-        let document = this.coder.document(uri);
-        let ref = utils_2.symbolAtPosition(params.position, document, { backward: true, forward: true });
-        if (!ref) {
-            return [];
-        }
+            let symbols = definitionProvider(new DefinitionContext(ref.name, ref.range, uri))
+                .filter(symbol => {
+                    return symbol.uri !== null;
+                });
 
-        //todo: 提取函数，考虑bases进去
-        // 调用documentSymbol.findDefinitions(ref)
-        let defsInFile = documentSymbol.definitions().filter(s => {
-            return s.name === ref.name && utils_1.inScope(s.scope, ref.location);
-        });
-
-        // find define in dependences
-        let defsInDep = utils_2.filterDepDefinitions(
-            utils_2.getDefinitionsInDependences(uri, ref, this.coder.tracer),
-            ref, utils_2.preciseCompareName);
-
-        let allDefs = [].concat(defsInFile, defsInDep);
-
-        return allDefs.map(d => {
-            return {
-                uri: d.uri,
-                name: d.name,
-                range: d.location
-            };
+            const defs = [];
+            for (let i = 0; i < symbols.length; ++i) {
+                const symbol = symbols[i];
+                const document = yield this.coder.document(symbol.uri);
+                const start = document.positionAt(symbol.location[0]);
+                const end = document.positionAt(symbol.location[1]);
+                defs.push({
+                    uri: symbol.uri,
+                    name: symbol.name,
+                    range: langserver_1.Range.create(start, end)
+                });
+            }
+            return defs;
         });
     }
 };

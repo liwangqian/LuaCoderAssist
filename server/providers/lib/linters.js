@@ -1,15 +1,15 @@
 'use strict';
 
+const engine = require('../../lib/engine');
 const uri_1 = require('vscode-uri').default;
 const langserver_1 = require('vscode-languageserver');
 const path_1 = require('path');
 const fs_1 = require('fs');
-const symbol_manager_1 = require('./symbol-manager');
 
 // default to 64-bit windows luacheck.exe, from https://github.com/mpeterv/luacheck/releases
 const default_luacheck_executor = path_1.resolve(__dirname, '../../../3rd/luacheck/luacheck.exe');
 const luacheck_regex = /^(.+):(\d+):(\d+)-(\d+): \(([EW])(\d+)\) (.+)$/;
-const defaultOpt = ['-m', '-t', '--no-color', '--codes', '--ranges', '--formatter', 'plain'];
+const defaultOpt = ['--no-color', '--codes', '--ranges', '--formatter', 'plain'];
 
 function isFileSync(aPath) {
     try {
@@ -50,18 +50,17 @@ class Luacheck {
         }
 
         args.push.apply(args, defaultOpt);
-
+        args.push.apply(args, settings.options);
         const jobs = settings.jobs;
         if (jobs > 1) {
             args.push('-j', jobs);
         }
 
-        let smi = symbol_manager_1.instance();
-        let docSym = smi.documentSymbol(document.uri);
+        let mdl = engine.LoadedPackages[document.uri];
         let globals = [];
-        if (docSym) {
-            globals = docSym.dependences().map((dep) => {
-                return dep.name;
+        if (mdl) {
+            globals = mdl.type.imports.map(im => {
+                return im.name;
             });
         }
 
@@ -113,7 +112,7 @@ class Luacheck {
             let echar = parseInt(matched[4]);
             let eType = this._toDiagnosticSeverity(matched[5]);
             let eCode = parseInt(matched[6])
-            let errMsg = matched[7];
+            let errMsg = `(${eCode}) ${matched[7]}`;
 
             diagnostics.push(langserver_1.Diagnostic.create(
                 langserver_1.Range.create(lineNo - 1, schar - 1, lineNo - 1, echar),

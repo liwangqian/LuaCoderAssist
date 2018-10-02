@@ -1,13 +1,15 @@
 "use strict";
 
 const utils_1 = require('./utils');
-const path_1 = require('path');
 const tracer = require('../../tracer');
+const path_1 = require('path');
+const fs = require('fs');
 
 class FileManager {
     constructor() {
         this._files = {};
         this._roots = [];
+        this._luaPaths = [];
     }
 
     reset() {
@@ -16,11 +18,29 @@ class FileManager {
     }
 
     getFiles(moduleName) {
+        if (this._luaPaths.length > 0) {
+            /* 用来解决多个不同目录下的同名文件导致的符号解析不正确的问题,
+             * 如果按路径找不到，则退化到默认版本
+             */
+            for (let i = 0; i < this._luaPaths.length; i++) {
+                const searchPath = this._luaPaths[i].replace('?', moduleName);
+                if (fs.existsSync(searchPath)) {
+                    return [searchPath];
+                }
+            }
+        }
         return this._files[moduleName] || [];
     }
 
     setRoots(rootPaths) {
         this._roots = rootPaths;
+    }
+
+    /**
+     * @param {String} luaPath
+     */
+    setLuaPath(luaPath) {
+        this._luaPaths = luaPath.split(';');
     }
 
     addFile(moduleName, file) {
@@ -39,10 +59,10 @@ class FileManager {
     }
 
     searchFiles(options, extname) {
-        let tri = tracer.instance();
+        let trace = tracer.instance();
         for (let i = 0; i < this._roots.length; i++) {
             let root_ = this._roots[i];
-            tri.info(`search ${root_} begin.`)
+            trace.info(`search ${root_} begin.`)
             utils_1.searchFile(root_, options, (root, name) => {
                 if (path_1.extname(name) == extname) {
                     let moduleName = path_1.basename(name, extname);
@@ -50,13 +70,16 @@ class FileManager {
                     this._files[moduleName].push(path_1.resolve(root, name));
                 }
             }, (path_) => {
-                tri.info(`search ${path_} end.`)
+                trace.info(`search ${path_} end.`)
             });
         }
     }
 };
 
 var _instance = undefined;
+/**
+ * @returns {FileManager}
+ */
 exports.instance = () => {
     if (_instance === undefined) {
         _instance = new FileManager()

@@ -1,0 +1,89 @@
+{
+    "io": {
+        "name": "io",
+        "type": "class",
+        "desc": "The I/O library provides two different styles for file manipulation. The first one uses implicit file handles; that is, there are operations to set a default input file and a default output file, and all input/output operations are over these default files. The second style uses explicit file handles.",
+        "detail": "http://www.lua.org/manual/5.3/manual.html#6.8",
+        "fields": {
+            "close": {
+                "name": "close",
+                "type": "function",
+                "desc": "Equivalent to `file:close()`. Without a `file`, closes the default output file.",
+                "detail": "http://www.lua.org/manual/5.3/manual.html#pdf-io.close",
+                "args": [
+                    {
+                        "name": "handle",
+                        "type": "parameter"
+                    }
+                ],
+                "returns": []
+            },
+            "flush": {
+                "name": "flush",
+                "type": "function",
+                "desc": "Equivalent to `io.output():flush()`.",
+                "detail": "http://www.lua.org/manual/5.3/manual.html#pdf-io.flush",
+                "args": [],
+                "returns": []
+            },
+            "input": {
+                "name": "input",
+                "type": "function",
+                "desc": "When called with a file name, it opens the named file (in text mode), and sets its handle as the default input file. When called with a file handle, it simply sets this file handle as the default input file. When called without arguments, it returns the current default input file.",
+                "detail": "http://www.lua.org/manual/5.3/manual.html#pdf-io.input",
+                "args": [
+                    {
+                        "name": "file",
+                        "type": "parameter"
+                    }
+                ],
+                "returns": []
+            },
+            "lines": {
+                "name": "lines",
+                "type": "function",
+                "desc": "Opens the given file name in read mode and returns an iterator function that works like `file:lines(···)` over the opened file. When the iterator function detects the end of file, it returns no values (to finish the loop) and automatically closes the file.",
+                "detail": "http://www.lua.org/manual/5.3/manual.html#pdf-io.lines",
+                "args": [
+                    {
+                        "name": "filename",
+                        "type": "parameter"
+                    },
+                    {
+                        "name": "...",
+                        "type": "parameter"
+                    }
+                ],
+                "returns": [
+                    {
+                        "name": "iterator",
+                        "type": "class",
+                        "fields": {}
+                    }
+                ]
+            },
+            "open": {
+                "name": "open",
+                "type": "function",
+                "desc": "This function opens a file, in the mode specified in the string `mode`. In case of success, it returns a new file handle.",
+                "detail": "http://www.lua.org/manual/5.3/manual.html#pdf-io.open",
+                "args": [
+                    {
+                        "name": "filename",
+                        "type": "parameter"
+                    },
+                    {
+                        "name": "mode",
+                        "type": "parameter"
+                    }
+                ],
+                "returns": [
+                    {
+                        "name": "file",
+                        "type": "class"
+                    }
+                ]
+            }
+        }
+    }
+}

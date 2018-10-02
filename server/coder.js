@@ -1,11 +1,11 @@
 'use strict';
 
 const langserver_1 = require('vscode-languageserver');
-const fs_1 = require('fs');
 const path_1 = require('path');
 const uri_1 = require('vscode-uri').default;
 const tracer_1 = require('./tracer');
-const symbol_manager_1 = require('./providers/lib/symbol-manager');
+const preload_1 = require('./preload');
+const awaiter = require('./providers/lib/awaiter');
 const file_manager_1 = require('./providers/lib/file-manager');
 const symbol_provider_1 = require('./providers/symbol-provider');
 const definition_provider_1 = require('./providers/definition-provider');
@@ -16,6 +16,9 @@ const signature_provider = require('./providers/signature-provider');
 const rename_provider = require('./providers/rename-provider');
 const format_provider = require('./providers/format-provider');
 const ldoc_provider = require('./providers/ldoc-provider');
+const engine = require('./lib/engine');
+const adds = require('autodetect-decoder-stream');
+const fs = require('fs');
 
 class Coder {
     constructor() {
@@ -63,8 +66,11 @@ class Coder {
                 physicalLineMax: 80,
                 cyclomaticMax: 10,
                 maintainabilityMin: 60
-            }};
+            }
+        };
         this.tracer = tracer_1.instance();
+        this.extensionPath = __dirname + '/../';
+        this.luaversion = '5.1';
 
         this._initialized = false;
     }
@@ -81,6 +87,7 @@ class Coder {
         this.workspaceRoot = context.workspaceRoot;
         this.conn = context.connection;
         this.documents = context.documents;
+        this.exdocuments = new Map();
         this._initialized = true;
 
         this.tracer.init(this);
@@ -104,44 +111,60 @@ class Coder {
     }
 
     document(uri) {
-        var document = this.documents.get(uri);
-        if (document) {
-            return document;
-        }
+        return awaiter.await(this, void 0, void 0, function* () {
+            let document = this.documents.get(uri);
+            if (document) {
+                return document;
+            }
 
-        var fileName = uri_1.parse(uri).fsPath;
-        document = langserver_1.TextDocument.create(uri, "lua", 0, fs_1.readFileSync(fileName).toString('utf8'));
-        return document;
+            document = this.exdocuments.get(uri)
+            if (document) {
+                return document;
+            }
+
+            let _this = this;
+            return new Promise((resolve) => {
+                let fileName = uri_1.parse(uri).fsPath;
+                let stream = fs.createReadStream(fileName).pipe(new adds());
+                stream.collect((error, content) => {
+                    document = langserver_1.TextDocument.create(uri, "lua", 0, content);
+                    _this.exdocuments.set(uri, document);
+                    resolve(document);
+                });
+            });
+        });
     }
 
     onDidChangeConfiguration(change) {
-        if (change.settings && change.settings.LuaCoderAssist) {
-            this.settings = change.settings.LuaCoderAssist;
+        if (!change.settings || !change.settings.LuaCoderAssist) {
+            return;
         }
+
+        let settings = change.settings.LuaCoderAssist;
+        this.settings = settings;
+        this.luaversion = settings.luaparse.luaversion;
         let fileManager = file_manager_1.instance();
         fileManager.reset();
 
         if (this.workspaceRoot) {
-            fileManager.setRoots(this.settings.search.externalPaths.concat(this.workspaceRoot));
+            fileManager.setRoots(settings.search.externalPaths.concat(this.workspaceRoot));
+            fileManager.setLuaPath(settings.luaPath.replace(/\{workspaceRoot\}/g, this.workspaceRoot));
         }
 
-        fileManager.searchFiles(this.settings.search, ".lua");
-
-        // todo:
-        symbol_manager_1.instance().updateOptions(this.settings);
+        preload_1.loadAll(this);
+        fileManager.searchFiles(settings.search, ".lua");
     }
 
     onDidChangeContent(change) {
         let uri = change.document.uri;
-        symbol_manager_1.instance().parseDocument(
-            uri,
-            change.document.getText(),
-            change.document.lineCount
-        ).then(ok => {
-            if (this.settings.luacheck.onTyping) {
-                this._diagnosticProvider.provideDiagnostics(uri);
-            }
-        });
+        const mdl = engine.parseDocument(change.document.getText(), uri, this.tracer);
+        if (mdl) {
+            setTimeout(parseDependences, 0, mdl, this);
+        }
+
+        if (this.settings.luacheck.onTyping) {
+            this._diagnosticProvider.provideDiagnostics(uri);
+        }
     }
 
     onDidSave(params) {
@@ -157,14 +180,12 @@ class Coder {
             let filePath = uri_1.parse(uri).fsPath;
             let fileName = path_1.basename(filePath, '.lua');
             let fileManager = file_manager_1.instance();
-            let symbolManager = symbol_manager_1.instance();
             switch (etype) {
                 case 1: //create
                     fileManager.addFile(fileName, filePath);
                     break;
                 case 3: //delete
                     fileManager.delFile(fileName, filePath);
-                    symbolManager.deleteDocument(uri);
                 default:
                     break;
             }
@@ -177,6 +198,8 @@ class Coder {
     }
 
     provideDefinitions(params) {
+        // 针对刚开始打开文件时，工程目录下的文件还没找出来，导致无法提供符号跳转
+        setTimeout(parseDependences, 0, engine.LoadedPackages[params.textDocument.uri], this);
         return this._definitionProvider.provideDefinitions(params);
     }
 
@@ -189,9 +212,8 @@ class Coder {
     }
 
     provideHover(params) {
-        return {
-            contents: this._hoverProvider.provideHover(params)
-        };
+        setTimeout(parseDependences, 0, engine.LoadedPackages[params.textDocument.uri], this);
+        return this._hoverProvider.provideHover(params);
     }
 
     provideSignatureHelp(params) {
@@ -237,12 +259,36 @@ class Coder {
 };
 
 var _coderInstance = undefined;
+/**
+ * @returns {Coder}
+ */
 function instance() {
     if (_coderInstance === undefined) {
         _coderInstance = new Coder();
     }
 
     return _coderInstance;
+}
+
+function parseDependences(mdl, coder) {
+    if (!mdl) {
+        return;
+    }
+
+    const fileManager = file_manager_1.instance();
+    mdl.type.imports.forEach(dep => {
+        const files = fileManager.getFiles(dep.name);
+        files.forEach(file => {
+            awaiter.await(void 0, void 0, void 0, function* () {
+                const uri = uri_1.file(file).toString();
+                if (engine.LoadedPackages[uri]) {
+                    return;
+                }
+                const doc = yield coder.document(uri);
+                engine.parseDocument(doc.getText(), uri, coder.tracer);
+            });
+        });
+    });
 }
 
 exports.instance = instance;

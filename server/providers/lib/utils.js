@@ -4,11 +4,9 @@ const langserver_1 = require('vscode-languageserver');
 const cp_1 = require('child_process');
 const walk_1 = require('walk');
 const fs_1 = require('fs');
-const uri_1 = require('vscode-uri').default;
 const traits_1 = require('../../lib/symbol/symbol-traits');
 const utils_1 = require('../../lib/symbol/utils');
-const symbol_manager = require('./symbol-manager');
-const file_manager = require('./file-manager');
+const engine = require('../../lib/engine');
 
 function searchFile(startpath, options, onFile, onEnd) {
     var emitter = walk_1.walk(startpath, options);
@@ -84,24 +82,17 @@ exports.mapSymbolKind = mapSymbolKind;
 
 function mapToCompletionKind(kind) {
     switch (kind) {
-        case traits_1.SymbolKind.variable:
-            return langserver_1.CompletionItemKind.Variable;
-        case traits_1.SymbolKind.parameter:
+        case 'parameter':
             return langserver_1.CompletionItemKind.Property;
-        case traits_1.SymbolKind.reference:
-            return langserver_1.CompletionItemKind.Reference;
-        case traits_1.SymbolKind.function:
-            return langserver_1.CompletionItemKind.Function;
-        case traits_1.SymbolKind.class:
+        case 'property':
+            return langserver_1.CompletionItemKind.Property;
+        case 'table':
+        case 'class':
             return langserver_1.CompletionItemKind.Class;
-        case traits_1.SymbolKind.module:
+        case 'function':
+            return langserver_1.CompletionItemKind.Function;
+        case 'module':
             return langserver_1.CompletionItemKind.Module;
-        case traits_1.SymbolKind.dependence:
-            return langserver_1.CompletionItemKind.Module;
-        case traits_1.SymbolKind.property:
-            return langserver_1.CompletionItemKind.Property;
-        case traits_1.SymbolKind.label:
-            return langserver_1.CompletionItemKind.Enum;
         default:
             return langserver_1.CompletionItemKind.Variable;
     }
@@ -115,30 +106,95 @@ function symbolKindDesc(kind) {
 
 exports.symbolKindDesc = symbolKindDesc;
 
-const backwardRegex = /[a-zA-Z0-9_.:]/; // parse all the bases
-const forwardRegex = /[a-zA-Z0-9_]/;   // parse only the name
-function extendTextRange(content, from, options) {
-    let range = { start: from, end: from };
+function isalpha(c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
 
-    let offset = from;
-    if (options.backward) {
-        while (offset-- >= 0) {
-            if (!backwardRegex.test(content.charAt(offset))) {
-                range.start = offset;
+function isdigit(c) {
+    return c >= '0' && c <= '9';
+}
+
+function skip(pattern, content, offset, step) {
+    while (pattern.test(content.charAt(offset))) {
+        offset += step;
+    }
+    return offset;
+}
+
+function backward(content, offset, collection) {
+    let bracketDepth = 0;
+    while (true) {
+        let c = content.charAt(offset);
+        if (c === '.' || c === ':') {
+            if (bracketDepth === 0) {
+                collection.push(c);
+            }
+            offset--;
+            offset = skip(/\s/, content, offset, -1);
+            continue;
+        }
+
+        if (c === ')') {
+            bracketDepth++;
+            offset--;
+            continue;
+        }
+
+        if (c === '(') {
+            bracketDepth--;
+            if (bracketDepth < 0) {
                 break;
             }
+            offset--;
+            continue;
         }
+
+        if (isalpha(c) || isdigit(c) || c === '_') {
+            offset--;
+            if (bracketDepth === 0) {
+                collection.push(c);
+            }
+            continue;
+        }
+
+        if (c === ' ' || c === ',') {
+            if (bracketDepth === 0) {
+                break;
+            }
+            offset--;
+            continue;
+        }
+
+        break;
+    }
+
+    collection.reverse();
+    return offset + 1;
+}
+
+const forwardRegex = /[a-zA-Z0-9_]/;   // parse only the name
+function extendTextRange(content, from, options) {
+    let range = { start: from, end: from, text: '' };
+    let offset = from;
+    let collection = [];
+    if (options.backward) {
+        offset = backward(content, offset, collection);
+        range.start = offset;
     }
 
     if (options.forward) {
         offset = from;
         while (offset++ <= content.length) {
-            if (!forwardRegex.test(content.charAt(offset))) {
+            let c = content.charAt(offset);
+            if (!forwardRegex.test(c)) {
                 range.end = offset;
                 break;
             }
+            collection.push(c);
         }
     }
+
+    range.text = collection.join('');
 
     return range;
 }
@@ -174,24 +230,118 @@ function symbolAtPosition(position, doc, options) {
         return undefined;
     }
 
-    let ref = parseContext(text.substring(range.start, range.end));
-    ref.location = { start: position, end: position };    // used for scope filter
-
+    let ref = { name: range.text, range: [range.start, range.end] };
     return ref;
 }
 
 exports.symbolAtPosition = symbolAtPosition;
 
-function functionSignature(symbol) {
-    if (symbol.kind != traits_1.SymbolKind.function) {
-        return undefined;
+function symbolSignature(symbol, override) {
+    let details = [];
+    details.push(symbol.isLocal ? 'local ' : '');
+    let type = engine.typeOf(symbol);
+    if (!type) {
+        return details.join('');
     }
-    let baseName = symbol.bases[symbol.bases.length - 1];
-    let signature = (baseName ? (baseName + '.') : '') + symbol.name + '(' + symbol.params.join(', ') + ')';
-    return signature;
+    if (type.typeName !== 'function') {
+        details.push(symbol.name);
+        details.push(' : ', type.typeName);
+        return details.join('');
+    }
+
+    let returns = type.returns;
+    if (!returns && override !== undefined) {
+        returns = type.variants[override].returns;
+    }
+    returns = returns || [];
+    let ret = returns.map(item => {
+        let typeName = engine.typeOf(item).typeName;
+        typeName = typeName.startsWith('@') ? 'any' : typeName;
+        return typeName;
+    });
+
+    let args = (override !== undefined) ? type.variants[override].args : type.args;
+    details.push('function ', symbol.name);
+    details.push('(' + args.map(p => p.displayName || p.name).join(', ') + ') -> ');
+    details.push(ret.length == 0 ? 'void' : ret.join(', '));
+    return details.join('');
 }
 
-exports.functionSignature = functionSignature;
+exports.symbolSignature = symbolSignature;
+
+function functionSnippet(item, symbol, override) {
+    const args = (override === undefined) ? symbol.type.args : symbol.type.variants[override].args;
+    if (symbol.type.typeName !== 'function') {
+        return;
+    }
+
+    let snippet = symbol.name + '(' + args.map((p, i) => `\${${i + 1}:${p.name}}`).join(', ') + ')';
+    item.insertText = snippet;
+    item.insertTextFormat = langserver_1.InsertTextFormat.Snippet;
+}
+
+exports.functionSnippet = functionSnippet;
+
+function signatureContext(content, offset) {
+    function leftBrace(content, offset, lower_bound) {
+        let match_brace = 1;
+        while (offset-- >= lower_bound && match_brace > 0) {
+            let c = content.charAt(offset);
+            if (c === ')') {
+                match_brace++;
+            } else if (c === '(') {
+                if (--match_brace === 0) {
+                    return offset;
+                }
+            }
+        }
+
+        // 如果没有找到，或者超出了最大搜索字符数，则搜索失败
+        return -1;
+    }
+
+    function paramIndex(content, offset, lower_bound) {
+        let balance = 0;
+        let counter = 0;
+        while (offset-- > lower_bound) {
+            let c = content.charAt(offset);
+            if (c === ',' && balance === 0) {
+                counter++;
+            } else if (c === ')') {
+                balance++;
+            } else if (c === '(') {
+                if (--balance < 0) {
+                    // 达到左括号了，结束查找
+                    return counter;
+                }
+            }
+        }
+        return -1;
+    }
+
+    let max_search_char = 200;
+    let lower_bound = Math.max(0, offset - max_search_char);
+
+    // 向前搜索，查找offset所在函数的左括号位置
+    let end_pos = leftBrace(content, offset, lower_bound);
+    end_pos = skip(/\s/, content, end_pos - 1, -1);
+
+    let collection = [];
+    let start_pos = backward(content, end_pos, collection);
+    if (start_pos < lower_bound) {
+        return undefined;
+    }
+
+    let param_id = paramIndex(content, offset, lower_bound);
+
+    return {
+        param_id: param_id,
+        name: collection.join(''),
+        range: [start_pos, end_pos]
+    };
+}
+
+exports.signatureContext = signatureContext;
 
 function findDefByNameAndScope(name, location, defs) {
     for (let i = 0; i < defs.length; i++) {
@@ -203,68 +353,6 @@ function findDefByNameAndScope(name, location, defs) {
 
     return undefined;
 }
-
-function getDefinitionsInDependences(uri, ref, tracer) {
-    let sm = symbol_manager.instance();
-    let docsym = sm.documentSymbol(uri);
-    if (!docsym) {
-        return [];
-    }
-
-    let baseSymbol = undefined;
-    let base = ref.bases[0];
-    // 如果是base.property这种表达式，则尝试进行精确匹配
-    if (base) {
-        // 先查看依赖的模块名，如果base==depName，则符号肯定是从模块depName中获取
-        baseSymbol = findDefByNameAndScope(base, ref.location, docsym.dependences());
-        // 如果不在依赖的模块里面，再看下是否有本地定义，解决local x = require("mm")的问题，
-        // 此时，base === x.alias === 'mm'
-        if (!baseSymbol) {
-            baseSymbol = findDefByNameAndScope(base, ref.location, docsym.definitions());
-        }
-    }
-
-    // 线尝试解析依赖模块的符号，这个是性能点，后续考虑优化
-    sm.parseDependence(uri);
-
-    let defs = [];
-    let deps = docsym.dependences();
-    deps.filter(d => {
-        // 根据前面的计算，尝试进行精确匹配
-        return baseSymbol ? (d.name === baseSymbol.name || d.name === baseSymbol.alias)
-            : true;
-    }).forEach(d => {
-        let fileManager = file_manager.instance();
-        let files = fileManager.getFiles(d.name);
-        if (files.length === 0) {
-            return;
-        }
-
-        // for require('pl.tablex')，精准匹配
-        if (d.shortPath) {
-            files = files.filter(file => {
-                return file.includes(d.shortPath);
-            });
-        }
-
-        files.forEach(file => {
-            let uri = uri_1.file(file).toString();
-            let _docsym = sm.documentSymbol(uri);
-            if (!_docsym) {
-                return;
-            }
-
-            let exportSymbols = _docsym.isReturnMode() ? _docsym.returns() : _docsym.definitions();
-            defs = defs.concat(exportSymbols.filter(d => {
-                return (d.returnMode === true) || !d.islocal;
-            }) || []);
-        });
-    });
-
-    return defs;
-}
-
-exports.getDefinitionsInDependences = getDefinitionsInDependences;
 
 function fuzzyCompareName(srcName, dstName) {
     return dstName.includes(srcName);

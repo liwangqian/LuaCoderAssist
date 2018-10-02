@@ -3,13 +3,13 @@
   "displayName": "LuaCoderAssist",
   "description": "lua coder assistant in javascript for vscode",
   "icon": "images/icon.png",
-  "version": "1.3.8",
+  "version": "2.0.8",
   "publisher": "liwangqian",
   "engines": {
-    "vscode": "^1.11.0"
+    "vscode": "^1.25.0"
   },
   "categories": [
-    "Languages",
+    "Programming Languages",
     "Linters",
     "Snippets",
     "Formatters"
@@ -58,6 +58,29 @@
           "default": false,
           "description": "Debug information output enable."
         },
+        "LuaCoderAssist.preloads": {
+          "type": "array",
+          "default": [],
+          "description": "Preload modules path."
+        },
+        "LuaCoderAssist.useLove": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use `LOVE` libraries."
+        },
+        "LuaCoderAssist.useJit": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use `LuaJit` libraries."
+        },
+        "LuaCoderAssist.luaPath": {
+          "type": "string",
+          "default": "",
+          "description": "Provide the lua path to help find the rigth module path, when there is some modules with same file name.",
+          "examples": [
+            "{workspaceRoot}/pathA/subPath0/subPath1/?.lua;{workspaceRoot}/pathB/subPath0/subPath1/?.lua"
+          ]
+        },
         "LuaCoderAssist.search.filters": {
           "type": "array",
           "default": [],
@@ -87,6 +110,14 @@
           "type": "boolean",
           "default": true,
           "description": "Enable/Disable luacheck for static diagnostics."
+        },
+        "LuaCoderAssist.luacheck.options": {
+          "type": "array",
+          "default": [
+            "-m",
+            "-t"
+          ],
+          "description": "Cli options for luacheck, see [luacheck](https://luacheck.readthedocs.io/en/stable/cli.html#command-line-options) for details."
         },
         "LuaCoderAssist.luacheck.onSave": {
           "type": "boolean",
@@ -217,17 +248,20 @@
     "lua-coder-assist": "server/server-stdio.js"
   },
   "dependencies": {
-    "bluebird": "^3.5.0",
+    "autodetect-decoder-stream": "^1.0.0",
     "check-types": "~4",
     "escomplex": "0.2.5",
     "escomplex-traits": "0.2.x",
+    "iconv-lite": "^0.4.24",
+    "jschardet": "^1.6.0",
     "lodash": "^4.17.4",
     "lua-fmt": "^2.3.0",
     "luaparse": "^0.2.1",
     "opn": "^5.1.0",
     "tree-kill": "^1.2.0",
-    "vscode-languageclient": "^3.4.5",
-    "vscode-languageserver": "^3.4.3",
+    "underscore": "^1.9.0",
+    "vscode-languageclient": "^5.0.0",
+    "vscode-languageserver": "^5.0.0",
     "vscode-uri": "^1.0.1",
     "walk": "^2.3.9"
   },
