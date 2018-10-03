@@ -12,29 +12,53 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 
 ## 功能(Features)
 
+- [x] 代码补全
+- [x] 类型推导(LIMITED))
+- [x] 定义跳转
+- [x] 符号预览
+- [x] 静态检查
+- [x] 代码格式化
+
 ### 当前已支持的功能(Supported)
 
 - **文件内符号列表(document symbols)**
+
 ![list](images/symbol-list.gif)
+
 - **符号定义跳转(goto definition)**
+
 ![goto](images/goto-def.gif)
+
 - **符号定义预览(definition peak)**
+
 ![peak](images/def-peak.gif)
+
 - **代码补全(code complete)**
+
 ![complete](images/complete.gif)
+
 - **函数特征帮助(signatrue help)**
+
 ![signature](images/signature.gif)
+
 - **静态检查(diagnostics)**
+
 ![diagnostics](images/diagnostics.gif)
+
 - **符号重命名(rename)**, _limitation: can only apply to local defined variable_
+
 ![rename](images/rename.gif)
+
 - **代码格式化(code format)**, including format whole file and format select text, _**format on typing** is not supported now._
+
 ![format](images/format.gif)
-- **返回表模式(symbol from return table)**
-![return](images/return-table.gif)
+
 - **插入函数头(insert ldoc)**
+
 ![ldoc](images/ldoc.gif)
+
 - **代码度量(code metrics)**
+
 ![metrics](images/metrics.gif)
 
 ## 依赖(Dependences)
@@ -43,8 +67,13 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 - luacheck: https://github.com/mpeterv/luacheck
 - lua-fmt: https://github.com/trixnz/lua-fmt
 
-
 ## 发行记录(Release Notes)
+
+### 2.0.9
+
+- 优化：LUA 5.3和JIT接口文档优化，修复LUA 5.1接口文档的个别接口未匹配问题
+- 优化：luacheck静态检查配置，增加globals配置，通过luaversion匹配luacheck的std配置
+- 修复：当local _io = io时，_io无法自动补全的问题
 
 ### 2.0.8
 

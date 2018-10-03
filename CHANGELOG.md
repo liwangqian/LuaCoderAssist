@@ -2,6 +2,12 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.0.9 @ 2018-10-03
+
+- 优化：LUA 5.3和JIT接口文档优化，修复LUA 5.1接口文档的个别接口未匹配问题
+- 优化：luacheck静态检查配置，增加globals配置，通过luaversion匹配luacheck的std配置
+- 修复：当local _io = io时，_io无法自动补全的问题
+
 ## 2.0.8 @ 2018-10-02
 
 - 新增：更新符号解析方案，提供有限的符号类型推导功能
