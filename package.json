@@ -137,7 +137,6 @@
         "LuaCoderAssist.luacheck.std": {
           "type": "array",
           "default": [
-            "lua51",
             "busted"
           ],
           "description": "Set standard globals.(@ref http://luacheck.readthedocs.io/en/stable/cli.html)"
