@@ -204,6 +204,14 @@ class LuaAny extends LuaTypeBase {
     }
 }
 
+class LuaNameType extends LuaTypeBase {
+    constructor(typeName) {
+        super(typeName);
+    }
+}
+
+exports.LuaNameType = LuaNameType;
+
 exports.LuaAny = LuaAny;
 
 const LuaBasicTypes = {

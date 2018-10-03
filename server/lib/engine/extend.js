@@ -21,7 +21,8 @@ const {
     LuaBasicTypes,
     LuaSymbol,
     LuaSymbolKind,
-    lazyType
+    lazyType,
+    LuaNameType
 } = require('./symbol');
 const { namedTypes, _G } = require('./luaenv');
 const fs_1 = require('fs');
@@ -40,7 +41,9 @@ exports.loadExtentLib = loadExtentLib;
 
 const state = { valid: true };
 const newExtentSymbol = (name, isLocal, kind, type) => {
-    return new LuaSymbol(name, null, null, isLocal, null, kind, type);
+    let newSymbol = new LuaSymbol(name, null, null, isLocal, null, kind, type);
+    newSymbol.state = state;
+    return newSymbol;
 }
 
 function parseNamedTypes(json) {
@@ -117,7 +120,7 @@ function parseJsonObject(node, name) {
         case 'boolean':
             return parseLuaBasicTypeJsonObject(node, name);
         default:
-            break;
+            return newExtentSymbol(name, false, LuaSymbolKind.variable, new LuaNameType(node.type));
     }
 }
 
@@ -128,7 +131,6 @@ function parseTableJsonObject(node, name) {
     table.description = node.description;
     table.link = node.link;
     let symbol = newExtentSymbol(name, false, LuaSymbolKind.table, table);
-    symbol.state = state;
     return symbol;
 }
 
@@ -140,7 +142,6 @@ function parseFunctionJsonObject(node, name) {
     func.returns = parseReturnsObject(node.returnTypes);
     parseVariantsArgumentsObject(node.variants, func);
     let symbol = newExtentSymbol(name, false, LuaSymbolKind.function, func);
-    symbol.state = state;
     return symbol;
 }
 
@@ -165,7 +166,6 @@ function parseArgumentsObject(args) {
     return args.map(arg => {
         const symbol = newExtentSymbol(arg.name, true, LuaSymbolKind.parameter, LuaBasicTypes.any);
         symbol.displayName = arg.displayName;
-        symbol.state = state;
         return symbol;
     });
 }
@@ -182,16 +182,11 @@ function parseReturnsObject(returns) {
 function parseLuaBasicTypeJsonObject(node, name) {
     const type = LuaBasicTypes[node.type];
     const symbol = newExtentSymbol(name, false, LuaSymbolKind.variable, type);
-    symbol.state = state;
     return symbol;
 }
 
 function parseRefJsonObject(node, name) {
     const type = lazyType(null, node, name, 0); //delay evaluate
     const symbol = newExtentSymbol(name, false, LuaSymbolKind.variable, type);
-    symbol.state = state;
     return symbol;
 }
-
-
-loadExtentLib('./stdlibs/5_1.json');
