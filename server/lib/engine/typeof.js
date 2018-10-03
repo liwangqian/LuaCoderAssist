@@ -295,7 +295,7 @@ function parseIdentifier(node, type) {
         return identType;
     }
 
-    let symbol = type.context.search(node.name);
+    let symbol = type.context.search(node.name, node.range);
     return symbol && typeOf(symbol);
 }
 

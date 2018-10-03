@@ -247,7 +247,13 @@ function analysis(code, uri) {
             let baseNames = utils_1.baseNames(node.identifier && node.identifier.base);
             if (baseNames.length > 0) {
                 let parent = utils_1.directParent(rootStack, baseNames);
-                if (parent && is.luaTable(parent.type)) {
+                if (parent) {
+                    /**
+                     * 根据上下文可以推断parent肯定是一个表，如果推导不出来，就创建一个表
+                    */
+                    if (!is.luaTable(typeOf(parent))) {
+                        parent.type = new LuaTable();
+                    }
                     parent.kind = LuaSymbolKind.class;
                     parent.set(name, fsymbol);
                     if (node.identifier.indexer === ':') {
