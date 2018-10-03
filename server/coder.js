@@ -48,9 +48,6 @@ class Coder {
                 luaversion: "5.1",
                 allowDefined: false
             },
-            symbol: {
-                showFunctionGlobalOnly: true
-            },
             format: {
                 lineWidth: 120,
                 indentCount: 4,

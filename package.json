@@ -99,6 +99,11 @@
         "LuaCoderAssist.luaparse.luaversion": {
           "type": "number",
           "default": 5.1,
+          "enum": [
+            5.1,
+            5.2,
+            5.3
+          ],
           "description": "The lua version, for grammer match."
         },
         "LuaCoderAssist.luaparse.allowDefined": {
@@ -139,12 +144,17 @@
           "default": [
             "busted"
           ],
-          "description": "Set standard globals.(@ref http://luacheck.readthedocs.io/en/stable/cli.html)"
+          "description": "Set standard globals.(@ref https://luacheck.readthedocs.io/en/stable/cli.html#command-line-options)"
         },
         "LuaCoderAssist.luacheck.ignore": {
           "type": "array",
           "default": [],
           "description": "Filter out warnings matching patterns.(@ref http://luacheck.readthedocs.io/en/stable/cli.html)"
+        },
+        "LuaCoderAssist.luacheck.globals": {
+          "type": "array",
+          "default": [],
+          "description": "Add read-only global variables or fields.(@ref https://luacheck.readthedocs.io/en/stable/cli.html)"
         },
         "LuaCoderAssist.luacheck.jobs": {
           "type": "integer",
@@ -170,11 +180,6 @@
           "type": "boolean",
           "default": true,
           "description": "Keep diagnostic information after document closed."
-        },
-        "LuaCoderAssist.symbol.showFunctionGlobalOnly": {
-          "type": "boolean",
-          "default": true,
-          "description": "Only functions and global symbol will be show in document symbol list."
         },
         "LuaCoderAssist.format.lineWidth": {
           "type": "integer",

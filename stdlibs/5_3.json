@@ -13,46 +13,171 @@
         "type": "function",
         "args": [
           {
-            "name": "v"
+            "name": "v",
+            "type": "any",
+            "displayName": "v: any"
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "displayName": "message?: string"
           }
-        ],
-        "argsDisplay": "v [, message]"
+        ]
       },
       "collectgarbage": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-collectgarbage",
-        "description": "This function is a generic interface to the garbage collector. It performs different functions according to its first argument, opt:",
         "type": "function",
-        "args": [],
-        "argsDisplay": "[opt [, arg]]"
+        "variants": [
+          {
+            "description": "Performs a full garbage-collection cycle. This is the default action.",
+            "args": [
+              {
+                "name": "\"collect\"",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "description": "Stops the garbage collector.",
+            "args": [
+              {
+                "name": "\"stop\"",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "description": "Restarts the garbage collector.",
+            "args": [
+              {
+                "name": "\"restart\"",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "description": "Returns the total memory in use by Lua (in Kbytes).",
+            "args": [
+              {
+                "name": "\"count\"",
+                "type": "string"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
+          },
+          {
+            "description": "Performs a garbage-collection step. The step \"size\" is controlled by arg (larger values mean more steps) in a non-specified way. If you want to control the step size you must experimentally tune the value of arg. Returns true if the step finished a collection cycle.",
+            "args": [
+              {
+                "name": "\"step\"",
+                "type": "string"
+              },
+              {
+                "name": "arg",
+                "type": "number",
+                "displayName": "arg: number"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          {
+            "description": "Sets arg as the new value for the pause of the collector (see [§2.10](https://www.lua.org/manual/5.1/manual.html#2.10)). Returns the previous value for pause.",
+            "args": [
+              {
+                "name": "\"setpause\"",
+                "type": "string"
+              },
+              {
+                "name": "arg",
+                "type": "number",
+                "displayName": "arg: number"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
+          },
+          {
+            "description": "Sets arg as the new value for the step multiplier of the collector (see [§2.10](https://www.lua.org/manual/5.1/manual.html#2.10)). Returns the previous value for step.",
+            "args": [
+              {
+                "name": "\"setstepmul\"",
+                "type": "string"
+              },
+              {
+                "name": "arg",
+                "type": "number",
+                "displayName": "arg: number"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
+          }
+        ]
       },
       "dofile": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-dofile",
         "description": "Opens the named file and executes its contents as a Lua chunk. When called without arguments, dofile executes the contents of the standard input (stdin). Returns all values returned by the chunk. In case of errors, dofile propagates the error to its caller (that is, dofile does not run in protected mode).",
         "type": "function",
-        "args": [],
-        "argsDisplay": "[filename]"
+        "args": [
+          {
+            "name": "filename",
+            "type": "string",
+            "displayName": "filename?: string"
+          }
+        ],
+        "returnTypes": [
+          {
+            "type": "any"
+          }
+        ]
       },
       "error": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-error",
-        "description": "Terminates the last protected function called and returns message as the error object. Function error never returns.",
+        "description": "Terminates the last protected function called and returns message as the error message. Function error never returns.",
         "type": "function",
         "args": [
           {
-            "name": "message"
+            "name": "message",
+            "type": "string",
+            "displayName": "message: string"
+          },
+          {
+            "name": "level",
+            "type": "number",
+            "displayName": "level?: number"
           }
-        ],
-        "argsDisplay": "message [, level]"
+        ]
       },
       "getmetatable": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-getmetatable",
-        "description": "If object does not have a metatable, returns nil. Otherwise, if the object's metatable has a __metatable field, returns the associated value. Otherwise, returns the metatable of the given object.",
+        "description": "If object does not have a metatable, returns nil. Otherwise, if the object's metatable has a \"__metatable\" field, returns the associated value. Otherwise, returns the metatable of the given object.",
         "type": "function",
         "args": [
           {
-            "name": "object"
+            "name": "object",
+            "type": "any",
+            "displayName": "object: any"
           }
         ],
-        "argsDisplay": "object"
+        "returnTypes": [
+          {
+            "type": "any"
+          }
+        ]
       },
       "ipairs": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-ipairs",
@@ -60,28 +185,67 @@
         "type": "function",
         "args": [
           {
-            "name": "t"
+            "name": "t",
+            "type": "table",
+            "displayName": "t: table"
           }
         ],
-        "argsDisplay": "t"
+        "returnTypes": [
+          {
+            "type": "function"
+          },
+          {
+            "type": "table"
+          },
+          {
+            "type": "number"
+          }
+        ]
       },
       "load": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-load",
-        "description": "Loads a chunk.",
+        "description": "Loads a chunk using function func to get its pieces. Each call to func must return a string that concatenates with previous results. A return of an empty string, nil, or no value signals the end of the chunk.",
         "type": "function",
         "args": [
           {
-            "name": "chunk"
+            "name": "func",
+            "type": "function",
+            "displayName": "func: function"
+          },
+          {
+            "name": "chunkname",
+            "type": "string",
+            "displayName": "chunkname?: string"
           }
         ],
-        "argsDisplay": "chunk [, chunkname [, mode [, env]]]"
+        "returnTypes": [
+          {
+            "type": "function"
+          },
+          {
+            "type": "string"
+          }
+        ]
       },
       "loadfile": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-loadfile",
         "description": "Similar to load, but gets the chunk from file filename or from the standard input, if no file name is given.",
         "type": "function",
-        "args": [],
-        "argsDisplay": "[filename [, mode [, env]]]"
+        "args": [
+          {
+            "name": "filename",
+            "type": "string",
+            "displayName": "filename?: string"
+          }
+        ],
+        "returnTypes": [
+          {
+            "type": "function"
+          },
+          {
+            "type": "string"
+          }
+        ]
       },
       "next": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-next",
@@ -89,10 +253,24 @@
         "type": "function",
         "args": [
           {
-            "name": "table"
+            "name": "t",
+            "type": "table",
+            "displayName": "t: table"
+          },
+          {
+            "name": "index",
+            "type": "number",
+            "displayName": "index: number"
           }
         ],
-        "argsDisplay": "table [, index]"
+        "returnTypes": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "any"
+          }
+        ]
       },
       "pairs": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-pairs",
@@ -100,10 +278,19 @@
         "type": "function",
         "args": [
           {
-            "name": "t"
+            "name": "t",
+            "type": "table",
+            "displayName": "t: table"
           }
         ],
-        "argsDisplay": "t"
+        "returnTypes": [
+          {
+            "type": "function"
+          },
+          {
+            "type": "table"
+          }
+        ]
       },
       "pcall": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-pcall",
@@ -111,17 +298,37 @@
         "type": "function",
         "args": [
           {
-            "name": "f"
+            "name": "f",
+            "type": "function",
+            "displayName": "f: function"
+          },
+          {
+            "name": "arg1",
+            "type": "any",
+            "displayName": "arg1: any"
+          },
+          {
+            "name": "..."
           }
         ],
-        "argsDisplay": "f [, arg1, ···]"
+        "returnTypes": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "any"
+          }
+        ]
       },
       "print": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-print",
         "description": "Receives any number of arguments and prints their values to stdout, using the tostring function to convert each argument to a string. print is not intended for formatted output, but only as a quick way to show a value, for instance for debugging. For complete control over the output, use string.format and io.write.",
         "type": "function",
-        "args": [],
-        "argsDisplay": "···"
+        "args": [
+          {
+            "name": "..."
+          }
+        ]
       },
       "rawequal": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-rawequal",
@@ -129,13 +336,21 @@
         "type": "function",
         "args": [
           {
-            "name": "v1"
+            "name": "v1",
+            "type": "any",
+            "displayName": "v1: any"
           },
           {
-            "name": "v2"
+            "name": "v2",
+            "type": "any",
+            "displayName": "v2: any"
           }
         ],
-        "argsDisplay": "v1, v2"
+        "returnTypes": [
+          {
+            "type": "boolean"
+          }
+        ]
       },
       "rawget": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-rawget",
@@ -143,13 +358,21 @@
         "type": "function",
         "args": [
           {
-            "name": "table"
+            "name": "t",
+            "type": "table",
+            "displayName": "t: table"
           },
           {
-            "name": "index"
+            "name": "index",
+            "type": "any",
+            "displayName": "index: any"
           }
         ],
-        "argsDisplay": "table, index"
+        "returnTypes": [
+          {
+            "type": "any"
+          }
+        ]
       },
       "rawlen": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-rawlen",
@@ -157,10 +380,15 @@
         "type": "function",
         "args": [
           {
-            "name": "v"
+            "name": "v",
+            "displayName": "v: table|string"
           }
         ],
-        "argsDisplay": "v"
+        "returnTypes": [
+          {
+            "type": "number"
+          }
+        ]
       },
       "rawset": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-rawset",
@@ -168,16 +396,21 @@
         "type": "function",
         "args": [
           {
-            "name": "table"
+            "name": "t",
+            "type": "table",
+            "displayName": "t: table"
           },
           {
-            "name": "index"
+            "name": "index",
+            "type": "any",
+            "displayName": "index: any"
           },
           {
-            "name": "value"
+            "name": "value",
+            "type": "any",
+            "displayName": "value: any"
           }
-        ],
-        "argsDisplay": "table, index, value"
+        ]
       },
       "require": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-require",
@@ -185,21 +418,63 @@
         "type": "function",
         "args": [
           {
-            "name": "modname"
+            "name": "modname",
+            "type": "string",
+            "displayName": "modname: string"
           }
         ],
-        "argsDisplay": "modname"
+        "returnTypes": [
+          {
+            "type": "any"
+          }
+        ]
       },
       "select": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-select",
-        "description": "If index is a number, returns all arguments after argument number index; a negative number indexes from the end (-1 is the last argument). Otherwise, index must be the string \"#\", and select returns the total number of extra arguments it received.",
         "type": "function",
-        "args": [
+        "variants": [
           {
-            "name": "index"
+            "description": "Returns the total number of extra arguments it received.",
+            "args": [
+              {
+                "name": "\"#\"",
+                "type": "string",
+                "displayName": "\"#\""
+              },
+              {
+                "name": "...",
+                "type": "any",
+                "displayName": "..."
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
+          },
+          {
+            "description": "Returns all arguments after argument number index.",
+            "args": [
+              {
+                "name": "index",
+                "type": "number",
+                "displayName": "index: number"
+              },
+              {
+                "name": "...",
+                "type": "any",
+                "displayName": "..."
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "any",
+                "displayName": "any, ..."
+              }
+            ]
           }
-        ],
-        "argsDisplay": "index, ···"
+        ]
       },
       "setmetatable": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-setmetatable",
@@ -207,13 +482,21 @@
         "type": "function",
         "args": [
           {
-            "name": "table"
+            "name": "t",
+            "type": "table",
+            "displayName": "t: table"
           },
           {
-            "name": "metatable"
+            "name": "metatable",
+            "type": "table",
+            "displayName": "metatable: table"
           }
         ],
-        "argsDisplay": "table, metatable"
+        "returnTypes": [
+          {
+            "type": "table"
+          }
+        ]
       },
       "tonumber": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-tonumber",
@@ -221,10 +504,21 @@
         "type": "function",
         "args": [
           {
-            "name": "e"
+            "name": "e",
+            "type": "any",
+            "displayName": "e: number|string"
+          },
+          {
+            "name": "base",
+            "type": "number",
+            "displayName": "base?: number"
           }
         ],
-        "argsDisplay": "e [, base]"
+        "returnTypes": [
+          {
+            "type": "number"
+          }
+        ]
       },
       "tostring": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-tostring",
@@ -232,10 +526,16 @@
         "type": "function",
         "args": [
           {
-            "name": "v"
+            "name": "e",
+            "type": "any",
+            "displayName": "e: any"
           }
         ],
-        "argsDisplay": "v"
+        "returnTypes": [
+          {
+            "type": "string"
+          }
+        ]
       },
       "type": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-type",
@@ -243,10 +543,16 @@
         "type": "function",
         "args": [
           {
-            "name": "v"
+            "name": "v",
+            "type": "any",
+            "displayName": "v: any"
           }
         ],
-        "argsDisplay": "v"
+        "returnTypes": [
+          {
+            "type": "string"
+          }
+        ]
       },
       "xpcall": {
         "link": "https://www.lua.org/manual/5.3/manual.html#pdf-xpcall",
@@ -254,13 +560,24 @@
         "type": "function",
         "args": [
           {
-            "name": "f"
+            "name": "f",
+            "type": "function",
+            "displayName": "f: function"
           },
           {
-            "name": "msgh"
+            "name": "err",
+            "type": "function",
+            "displayName": "err: function"
           }
         ],
-        "argsDisplay": "f, msgh [, arg1, ···]"
+        "returnTypes": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "any"
+          }
+        ]
       },
       "coroutine": {
         "link": "https://www.lua.org/manual/5.3/manual.html#6.2",
@@ -273,17 +590,27 @@
             "type": "function",
             "args": [
               {
-                "name": "f"
+                "name": "f",
+                "type": "function",
+                "displayName": "f: function"
               }
             ],
-            "argsDisplay": "f"
+            "returnTypes": [
+              {
+                "type": "thread"
+              }
+            ]
           },
           "isyieldable": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-coroutine.isyieldable",
             "description": "Returns true when the running coroutine can yield.",
             "type": "function",
             "args": [],
-            "argsDisplay": ""
+            "returnTypes": [
+              {
+                "type": "boolean"
+              }
+            ]
           },
           "resume": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-coroutine.resume",
@@ -291,17 +618,40 @@
             "type": "function",
             "args": [
               {
-                "name": "co"
+                "name": "co",
+                "type": "thread",
+                "displayName": "co: thread"
+              },
+              {
+                "name": "val1",
+                "type": "any",
+                "displayName": "val1?: any"
+              },
+              {
+                "name": "...",
+                "type": "any",
+                "displayName": "..."
               }
             ],
-            "argsDisplay": "co [, val1, ···]"
+            "returnTypes": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "any"
+              }
+            ]
           },
           "running": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-coroutine.running",
             "description": "Returns the running coroutine plus a boolean, true when the running coroutine is the main one.",
             "type": "function",
             "args": [],
-            "argsDisplay": ""
+            "returnTypes": [
+              {
+                "type": "thread"
+              }
+            ]
           },
           "status": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-coroutine.status",
@@ -309,10 +659,17 @@
             "type": "function",
             "args": [
               {
-                "name": "co"
+                "name": "co",
+                "type": "thread",
+                "displayName": "co: thread"
               }
             ],
-            "argsDisplay": "co"
+            "returnTypes": [
+              {
+                "type": "string",
+                "displayName": "\"running\"|\"suspended\"|\"normal\"|\"dead\""
+              }
+            ]
           },
           "wrap": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-coroutine.wrap",
@@ -320,17 +677,43 @@
             "type": "function",
             "args": [
               {
-                "name": "f"
+                "name": "f",
+                "type": "function",
+                "displayName": "f: function"
               }
             ],
-            "argsDisplay": "f"
+            "returnTypes": [
+              {
+                "type": "function",
+                "args": [
+                  {
+                    "name": "...",
+                    "type": "any",
+                    "displayName": "..."
+                  }
+                ],
+                "returnTypes": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "any"
+                  }
+                ]
+              }
+            ]
           },
           "yield": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-coroutine.yield",
             "description": "Suspends the execution of the calling coroutine. Any arguments to yield are passed as extra results to resume.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "···"
+            "args": [
+              {
+                "name": "...",
+                "type": "any",
+                "displayName": "..."
+              }
+            ]
           }
         }
       },
@@ -343,29 +726,141 @@
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.debug",
             "description": "Enters an interactive mode with the user, running each string that the user enters. Using simple commands and other debug facilities, the user can inspect global and local variables, change their values, evaluate expressions, and so on. A line containing only the word cont finishes this function, so that the caller continues its execution.",
             "type": "function",
-            "args": [],
-            "argsDisplay": ""
+            "args": []
           },
           "gethook": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.gethook",
             "description": "Returns the current hook settings of the thread, as three values: the current hook function, the current hook mask, and the current hook count (as set by the debug.sethook function).",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[thread]"
+            "args": [
+              {
+                "name": "threa",
+                "type": "thread",
+                "displayName": "thread: thread"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "function",
+                "args": [
+                  {
+                    "name": "...",
+                    "type": "any",
+                    "displayName": "..."
+                  }
+                ],
+                "returnTypes": [
+                  {
+                    "type": "any"
+                  }
+                ]
+              },
+              {
+                "type": "any",
+                "displayName": "..."
+              }
+            ]
           },
           "getinfo": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.getinfo",
             "description": "Returns a table with information about a function. You can give the function directly or you can give a number as the value of f, which means the function running at level f of the call stack of the given thread: level 0 is the current function (getinfo itself); level 1 is the function that called getinfo (except for tail calls, which do not count on the stack); and so on. If f is a number larger than the number of active functions, then getinfo returns nil.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[thread,] f [, what]"
+            "variants": [
+              {
+                "args": [
+                  {
+                    "name": "thread",
+                    "type": "thread",
+                    "displayName": "thread: thread"
+                  },
+                  {
+                    "name": "function",
+                    "type": "function",
+                    "displayName": "function: function|number"
+                  },
+                  {
+                    "name": "what",
+                    "type": "string",
+                    "displayName": "what?: string"
+                  }
+                ],
+                "returnTypes": [
+                  {
+                    "type": "table"
+                  }
+                ]
+              },
+              {
+                "args": [
+                  {
+                    "name": "function",
+                    "type": "function",
+                    "displayName": "function: function|number"
+                  },
+                  {
+                    "name": "what",
+                    "type": "string",
+                    "displayName": "what?: string"
+                  }
+                ],
+                "returnTypes": [
+                  {
+                    "type": "table"
+                  }
+                ]
+              }
+            ]
           },
           "getlocal": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.getlocal",
-            "description": "This function returns the name and the value of the local variable with index local of the function at level f of the stack. This function accesses not only explicit local variables, but also parameters, temporaries, etc.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[thread,] f, local"
+            "variants": [
+              {
+                "description": "This function returns the name and the value of the local variable with index local of the function at level level of the stack. (The first parameter or local variable has index 1, and so on, until the last active local variable.) The function returns nil if there is no local variable with the given index, and raises an error when called with a level out of range. (You can call debug.getinfo to check whether the level is valid.)",
+                "args": [
+                  {
+                    "name": "thread",
+                    "type": "thread",
+                    "displayName": "thread: thread"
+                  },
+                  {
+                    "name": "level",
+                    "type": "number",
+                    "displayName": "level: number"
+                  },
+                  {
+                    "name": "local",
+                    "type": "number",
+                    "displayName": "local?: number"
+                  }
+                ],
+                "returnTypes": [
+                  {
+                    "type": "any"
+                  }
+                ]
+              },
+              {
+                "description": "This function returns the name and the value of the local variable with index local of the function at level level of the stack. (The first parameter or local variable has index 1, and so on, until the last active local variable.) The function returns nil if there is no local variable with the given index, and raises an error when called with a level out of range. (You can call debug.getinfo to check whether the level is valid.)",
+                "args": [
+                  {
+                    "name": "function",
+                    "type": "function",
+                    "displayName": "function: function|number"
+                  },
+                  {
+                    "name": "local",
+                    "type": "number",
+                    "displayName": "local?: number"
+                  }
+                ],
+                "returnTypes": [
+                  {
+                    "type": "any"
+                  }
+                ]
+              }
+            ]
           },
           "getmetatable": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.getmetatable",
@@ -373,17 +868,27 @@
             "type": "function",
             "args": [
               {
-                "name": "value"
+                "name": "object",
+                "type": "table",
+                "displayName": "object: table"
               }
             ],
-            "argsDisplay": "value"
+            "returnTypes": [
+              {
+                "type": "any"
+              }
+            ]
           },
           "getregistry": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.getregistry",
             "description": "Returns the registry table (see §4.5).",
             "type": "function",
             "args": [],
-            "argsDisplay": ""
+            "returnTypes": [
+              {
+                "type": "table"
+              }
+            ]
           },
           "getupvalue": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.getupvalue",
@@ -391,13 +896,21 @@
             "type": "function",
             "args": [
               {
-                "name": "f"
+                "name": "func",
+                "type": "function",
+                "displayName": "func: function"
               },
               {
-                "name": "up"
+                "name": "up",
+                "type": "number",
+                "displayName": "up: number"
               }
             ],
-            "argsDisplay": "f, up"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "getuservalue": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.getuservalue",
@@ -405,24 +918,115 @@
             "type": "function",
             "args": [
               {
-                "name": "u"
+                "name": "u",
+                "displayName": "u: userdata"
               }
             ],
-            "argsDisplay": "u"
+            "returnTypes": [
+              {
+                "type": "userdata"
+              }
+            ]
           },
           "sethook": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.sethook",
             "description": "Sets the given function as a hook. The string mask and the number count describe when the hook will be called. The string mask may have any combination of the following characters, with the given meaning:",
             "type": "function",
             "args": [],
-            "argsDisplay": "[thread,] hook, mask [, count]"
+            "variants": [
+              {
+                "args": [
+                  {
+                    "name": "thread",
+                    "displayName": "thread: thread"
+                  },
+                  {
+                    "name": "hook",
+                    "displayName": "hook: function"
+                  },
+                  {
+                    "name": "mask",
+                    "displayName": "mask: string"
+                  },
+                  {
+                    "name": "count",
+                    "displayName": "count?: number"
+                  }
+                ]
+              },
+              {
+                "args": [
+                  {
+                    "name": "hook",
+                    "displayName": "hook: function"
+                  },
+                  {
+                    "name": "mask",
+                    "displayName": "mask: string"
+                  },
+                  {
+                    "name": "count",
+                    "displayName": "count?: number"
+                  }
+                ]
+              }
+            ]
           },
           "setlocal": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.setlocal",
             "description": "This function assigns the value value to the local variable with index local of the function at level level of the stack. The function returns nil if there is no local variable with the given index, and raises an error when called with a level out of range. (You can call getinfo to check whether the level is valid.) Otherwise, it returns the name of the local variable.",
             "type": "function",
             "args": [],
-            "argsDisplay": "[thread,] level, local, value"
+            "variants": [
+              {
+                "args": [
+                  {
+                    "name": "thread",
+                    "type": "thread",
+                    "displayName": "thread: thread"
+                  },
+                  {
+                    "name": "level",
+                    "type": "number",
+                    "displayName": "level: number"
+                  },
+                  {
+                    "name": "local",
+                    "type": "number",
+                    "displayName": "local: number"
+                  },
+                  {
+                    "name": "value",
+                    "type": "any",
+                    "displayName": "value: any"
+                  }
+                ]
+              },
+              {
+                "args": [
+                  {
+                    "name": "function",
+                    "type": "function",
+                    "displayName": "function: function|number"
+                  },
+                  {
+                    "name": "local",
+                    "type": "number",
+                    "displayName": "local: number"
+                  },
+                  {
+                    "name": "value",
+                    "type": "any",
+                    "displayName": "value: any"
+                  }
+                ]
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "setmetatable": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.setmetatable",
@@ -430,13 +1034,16 @@
             "type": "function",
             "args": [
               {
-                "name": "value"
+                "name": "object",
+                "type": "table",
+                "displayName": "object: table"
               },
               {
-                "name": "table"
+                "name": "table",
+                "type": "table",
+                "displayName": "table: table"
               }
-            ],
-            "argsDisplay": "value, table"
+            ]
           },
           "setupvalue": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.setupvalue",
@@ -444,16 +1051,26 @@
             "type": "function",
             "args": [
               {
-                "name": "f"
+                "name": "func",
+                "type": "function",
+                "displayName": "func: function"
               },
               {
-                "name": "up"
+                "name": "up",
+                "type": "number",
+                "displayName": "up: number"
               },
               {
-                "name": "value"
+                "name": "value",
+                "type": "any",
+                "displayName": "value: any"
               }
             ],
-            "argsDisplay": "f, up, value"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "setuservalue": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.setuservalue",
@@ -461,20 +1078,41 @@
             "type": "function",
             "args": [
               {
-                "name": "udata"
+                "name": "udata",
+                "displayName": "udata: userdata"
               },
               {
-                "name": "value"
+                "name": "value",
+                "displayName": "value: any"
               }
-            ],
-            "argsDisplay": "udata, value"
+            ]
           },
           "traceback": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.traceback",
             "description": "If message is present but is neither a string nor nil, this function returns message without further processing. Otherwise, it returns a string with a traceback of the call stack. The optional message string is appended at the beginning of the traceback. An optional level number tells at which level to start the traceback (default is 1, the function calling traceback).",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[thread,] [message [, level]]"
+            "args": [
+              {
+                "name": "thread",
+                "type": "thread",
+                "displayName": "thread?: thread"
+              },
+              {
+                "name": "message",
+                "type": "string",
+                "displayName": "message?: string"
+              },
+              {
+                "name": "level",
+                "type": "number",
+                "displayName": "level?: number"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "upvalueid": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.upvalueid",
@@ -482,13 +1120,19 @@
             "type": "function",
             "args": [
               {
-                "name": "f"
+                "name": "f",
+                "displayName": "f: function"
               },
               {
-                "name": "n"
+                "name": "n",
+                "displayName": "n: number"
               }
             ],
-            "argsDisplay": "f, n"
+            "returnTypes": [
+              {
+                "type": "userdata"
+              }
+            ]
           },
           "upvaluejoin": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-debug.upvaluejoin",
@@ -496,19 +1140,22 @@
             "type": "function",
             "args": [
               {
-                "name": "f1"
+                "name": "f1",
+                "displayName": "f1: function"
               },
               {
-                "name": "n1"
+                "name": "n1",
+                "displayName": "n1: number"
               },
               {
-                "name": "f2"
+                "name": "f2",
+                "displayName": "f2: function"
               },
               {
-                "name": "n2"
+                "name": "n2",
+                "displayName": "n2: number"
               }
-            ],
-            "argsDisplay": "f1, n1, f2, n2"
+            ]
           }
         }
       },
@@ -521,8 +1168,13 @@
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-io.close",
             "description": "Equivalent to file:close(). Without a file, closes the default output file.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[file]"
+            "args": [
+              {
+                "name": "file",
+                "type": "file",
+                "displayName": "handle?: file"
+              }
+            ]
           },
           "flush": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-io.flush",
@@ -535,15 +1187,51 @@
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-io.input",
             "description": "When called with a file name, it opens the named file (in text mode), and sets its handle as the default input file. When called with a file handle, it simply sets this file handle as the default input file. When called without parameters, it returns the current default input file.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[file]"
+            "variants": [
+              {
+                "description": "When called with a file name, it opens the named file (in text mode), and sets its handle as the default input file. When called with a file handle, it simply sets this file handle as the default input file.",
+                "args": [
+                  {
+                    "name": "file",
+                    "type": "file|string",
+                    "displayName": "file?: file|string"
+                  }
+                ]
+              },
+              {
+                "description": "When called without parameters, it returns the current default input file.",
+                "args": [],
+                "returnTypes": [
+                  {
+                    "type": "ref",
+                    "name": "file"
+                  }
+                ]
+              }
+            ]
           },
           "lines": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-io.lines",
             "description": "Opens the given file name in read mode and returns an iterator function that works like file:lines(···) over the opened file. When the iterator function detects the end of file, it returns no values (to finish the loop) and automatically closes the file.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[filename, ···]"
+            "args": [
+              {
+                "name": "filename",
+                "type": "string",
+                "displayName": "filename?: string"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "function",
+                "args": [],
+                "returnTypes": [
+                  {
+                    "type": "string"
+                  }
+                ]
+              }
+            ]
           },
           "open": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-io.open",
@@ -551,10 +1239,16 @@
             "type": "function",
             "args": [
               {
-                "name": "filename"
+                "name": "filename",
+                "type": "string",
+                "displayName": "filename: string"
+              },
+              {
+                "name": "mode",
+                "type": "string",
+                "displayName": "mode?: string"
               }
             ],
-            "argsDisplay": "filename [, mode]",
             "returnTypes": [
               {
                 "type": "ref",
@@ -566,8 +1260,28 @@
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-io.output",
             "description": "Similar to io.input, but operates over the default output file.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[file]"
+            "variants": [
+              {
+                "description": "When called with a file name, it opens the named file (in text mode), and sets its handle as the default output file. When called with a file handle, it simply sets this file handle as the default output file.",
+                "args": [
+                  {
+                    "name": "file",
+                    "type": "file|string",
+                    "displayName": "file?: file|string"
+                  }
+                ]
+              },
+              {
+                "description": "When called without parameters, it returns the current default output file.",
+                "args": [],
+                "returnTypes": [
+                  {
+                    "type": "ref",
+                    "name": "file"
+                  }
+                ]
+              }
+            ]
           },
           "popen": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-io.popen",
@@ -575,10 +1289,16 @@
             "type": "function",
             "args": [
               {
-                "name": "prog"
+                "name": "prog",
+                "type": "string",
+                "displayName": "prog: string"
+              },
+              {
+                "name": "mode",
+                "type": "string",
+                "displayName": "mode?: string"
               }
             ],
-            "argsDisplay": "prog [, mode]",
             "returnTypes": [
               {
                 "type": "ref",
@@ -590,8 +1310,18 @@
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-io.read",
             "description": "Equivalent to io.input():read(···).",
             "type": "function",
-            "args": [],
-            "argsDisplay": "···"
+            "args": [
+              {
+                "name": "...",
+                "type": "any",
+                "displayName": "..."
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "stderr": {
             "type": "ref",
@@ -624,17 +1354,29 @@
             "type": "function",
             "args": [
               {
-                "name": "obj"
+                "name": "obj",
+                "type": "any",
+                "displayName": "obj: any"
               }
             ],
-            "argsDisplay": "obj"
+            "returnTypes": [
+              {
+                "type": "string",
+                "displayName": "\"file\"|\"closed file\"|nil"
+              }
+            ]
           },
           "write": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-io.write",
             "description": "Equivalent to io.output():write(···).",
             "type": "function",
-            "args": [],
-            "argsDisplay": "···"
+            "args": [
+              {
+                "name": "...",
+                "type": "any",
+                "displayName": "..."
+              }
+            ]
           }
         }
       },
@@ -649,10 +1391,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "acos": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.acos",
@@ -660,10 +1408,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "asin": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.asin",
@@ -671,10 +1425,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "atan": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.atan",
@@ -682,10 +1442,21 @@
             "type": "function",
             "args": [
               {
-                "name": "y"
+                "name": "y",
+                "type": "number",
+                "displayName": "y: number"
+              },
+              {
+                "name": "x",
+                "type": "number",
+                "displayName": "x?: number"
               }
             ],
-            "argsDisplay": "y [, x]"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "ceil": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.ceil",
@@ -693,10 +1464,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "cos": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.cos",
@@ -704,10 +1481,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "deg": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.deg",
@@ -715,10 +1498,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "exp": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.exp",
@@ -726,10 +1515,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "floor": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.floor",
@@ -737,10 +1532,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "fmod": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.fmod",
@@ -748,13 +1549,21 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               },
               {
-                "name": "y"
+                "name": "y",
+                "type": "number",
+                "displayName": "y: number"
               }
             ],
-            "argsDisplay": "x, y"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "huge": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.huge",
@@ -767,10 +1576,21 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
+              },
+              {
+                "name": "base",
+                "type": "number",
+                "displayName": "base: number"
               }
             ],
-            "argsDisplay": "x [, base]"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "max": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.max",
@@ -778,15 +1598,26 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
+              },
+              {
+                "name": "...",
+                "type": "number",
+                "displayName": "...args: number[]"
               }
             ],
-            "argsDisplay": "x, ···"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "maxinteger": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.maxinteger",
             "description": "An integer with the maximum value for an integer.",
-            "type": "unknown"
+            "type": "number"
           },
           "min": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.min",
@@ -794,15 +1625,26 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
+              },
+              {
+                "name": "...",
+                "type": "number",
+                "displayName": "...args: number[]"
               }
             ],
-            "argsDisplay": "x, ···"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "mininteger": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.mininteger",
             "description": "An integer with the minimum value for an integer.",
-            "type": "unknown"
+            "type": "number"
           },
           "modf": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.modf",
@@ -810,10 +1652,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "pi": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.pi",
@@ -826,17 +1674,38 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "random": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.random",
             "description": "When called without arguments, returns a pseudo-random float with uniform distribution in the range [0,1). When called with two integers m and n, math.random returns a pseudo-random integer with uniform distribution in the range [m, n]. (The value n-m cannot be negative and must fit in a Lua integer.) The call math.random(n) is equivalent to math.random(1,n).",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[m [, n]]"
+            "args": [
+              {
+                "name": "m",
+                "type": "number",
+                "displayName": "m?: number"
+              },
+              {
+                "name": "n",
+                "type": "number",
+                "displayName": "n?: number"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "randomseed": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.randomseed",
@@ -844,10 +1713,11 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
-            ],
-            "argsDisplay": "x"
+            ]
           },
           "sin": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.sin",
@@ -855,10 +1725,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "sqrt": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.sqrt",
@@ -866,10 +1742,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "tan": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.tan",
@@ -877,10 +1759,16 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "type": "number",
+                "displayName": "x: number"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "tointeger": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.tointeger",
@@ -888,10 +1776,15 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "displayName": "x: number|string"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "type": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.type",
@@ -899,10 +1792,19 @@
             "type": "function",
             "args": [
               {
-                "name": "x"
+                "name": "x",
+                "displayName": "x: any"
               }
             ],
-            "argsDisplay": "x"
+            "returnTypes": [
+              {
+                "type": "string",
+                "values": [
+                  "\"integer\"",
+                  "\"float\""
+                ]
+              }
+            ]
           },
           "ult": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-math.ult",
@@ -910,13 +1812,19 @@
             "type": "function",
             "args": [
               {
-                "name": "m"
+                "name": "m",
+                "displayName": "m: number"
               },
               {
-                "name": "n"
+                "name": "n",
+                "displayName": "n: number"
               }
             ],
-            "argsDisplay": "m, n"
+            "returnTypes": [
+              {
+                "type": "boolean"
+              }
+            ]
           }
         }
       },
@@ -930,14 +1838,33 @@
             "description": "Returns an approximation of the amount in seconds of CPU time used by the program.",
             "type": "function",
             "args": [],
-            "argsDisplay": ""
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "date": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-os.date",
             "description": "Returns a string or a table containing date and time, formatted according to the given string format.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[format [, time]]"
+            "args": [
+              {
+                "name": "format",
+                "type": "string",
+                "displayName": "format?: string"
+              },
+              {
+                "name": "time",
+                "type": "number",
+                "displayName": "time?: number"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "difftime": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-os.difftime",
@@ -945,27 +1872,50 @@
             "type": "function",
             "args": [
               {
-                "name": "t2"
+                "name": "t2",
+                "type": "number",
+                "displayName": "t2: number"
               },
               {
-                "name": "t1"
+                "name": "t1",
+                "type": "number",
+                "displayName": "t1: number"
               }
             ],
-            "argsDisplay": "t2, t1"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "execute": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-os.execute",
             "description": "This function is equivalent to the ISO C function system. It passes command to be executed by an operating system shell. Its first result is true if the command terminated successfully, or nil otherwise. After this first result the function returns a string plus a number, as follows:",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[command]"
+            "args": [
+              {
+                "name": "command",
+                "type": "string",
+                "displayName": "command?: string"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "exit": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-os.exit",
             "description": "Calls the ISO C function exit to terminate the host program. If code is true, the returned status is EXIT_SUCCESS; if code is false, the returned status is EXIT_FAILURE; if code is a number, the returned status is this number. The default value for code is true.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[code [, close]]"
+            "args": [
+              {
+                "name": "code",
+                "type": "number",
+                "displayName": "code?: number"
+              }
+            ]
           },
           "getenv": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-os.getenv",
@@ -973,10 +1923,16 @@
             "type": "function",
             "args": [
               {
-                "name": "varname"
+                "name": "varname",
+                "type": "string",
+                "displayName": "varname: string"
               }
             ],
-            "argsDisplay": "varname"
+            "returnTypes": [
+              {
+                "type": "any"
+              }
+            ]
           },
           "remove": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-os.remove",
@@ -984,10 +1940,19 @@
             "type": "function",
             "args": [
               {
-                "name": "filename"
+                "name": "filename",
+                "type": "string",
+                "displayName": "filename: string"
               }
             ],
-            "argsDisplay": "filename"
+            "returnTypes": [
+              {
+                "type": "any"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "rename": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-os.rename",
@@ -995,13 +1960,24 @@
             "type": "function",
             "args": [
               {
-                "name": "oldname"
+                "name": "oldname",
+                "type": "string",
+                "displayName": "oldname: string"
               },
               {
-                "name": "newname"
+                "name": "newname",
+                "type": "string",
+                "displayName": "newname: string"
               }
             ],
-            "argsDisplay": "oldname, newname"
+            "returnTypes": [
+              {
+                "type": "any"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "setlocale": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-os.setlocale",
@@ -1009,24 +1985,49 @@
             "type": "function",
             "args": [
               {
-                "name": "locale"
+                "name": "locale",
+                "type": "string",
+                "displayName": "locale: string"
+              },
+              {
+                "name": "category",
+                "type": "string",
+                "displayName": "category?: \"all\"|\"collate\"|\"ctype\"|\"monetary\"|\"numeric\"|\"time\""
               }
             ],
-            "argsDisplay": "locale [, category]"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "time": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-os.time",
             "description": "Returns the current time when called without arguments, or a time representing the local date and time specified by the given table. This table must have fields year, month, and day, and may have fields hour (default is 12), min (default is 0), sec (default is 0), and isdst (default is nil). Other fields are ignored. For a description of these fields, see the os.date function.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "[table]"
+            "args": [
+              {
+                "name": "table",
+                "type": "table",
+                "displayName": "table?: table"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "tmpname": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-os.tmpname",
             "description": "Returns a string with a file name that can be used for a temporary file. The file must be explicitly opened before its use and explicitly removed when no longer needed.",
             "type": "function",
             "args": [],
-            "argsDisplay": ""
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           }
         }
       },
@@ -1038,17 +2039,18 @@
           "config": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-package.config",
             "description": "A string describing some compile-time configurations for packages. This string is a sequence of lines:",
-            "type": "unknown"
+            "type": "string"
           },
           "cpath": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-package.cpath",
             "description": "The path used by require to search for a C loader.",
-            "type": "unknown"
+            "type": "string"
           },
           "loaded": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-package.loaded",
             "description": "A table used by require to control which modules are already loaded. When you require a module modname and package.loaded[modname] is not false, require simply returns the value stored there.",
-            "type": "unknown"
+            "type": "table",
+            "fields": {}
           },
           "loadlib": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-package.loadlib",
@@ -1056,28 +2058,38 @@
             "type": "function",
             "args": [
               {
-                "name": "libname"
+                "name": "libname",
+                "type": "string",
+                "displayName": "libname: string"
               },
               {
-                "name": "funcname"
+                "name": "funcname",
+                "type": "string",
+                "displayName": "funcname: string"
               }
             ],
-            "argsDisplay": "libname, funcname"
+            "returnTypes": [
+              {
+                "type": "any"
+              }
+            ]
           },
           "path": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-package.path",
             "description": "The path used by require to search for a Lua loader.",
-            "type": "unknown"
+            "type": "string"
           },
           "preload": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-package.preload",
             "description": "A table to store loaders for specific modules (see require).",
-            "type": "unknown"
+            "type": "table",
+            "fields": {}
           },
           "searchers": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-package.searchers",
             "description": "A table used by require to control how to load modules.",
-            "type": "unknown"
+            "type": "table",
+            "fields": {}
           },
           "searchpath": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-package.searchpath",
@@ -1085,13 +2097,27 @@
             "type": "function",
             "args": [
               {
-                "name": "name"
+                "name": "name",
+                "displayName": "name: string"
               },
               {
-                "name": "path"
+                "name": "path",
+                "displayName": "path: string"
+              },
+              {
+                "name": "sep",
+                "displayName": "sep?: string"
+              },
+              {
+                "name": "rep",
+                "displayName": "rep?: string"
               }
             ],
-            "argsDisplay": "name, path [, sep [, rep]]"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           }
         }
       },
@@ -1106,17 +2132,43 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "type": "string",
+                "displayName": "s: string"
+              },
+              {
+                "name": "i",
+                "type": "number",
+                "displayName": "i?: number"
+              },
+              {
+                "name": "j",
+                "type": "number",
+                "displayName": "j?: number"
               }
             ],
-            "argsDisplay": "s [, i [, j]]"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "char": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.char",
             "description": "Receives zero or more integers. Returns a string with length equal to the number of arguments, in which each character has the internal numeric code equal to its corresponding argument.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "···"
+            "args": [
+              {
+                "name": "...",
+                "type": "number",
+                "displayName": "...args: integer[]"
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "dump": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.dump",
@@ -1124,10 +2176,21 @@
             "type": "function",
             "args": [
               {
-                "name": "function"
+                "name": "function",
+                "type": "function",
+                "displayName": "f: function"
+              },
+              {
+                "name": "strip",
+                "type": "boolean",
+                "displayName": "strip?: boolean"
               }
             ],
-            "argsDisplay": "function [, strip]"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "find": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.find",
@@ -1135,13 +2198,34 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "type": "string",
+                "displayName": "s: string"
               },
               {
-                "name": "pattern"
+                "name": "pattern",
+                "type": "string",
+                "displayName": "pattern: string"
+              },
+              {
+                "name": "init",
+                "type": "number",
+                "displayName": "init?: number"
+              },
+              {
+                "name": "plain",
+                "type": "boolean",
+                "displayName": "plain?: boolen"
               }
             ],
-            "argsDisplay": "s, pattern [, init [, plain]]"
+            "returnTypes": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ]
           },
           "format": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.format",
@@ -1149,10 +2233,21 @@
             "type": "function",
             "args": [
               {
-                "name": "formatstring"
+                "name": "formatstring",
+                "type": "string",
+                "displayName": "format: string"
+              },
+              {
+                "name": "...",
+                "type": "any",
+                "displayName": "...args: any[]"
               }
             ],
-            "argsDisplay": "formatstring, ···"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "gmatch": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.gmatch",
@@ -1160,13 +2255,27 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "type": "string",
+                "displayName": "s: string"
               },
               {
-                "name": "pattern"
+                "name": "pattern",
+                "type": "string",
+                "displayName": "pattern: string"
               }
             ],
-            "argsDisplay": "s, pattern"
+            "returnTypes": [
+              {
+                "type": "function",
+                "args": [],
+                "returnTypes": [
+                  {
+                    "type": "string"
+                  }
+                ]
+              }
+            ]
           },
           "gsub": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.gsub",
@@ -1174,16 +2283,34 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "type": "string",
+                "displayName": "s: string"
               },
               {
-                "name": "pattern"
+                "name": "pattern",
+                "type": "string",
+                "displayName": "pattern: string"
               },
               {
-                "name": "repl"
+                "name": "repl",
+                "type": "string|function|table",
+                "displayName": "repl: string|function|table"
+              },
+              {
+                "name": "n",
+                "type": "number",
+                "displayName": "n?: number"
               }
             ],
-            "argsDisplay": "s, pattern, repl [, n]"
+            "returnTypes": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
           },
           "len": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.len",
@@ -1191,10 +2318,16 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "type": "string",
+                "displayName": "s: string"
               }
             ],
-            "argsDisplay": "s"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "lower": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.lower",
@@ -1202,10 +2335,16 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "type": "string",
+                "displayName": "s: string"
               }
             ],
-            "argsDisplay": "s"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "match": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.match",
@@ -1213,13 +2352,26 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "type": "string",
+                "displayName": "s: string"
               },
               {
-                "name": "pattern"
+                "name": "pattern",
+                "type": "string",
+                "displayName": "pattern: string"
+              },
+              {
+                "name": "init",
+                "type": "number",
+                "displayName": "init?: number"
               }
             ],
-            "argsDisplay": "s, pattern [, init]"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "pack": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.pack",
@@ -1227,16 +2379,27 @@
             "type": "function",
             "args": [
               {
-                "name": "fmt"
+                "name": "fmt",
+                "displayName": "format?: string"
               },
               {
-                "name": "v1"
+                "name": "v1",
+                "displayName": "v1: any"
               },
               {
-                "name": "v2"
+                "name": "v2",
+                "displayName": "v2: any"
+              },
+              {
+                "name": "...",
+                "displayName": "..."
               }
             ],
-            "argsDisplay": "fmt, v1, v2, ···"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "packsize": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.packsize",
@@ -1244,10 +2407,15 @@
             "type": "function",
             "args": [
               {
-                "name": "fmt"
+                "name": "fmt",
+                "displayName": "format?: string"
               }
             ],
-            "argsDisplay": "fmt"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "rep": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.rep",
@@ -1255,13 +2423,26 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "type": "string",
+                "displayName": "s: string"
               },
               {
-                "name": "n"
+                "name": "n",
+                "type": "number",
+                "displayName": "n: number"
+              },
+              {
+                "name": "sep",
+                "type": "string",
+                "displayName": "sep?: string"
               }
             ],
-            "argsDisplay": "s, n [, sep]"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "reverse": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.reverse",
@@ -1269,10 +2450,16 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "type": "string",
+                "displayName": "s: string"
               }
             ],
-            "argsDisplay": "s"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "sub": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.sub",
@@ -1280,13 +2467,26 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "type": "string",
+                "displayName": "s: string"
               },
               {
-                "name": "i"
+                "name": "i",
+                "type": "number",
+                "displayName": "i: number"
+              },
+              {
+                "name": "j",
+                "type": "number",
+                "displayName": "j?: number"
               }
             ],
-            "argsDisplay": "s, i [, j]"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "unpack": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.unpack",
@@ -1294,13 +2494,23 @@
             "type": "function",
             "args": [
               {
-                "name": "fmt"
+                "name": "fmt",
+                "displayName": "format: string"
               },
               {
-                "name": "s"
+                "name": "s",
+                "displayName": "s: string"
+              },
+              {
+                "name": "pos",
+                "displayName": "pos?: number"
               }
             ],
-            "argsDisplay": "fmt, s [, pos]"
+            "returnTypes": [
+              {
+                "type": "any"
+              }
+            ]
           },
           "upper": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-string.upper",
@@ -1308,10 +2518,16 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "type": "string",
+                "displayName": "s: string"
               }
             ],
-            "argsDisplay": "s"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           }
         }
       },
@@ -1326,10 +2542,31 @@
             "type": "function",
             "args": [
               {
-                "name": "list"
+                "name": "table",
+                "type": "table",
+                "displayName": "t: table"
+              },
+              {
+                "name": "sep",
+                "type": "string",
+                "displayName": "sep?: string"
+              },
+              {
+                "name": "i",
+                "type": "number",
+                "displayName": "i?: number"
+              },
+              {
+                "name": "j",
+                "type": "number",
+                "displayName": "j?: number"
               }
             ],
-            "argsDisplay": "list [, sep [, i [, j]]]"
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "insert": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-table.insert",
@@ -1337,10 +2574,21 @@
             "type": "function",
             "args": [
               {
-                "name": "list"
+                "name": "table",
+                "type": "table",
+                "displayName": "t: table"
+              },
+              {
+                "name": "pos",
+                "type": "number",
+                "displayName": "pos?: number"
+              },
+              {
+                "name": "value",
+                "type": "any",
+                "displayName": "value: any"
               }
-            ],
-            "argsDisplay": "list, [pos,] value"
+            ]
           },
           "move": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-table.move",
@@ -1348,16 +2596,24 @@
             "type": "function",
             "args": [
               {
-                "name": "a1"
+                "name": "a1",
+                "displayName": "a1: table"
               },
               {
-                "name": "f"
+                "name": "f",
+                "displayName": "f: number"
               },
               {
-                "name": "e"
+                "name": "e",
+                "displayName": "e: number"
               },
               {
-                "name": "t"
+                "name": "t",
+                "displayName": "t: number"
+              },
+              {
+                "name": "a2",
+                "displayName": "a2?: table"
               }
             ],
             "argsDisplay": "a1, f, e, t [,a2]"
@@ -1366,8 +2622,16 @@
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-table.pack",
             "description": "Returns a new table with all parameters stored into keys 1, 2, etc. and with a field \"n\" with the total number of parameters. Note that the resulting table may not be a sequence.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "···"
+            "args": [
+              {
+                "name": "..."
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "table"
+              }
+            ]
           },
           "remove": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-table.remove",
@@ -1375,10 +2639,21 @@
             "type": "function",
             "args": [
               {
-                "name": "list"
+                "name": "table",
+                "type": "table",
+                "displayName": "t: table"
+              },
+              {
+                "name": "pos",
+                "type": "number",
+                "displayName": "pos?: number"
               }
             ],
-            "argsDisplay": "list [, pos]"
+            "returnTypes": [
+              {
+                "type": "any"
+              }
+            ]
           },
           "sort": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-table.sort",
@@ -1386,21 +2661,45 @@
             "type": "function",
             "args": [
               {
-                "name": "list"
+                "name": "table",
+                "type": "table",
+                "displayName": "t: table"
+              },
+              {
+                "name": "comp",
+                "type": "function",
+                "displayName": "comp?: function(e1, e2) -> boolean"
               }
             ],
-            "argsDisplay": "list [, comp]"
+            "returnTypes": [
+              {
+                "type": "table"
+              }
+            ]
           },
           "unpack": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-table.unpack",
-            "description": "Returns the elements from the given list. This function is equivalent to",
+            "description": "Returns the elements from the given list. This function is equivalent to\r\n```lua\r\n\treturn list[i], list[i+1], ···, list[j]\r\n```\r\nBy default, i is 1 and j is #list.",
             "type": "function",
             "args": [
               {
-                "name": "list"
+                "name": "list",
+                "displayName": "list: table"
+              },
+              {
+                "name": "i",
+                "displayName": "i?: number"
+              },
+              {
+                "name": "j",
+                "displayName": "j?: number"
               }
             ],
-            "argsDisplay": "list [, i [, j]]"
+            "returnTypes": [
+              {
+                "type": "any, ..."
+              }
+            ]
           }
         }
       },
@@ -1413,13 +2712,21 @@
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-utf8.char",
             "description": "Receives zero or more integers, converts each one to its corresponding UTF-8 byte sequence and returns a string with the concatenation of all these sequences.",
             "type": "function",
-            "args": [],
-            "argsDisplay": "···"
+            "args": [
+              {
+                "name": "..."
+              }
+            ],
+            "returnTypes": [
+              {
+                "type": "string"
+              }
+            ]
           },
           "charpattern": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-utf8.charpattern",
             "description": "The pattern (a string, not a function) \"[\\0-\\x7F\\xC2-\\xF4][\\x80-\\xBF]*\" (see §6.4.1), which matches exactly one UTF-8 byte sequence, assuming that the subject is a valid UTF-8 string.",
-            "type": "unknown"
+            "type": "string"
           },
           "codepoint": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-utf8.codepoint",
@@ -1427,21 +2734,40 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "displayName": "s: string"
+              },
+              {
+                "name": "i",
+                "displayName": "i?: number"
+              },
+              {
+                "name": "j",
+                "displayName": "j?: number"
               }
             ],
-            "argsDisplay": "s [, i [, j]]"
+            "returnTypes": [
+              {
+                "type": "number",
+                "displayName": "...number[]"
+              }
+            ]
           },
           "codes": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-utf8.codes",
-            "description": "Returns values so that the construction",
+            "description": "Returns values so that the construction\r\n```lua\r\n\tfor p, c in utf8.codes(s) do body end\r\n```\r\nwill iterate over all characters in string s, with p being the position (in bytes) and c the code point of each character. It raises an error if it meets any invalid byte sequence.",
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "displayName": "s: string"
               }
             ],
-            "argsDisplay": "s"
+            "returnTypes": [
+              {
+                "type": "function"
+              }
+            ]
           },
           "len": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-utf8.len",
@@ -1449,10 +2775,23 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "displayName": "s: string"
+              },
+              {
+                "name": "i",
+                "displayName": "i?: number"
+              },
+              {
+                "name": "j",
+                "displayName": "j?: number"
               }
             ],
-            "argsDisplay": "s [, i [, j]]"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           },
           "offset": {
             "link": "https://www.lua.org/manual/5.3/manual.html#pdf-utf8.offset",
@@ -1460,13 +2799,23 @@
             "type": "function",
             "args": [
               {
-                "name": "s"
+                "name": "s",
+                "displayName": "s: string"
               },
               {
-                "name": "n"
+                "name": "n",
+                "displayName": "n: number"
+              },
+              {
+                "name": "i",
+                "displayName": "i?: number"
               }
             ],
-            "argsDisplay": "s, n [, i]"
+            "returnTypes": [
+              {
+                "type": "number"
+              }
+            ]
           }
         }
       }
@@ -1490,9 +2839,7 @@
                   {
                     "name": "self"
                   }
-                ],
-                "argsDisplay": "self",
-                "argsDisplayOmitSelf": ""
+                ]
               },
               "flush": {
                 "link": "https://www.lua.org/manual/5.3/manual.html#pdf-file:flush",
@@ -1502,9 +2849,7 @@
                   {
                     "name": "self"
                   }
-                ],
-                "argsDisplay": "self",
-                "argsDisplayOmitSelf": ""
+                ]
               },
               "lines": {
                 "link": "https://www.lua.org/manual/5.3/manual.html#pdf-file:lines",
@@ -1513,10 +2858,16 @@
                 "args": [
                   {
                     "name": "self"
+                  },
+                  {
+                    "name": "..."
                   }
                 ],
-                "argsDisplay": "self, ···",
-                "argsDisplayOmitSelf": "···"
+                "returnTypes": [
+                  {
+                    "type": "function"
+                  }
+                ]
               },
               "read": {
                 "link": "https://www.lua.org/manual/5.3/manual.html#pdf-file:read",
@@ -1525,10 +2876,11 @@
                 "args": [
                   {
                     "name": "self"
+                  },
+                  {
+                    "name": "..."
                   }
-                ],
-                "argsDisplay": "self, ···",
-                "argsDisplayOmitSelf": "···"
+                ]
               },
               "seek": {
                 "link": "https://www.lua.org/manual/5.3/manual.html#pdf-file:seek",
@@ -1537,10 +2889,16 @@
                 "args": [
                   {
                     "name": "self"
+                  },
+                  {
+                    "name": "whence",
+                    "displayName": "whence?: string"
+                  },
+                  {
+                    "name": "offset",
+                    "displayName": "offset?: number"
                   }
-                ],
-                "argsDisplay": "self, [whence [, offset]]",
-                "argsDisplayOmitSelf": "[whence [, offset]]"
+                ]
               },
               "setvbuf": {
                 "link": "https://www.lua.org/manual/5.3/manual.html#pdf-file:setvbuf",
@@ -1551,11 +2909,14 @@
                     "name": "self"
                   },
                   {
-                    "name": "mode"
+                    "name": "mode",
+                    "displayName": "mode: string"
+                  },
+                  {
+                    "name": "size",
+                    "displayName": "size?: number"
                   }
-                ],
-                "argsDisplay": "self, mode [, size]",
-                "argsDisplayOmitSelf": "mode [, size]"
+                ]
               },
               "write": {
                 "link": "https://www.lua.org/manual/5.3/manual.html#pdf-file:write",
@@ -1564,10 +2925,11 @@
                 "args": [
                   {
                     "name": "self"
+                  },
+                  {
+                    "name": "..."
                   }
-                ],
-                "argsDisplay": "self, ···",
-                "argsDisplayOmitSelf": "···"
+                ]
               }
             }
           }

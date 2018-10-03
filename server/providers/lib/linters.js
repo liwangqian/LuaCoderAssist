@@ -37,13 +37,13 @@ class Luacheck {
         }
 
         let std = settings.std;
-        let luaversion = this.coder.settings.luaversion;
-        if (luaversion < 5.2) {
+        let luaversion = this.coder.settings.luaparse.luaversion;
+        if (luaversion === 5.1) {
             std.push('lua51');
-        } else if (luaversion < 5.3) {
+        } else if (luaversion === 5.2) {
             std.push('lua52');
-        } else if (luaversion < 5.4) {
-            std.push('lua54');
+        } else if (luaversion === 5.3) {
+            std.push('lua53');
         }
 
         if (std.length > 0) {
@@ -67,10 +67,10 @@ class Luacheck {
         }
 
         let mdl = engine.LoadedPackages[document.uri];
-        let globals = [];
+        let globals = settings.globals;
         if (mdl) {
-            globals = mdl.type.imports.map(im => {
-                return im.name;
+            mdl.type.imports.forEach(im => {
+                globals.push(im.name);
             });
         }
 
