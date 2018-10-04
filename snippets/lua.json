@@ -1,0 +1,80 @@
+{
+    "if": {
+        "description": "insert if statement",
+        "prefix": "if",
+        "scope": "source.lua",
+        "body": "if ${1:condition} then\n\t${2:-- statements}\nend"
+    },
+    "ifelse": {
+        "description": "insert if-else statement",
+        "prefix": "ifelse",
+        "scope": "source.lua",
+        "body": "if ${1:condition} then\n\t${2:-- statements}\nelse\n\t${3:-- statements}\nend"
+    },
+    "elseif": {
+        "description": "insert elseif statement",
+        "prefix": "elseif",
+        "scope": "source.lua",
+        "body": "elseif ${1:condition} then\n\t${2:-- statements}\n"
+    },
+    "local": {
+        "description": "insert local variable statement",
+        "prefix": "local",
+        "scope": "source.lua",
+        "body": "local ${1:name} = ${2:value}\n"
+    },
+    "localfunc": {
+        "description": "insert local function statement",
+        "prefix": "localfunc",
+        "scope": "source.lua",
+        "body": "local function ${1:name}(${2:params})\n\t${3:-- statements}\nend"
+    },
+    "func": {
+        "description": "insert function statement",
+        "prefix": "func",
+        "scope": "source.lua",
+        "body": "function ${1:name}(${2:params})\n\t${3:-- statements}\nend"
+    },
+    "for": {
+        "description": "insert for loop statement",
+        "prefix": "for",
+        "scope": "source.lua",
+        "body": "for ${1:i} = ${2:1}, ${3:10}, ${4:step} do\n\t${5:-- statements}\nend"
+    },
+    "forp": {
+        "description": "insert for loop statement",
+        "prefix": "forp",
+        "scope": "source.lua",
+        "body": "for ${1:key}, ${2:value} in pairs(${3:table}) do\n\t${4:-- statements}\nend"
+    },
+    "fori": {
+        "description": "insert for loop statement",
+        "prefix": "fori",
+        "scope": "source.lua",
+        "body": "for ${1:index}, ${2:value} in ipairs(${3:table}) do\n\t${4:-- statements}\nend"
+    },
+    "while": {
+        "description": "insert while loop statement",
+        "prefix": "while",
+        "scope": "source.lua",
+        "body": "while ${1:condition} do\n\t${2:-- statements}\nend"
+    },
+    "do": {
+        "description": "insert do statement",
+        "prefix": "do",
+        "scope": "source.lua",
+        "body": "do\n\t${1:-- statements}\nend"
+    },
+    "ret": {
+        "description": "insert return statement",
+        "prefix": "ret",
+        "scope": "source.lua",
+        "body": "return ${1:statements}"
+    },
+    "repeat": {
+        "description": "insert repeat statement",
+        "prefix": "repeat",
+        "scope": "source.lua",
+        "body": "repeat\n\t${1:-- statements}\nuntil ${2:condition}"
+    }
+}

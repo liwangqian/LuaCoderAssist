@@ -1,4 +1,3 @@
-//snippets for lua busted unit test framework
 {
     "describe": {
         "body": "describe(\"${1:test suite description}\", function ()\n\t${2:-- do test}\nend)",

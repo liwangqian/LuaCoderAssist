@@ -32,51 +32,8 @@ class Luacheck {
         const settings = this.coder.settings.luacheck;
         let args = [];
 
-        if (isFileSync(path_1.resolve(settings.configFilePath, ".luacheckrc"))) {
-            args.push('--config', path_1.resolve(settings.configFilePath, ".luacheckrc"));
-        }
-
-        let std = settings.std;
-        let luaversion = this.coder.settings.luaparse.luaversion;
-        if (luaversion === 5.1) {
-            std.push('lua51');
-        } else if (luaversion === 5.2) {
-            std.push('lua52');
-        } else if (luaversion === 5.3) {
-            std.push('lua53');
-        }
-
-        if (std.length > 0) {
-            args.push('--std', std.join('+'));
-        }
-
-        if (settings.ignore.length > 0) {
-            args.push("-i");
-            args.push.apply(args, settings.ignore);
-        }
-
-        if (this.coder.settings.format.lineWidth > 0) {
-            args.push('--max-line-length', this.coder.settings.format.lineWidth);
-        }
-
-        args.push.apply(args, defaultOpt);
-        args.push.apply(args, settings.options);
-        const jobs = settings.jobs;
-        if (jobs > 1) {
-            args.push('-j', jobs);
-        }
-
-        let mdl = engine.LoadedPackages[document.uri];
-        let globals = settings.globals;
-        if (mdl) {
-            mdl.type.imports.forEach(im => {
-                globals.push(im.name);
-            });
-        }
-
-        if (globals.length > 0) {
-            args.push('--read-globals');
-            args.push.apply(args, globals);
+        if (settings.automaticOption) {
+            this.automaticOptions(settings, args, document);
         }
 
         const fileName = uri_1.parse(document.uri).fsPath;
@@ -89,6 +46,50 @@ class Luacheck {
             cwd: path_1.dirname(fileName),
             args: args
         };
+    }
+
+    automaticOptions(settings, args, document) {
+        if (isFileSync(path_1.resolve(settings.configFilePath, ".luacheckrc"))) {
+            args.push('--config', path_1.resolve(settings.configFilePath, ".luacheckrc"));
+        }
+        let std = settings.std;
+        let luaversion = this.coder.settings.luaparse.luaversion;
+        if (luaversion === 5.1) {
+            std.push('lua51');
+        }
+        else if (luaversion === 5.2) {
+            std.push('lua52');
+        }
+        else if (luaversion === 5.3) {
+            std.push('lua53');
+        }
+        if (std.length > 0) {
+            args.push('--std', std.join('+'));
+        }
+        if (settings.ignore.length > 0) {
+            args.push("-i");
+            args.push.apply(args, settings.ignore);
+        }
+        if (this.coder.settings.format.lineWidth > 0) {
+            args.push('--max-line-length', this.coder.settings.format.lineWidth);
+        }
+        args.push.apply(args, defaultOpt);
+        args.push.apply(args, settings.options);
+        const jobs = settings.jobs;
+        if (jobs > 1) {
+            args.push('-j', jobs);
+        }
+        let mdl = engine.LoadedPackages[document.uri];
+        let globals = settings.globals;
+        if (mdl) {
+            mdl.type.imports.forEach(im => {
+                globals.push(im.name);
+            });
+        }
+        if (globals.length > 0) {
+            args.push('--read-globals');
+            args.push.apply(args, globals);
+        }
     }
 
     parseDiagnostics(data) {

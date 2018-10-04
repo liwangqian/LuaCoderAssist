@@ -116,6 +116,11 @@
           "default": true,
           "description": "Enable/Disable luacheck for static diagnostics."
         },
+        "LuaCoderAssist.luacheck.automaticOption": {
+          "type": "boolean",
+          "default": true,
+          "description": "Define the luacheck cli options automatically."
+        },
         "LuaCoderAssist.luacheck.options": {
           "type": "array",
           "default": [
@@ -241,6 +246,10 @@
       {
         "language": "lua",
         "path": "./snippets/ldoc.json"
+      },
+      {
+        "language": "lua",
+        "path": "./snippets/lua.json"
       }
     ]
   },
