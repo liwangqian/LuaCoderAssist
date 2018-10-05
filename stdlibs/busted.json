@@ -1,0 +1,812 @@
+{
+    "global": {
+        "type": "table",
+        "fields": {
+            "describe": {
+                "type": "function",
+                "description": "Create a new test suite",
+                "args": [
+                    {
+                        "name": "desc",
+                        "displayName": "desc: string"
+                    },
+                    {
+                        "name": "func",
+                        "displayName": "func: function()"
+                    }
+                ],
+                "insertSnippet": "describe(\"${1:test suite description}\", function ()\n\t${2:-- do test}\nend)"
+            },
+            "it": {
+                "type": "function",
+                "description": "Create a new test case",
+                "args": [
+                    {
+                        "name": "desc",
+                        "displayName": "desc: string"
+                    },
+                    {
+                        "name": "func",
+                        "displayName": "func: function()"
+                    }
+                ],
+                "insertSnippet": "it(\"${1:test case description}\", function ()\n\t${2:-- do test}\nend)"
+            },
+            "test": {
+                "type": "function",
+                "description": "Create a new test case",
+                "args": [
+                    {
+                        "name": "desc",
+                        "displayName": "desc: string"
+                    },
+                    {
+                        "name": "func",
+                        "displayName": "func: function()"
+                    }
+                ],
+                "insertSnippet": "test(\"${1:test case description}\", function ()\n\t${2:-- do test}\nend)"
+            },
+            "setup": {
+                "type": "function",
+                "description": "Setup the test suite environment",
+                "args": [
+                    {
+                        "name": "func",
+                        "displayName": "func: function()"
+                    }
+                ],
+                "insertSnippet": "setup(function ()\n\t${1:-- do test suite setup works here}\nend)"
+            },
+            "teardown": {
+                "type": "function",
+                "description": "Clean the test suite environment",
+                "args": [
+                    {
+                        "name": "func",
+                        "displayName": "func: function()"
+                    }
+                ],
+                "insertSnippet": "teardown(function ()\n\t${1:-- do test suite clean works here}\nend)"
+            },
+            "before_each": {
+                "type": "function",
+                "description": "Prepare for test case",
+                "args": [
+                    {
+                        "name": "func",
+                        "displayName": "func: function()"
+                    }
+                ],
+                "insertSnippet": "before_each(function ()\n\t${1:-- do before each case run}\nend)"
+            },
+            "after_each": {
+                "type": "function",
+                "description": "Do clean work after test run",
+                "args": [
+                    {
+                        "name": "func",
+                        "displayName": "func: function()"
+                    }
+                ],
+                "insertSnippet": "after_each(function ()\n\t${1:-- do after each case run}\nend)"
+            },
+            "stub": {
+                "type": "function",
+                "description": "Install a new stub for the function in module",
+                "args": [
+                    {
+                        "name": "mod",
+                        "displayName": "mod: table"
+                    },
+                    {
+                        "name": "funcName",
+                        "displayName": "funcName: string"
+                    }
+                ],
+                "returnTypes": [
+                    {
+                        "type": "ref",
+                        "name": "StubObject"
+                    }
+                ]
+            },
+            "spy": {
+                "type": "table",
+                "description": "Spies are essentially wrappers around functions that keep track of data about how the function was called, and by default calls the function.",
+                "fields": {
+                    "on": {
+                        "type": "function",
+                        "description": "Does an in-place replacement of a table's method, and when the original method is called, it registers what it was called with and then calls the original function.",
+                        "args": [
+                            {
+                                "name": "mod",
+                                "displayName": "module: table"
+                            },
+                            {
+                                "name": "funcName",
+                                "displayName": "funcName: string"
+                            }
+                        ]
+                    },
+                    "new": {
+                        "type": "function",
+                        "description": "Wrap a function to spy object, and when the object is called, it registers what it was called with and then calls the original function.",
+                        "args": [
+                            {
+                                "name": "func",
+                                "displayName": "func: function"
+                            }
+                        ],
+                        "returnTypes": [
+                            {
+                                "type": "ref",
+                                "name": "SpyObject"
+                            }
+                        ]
+                    }
+                }
+            },
+            "mock": {
+                "type": "function",
+                "description": "Mocks are tables whose functions have been wrapped in spies, or optionally stubs. This is useful for checking execution chains. Wrapping is recursive, so wrapping functions in sub-tables as well.",
+                "args": [
+                    {
+                        "name": "t",
+                        "displayName": "t: table"
+                    },
+                    {
+                        "name": "useStub",
+                        "displayName": "useStub?: boolean"
+                    }
+                ],
+                "returnTypes": [
+                    {
+                        "type": "ref",
+                        "name": "MockObject"
+                    }
+                ]
+            },
+            "assert": {
+                "type": "ref",
+                "name": "luassert"
+            }
+        }
+    },
+    "namedTypes": {
+        "luassert": {
+            "type": "table",
+            "description": "luassert extends Lua's built-in assertions to provide additional tests and the ability to create your own. You can modify chains of assertions with `not`.",
+            "fields": {
+                "snapshot": {
+                    "type": "function",
+                    "description": "To be able to revert changes created by tests, inserting spies and stubs for example, luassert supports `snapshots`.",
+                    "args": [
+                        {
+                            "name": "self"
+                        }
+                    ]
+                },
+                "equals": {
+                    "type": "function",
+                    "description": "Value or reference comparison",
+                    "args": [
+                        {
+                            "name": "expect"
+                        },
+                        {
+                            "name": "real"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "equal": {
+                    "type": "function",
+                    "description": "Value or reference comparison",
+                    "args": [
+                        {
+                            "name": "expect"
+                        },
+                        {
+                            "name": "real"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "same": {
+                    "type": "function",
+                    "description": "Value or reference deep comparison",
+                    "args": [
+                        {
+                            "name": "expect"
+                        },
+                        {
+                            "name": "real"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "unique": {
+                    "type": "function",
+                    "description": "Table items unique check",
+                    "args": [
+                        {
+                            "name": "t",
+                            "displayName": "t: table"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "truthy": {
+                    "type": "function",
+                    "description": "Test the value is not false and not nil",
+                    "args": [
+                        {
+                            "name": "value"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "falsy": {
+                    "type": "function",
+                    "description": "Test the value is false or nil",
+                    "args": [
+                        {
+                            "name": "value"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "has_error": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "func",
+                            "displayName": "func: function"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "True": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "value",
+                            "displayName": "value: boolean"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "False": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "value",
+                            "displayName": "value: boolean"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "boolean": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "value"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "number": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "value"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "string": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "value"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "table": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "value"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "Nil": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "value"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "userdata": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "value"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "Function": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "value"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "thread": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "value"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "near": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "val1",
+                            "displayName": "val1: number"
+                        },
+                        {
+                            "name": "val2",
+                            "displayName": "val2: number"
+                        },
+                        {
+                            "name": "tolerant",
+                            "displayName": "tolerant: number"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "error": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "func",
+                            "displayName": "func: function()"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "returned_arguments": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "count",
+                            "displayName": "count: number"
+                        },
+                        {
+                            "name": "func",
+                            "displayName": "func: function"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "matches": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "pattern",
+                            "displayName": "pattern: string"
+                        },
+                        {
+                            "name": "s",
+                            "displayName": "s: string"
+                        },
+                        {
+                            "name": "init",
+                            "displayName": "init?: number"
+                        },
+                        {
+                            "name": "plain",
+                            "displayName": "plain?: number"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "luassert"
+                        }
+                    ]
+                },
+                "is": {
+                    "type": "ref",
+                    "name": "luassert"
+                },
+                "is_not": {
+                    "type": "ref",
+                    "name": "luassert"
+                },
+                "Not": {
+                    "type": "ref",
+                    "name": "luassert"
+                },
+                "are": {
+                    "type": "ref",
+                    "name": "luassert"
+                },
+                "has": {
+                    "type": "ref",
+                    "name": "luassert"
+                },
+                "has_no": {
+                    "type": "ref",
+                    "name": "luassert"
+                },
+                "does_not": {
+                    "type": "ref",
+                    "name": "luassert"
+                },
+                "spy": {
+                    "type": "function",
+                    "description": "check the spy info.",
+                    "args": [
+                        {
+                            "name": "spy",
+                            "displayName": "spy: SpyObject"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "SpyObject"
+                        }
+                    ]
+                },
+                "stub": {
+                    "type": "function",
+                    "description": "check the stub info.",
+                    "args": [
+                        {
+                            "name": "stub",
+                            "displayName": "stub: StubObject"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "StubObject"
+                        }
+                    ]
+                }
+            }
+        },
+        "SpyObject": {
+            "type": "table",
+            "fields": {
+                "was": {
+                    "type": "ref",
+                    "name": "SpyObject"
+                },
+                "was_not": {
+                    "type": "ref",
+                    "name": "SpyObject"
+                },
+                "called": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "count",
+                            "displayName": "count?: number"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "SpyObject"
+                        }
+                    ]
+                },
+                "at_least": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "count",
+                            "displayName": "count: number"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "boolean"
+                        }
+                    ]
+                },
+                "at_most": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "count",
+                            "displayName": "count: number"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "boolean"
+                        }
+                    ]
+                },
+                "more_than": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "count",
+                            "displayName": "count: number"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "boolean"
+                        }
+                    ]
+                },
+                "less_than": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "count",
+                            "displayName": "count: number"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "boolean"
+                        }
+                    ]
+                },
+                "called_with": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "...args",
+                            "displayName": "...args: any"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "boolean"
+                        }
+                    ]
+                },
+                "returned_with": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "...rets",
+                            "displayName": "...rets: any"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "boolean"
+                        }
+                    ]
+                },
+                "clear": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "self"
+                        }
+                    ]
+                },
+                "revert": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "self"
+                        }
+                    ]
+                }
+            }
+        },
+        "StubObject": {
+            "type": "table",
+            "fields": {
+                "on_call_with": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "...args"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "StubObject"
+                        }
+                    ]
+                },
+                "invokes": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "func",
+                            "displayName": "func: function"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "StubObject"
+                        }
+                    ]
+                },
+                "returns": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "...rets"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "StubObject"
+                        }
+                    ]
+                }
+            },
+            "metatable": {
+                "type": "table",
+                "fields": {
+                    "__index": {
+                        "type": "ref",
+                        "name": "SpyObject"
+                    }
+                }
+            }
+        },
+        "MockObject": {
+            "type": "table",
+            "fields": {
+                "clear": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "self"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "MockObject"
+                        }
+                    ]
+                },
+                "revert": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "self"
+                        }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "MockObject"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

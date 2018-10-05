@@ -16,6 +16,7 @@
 'use strict';
 
 const {
+    LuaModule,
     LuaTable,
     LuaFunction,
     LuaBasicTypes,
@@ -24,22 +25,24 @@ const {
     lazyType,
     LuaNameType
 } = require('./symbol');
-const { namedTypes, _G } = require('./luaenv');
+const { namedTypes, _G, LoadedPackages } = require('./luaenv');
 const fs_1 = require('fs');
 
-function loadExtentLib(filePath) {
+let state = undefined;
+
+function loadExtentLib(filePath, moduleName) {
     fs_1.readFile(filePath, 'utf8', (error, data) => {
         if (!error) {
             const lib = JSON.parse(data);
+            state = undefined; /*namedTypes不需要state*/
             parseNamedTypes(lib);
-            parseModule(lib);
+            parseModule(lib, moduleName);
         }
     });
 }
 
 exports.loadExtentLib = loadExtentLib;
 
-const state = { valid: true };
 const newExtentSymbol = (name, isLocal, kind, type) => {
     let newSymbol = new LuaSymbol(name, null, null, isLocal, null, kind, type);
     newSymbol.state = state;
@@ -64,7 +67,7 @@ function parseNamedTypes(json) {
     }
 }
 
-function parseModule(json) {
+function parseModule(json, moduleName) {
     if (!json || !json.global) {
         return;
     }
@@ -79,10 +82,26 @@ function parseModule(json) {
         return;
     }
 
+    state = { valid: true }; /*每个外部lib使用独立的state*/
+    let theModule;
+    if (moduleName) {
+        /*创建一个module来保存外部lib符号*/
+        theModule = newExtentSymbol(moduleName, false, LuaSymbolKind.module, new LuaModule());
+        theModule.state = state;
+    }
+
     for (const name in fields) {
         const value = fields[name];
         const symbol = parseJsonObject(value, name);
-        symbol && _G.set(name, symbol);
+        if (symbol) {
+            _G.set(name, symbol);
+            theModule && theModule.set(name, symbol);
+        }
+    }
+
+    if (theModule) {
+        /*保存module起来用于支持动态加载和卸载*/
+        LoadedPackages[moduleName] = theModule;
     }
 }
 
@@ -138,6 +157,7 @@ function parseFunctionJsonObject(node, name) {
     let func = new LuaFunction();
     func.description = node.description;
     func.link = node.link;
+    func.insertSnippet = node.insertSnippet;
     func.args = parseArgumentsObject(node.args);
     func.returns = parseReturnsObject(node.returnTypes);
     parseVariantsArgumentsObject(node.variants, func);

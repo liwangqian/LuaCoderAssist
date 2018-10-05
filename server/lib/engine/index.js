@@ -16,11 +16,12 @@
 'use strict';
 
 const { typeOf } = require('./typeof');
-const { LoadedPackages } = require('./luaenv');
+const { LoadedPackages, _G } = require('./luaenv');
 const { parseDocument } = require('./analysis');
 const { CompletionContext, completionProvider } = require('./completion');
 const { DefinitionContext, definitionProvider } = require('./definition');
+const { loadExtentLib } = require('./extend');
 
 module.exports = {
-    typeOf, parseDocument, CompletionContext, completionProvider, DefinitionContext, definitionProvider, LoadedPackages
+    typeOf, parseDocument, CompletionContext, completionProvider, DefinitionContext, definitionProvider, LoadedPackages, _G, loadExtentLib
 };

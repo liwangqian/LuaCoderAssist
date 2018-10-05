@@ -17,6 +17,7 @@ const rename_provider = require('./providers/rename-provider');
 const format_provider = require('./providers/format-provider');
 const ldoc_provider = require('./providers/ldoc-provider');
 const engine = require('./lib/engine');
+const busted = require('./lib/busted');
 const adds = require('autodetect-decoder-stream');
 const fs = require('fs');
 
@@ -242,6 +243,15 @@ class Coder {
 
     onLDocRequest(params) {
         return this._ldocProvider.onRequest(params);
+    }
+
+    onBustedRequest(params) {
+        if (params === true) {
+            busted.enterBustedMode(this.extensionPath);
+        } else {
+            busted.exitBustedMode();
+        }
+        return true;
     }
 
     onDidClosed(doc) {

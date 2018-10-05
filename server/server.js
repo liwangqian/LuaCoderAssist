@@ -114,6 +114,10 @@ function server(connection) {
         });
     });
 
+    connection.onRequest(protocols_1.BustedRequest.type, (params) => {
+        return coder.onBustedRequest(params);
+    });
+
     connection.onCodeAction((params) => {
         return undefined;
     });

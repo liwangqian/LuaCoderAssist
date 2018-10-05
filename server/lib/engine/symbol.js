@@ -116,8 +116,8 @@ class LuaSymbol {
         return this.type.get(key);
     }
 
-    set(key, value) {
-        this.type.set(key, value);
+    set(key, value, force = false) {
+        this.type.set(key, value, force);
     }
 
     get valid() {
@@ -155,6 +155,7 @@ class LuaTypeBase {
         this.typeName = typeName;
         this.description = undefined;
         this.link = undefined;
+        this.insertSnippet = undefined;
     }
 }
 
@@ -299,9 +300,9 @@ class LuaTable extends LuaTypeBase {
         this._fields = {};
     }
 
-    set(key, value) {
+    set(key, value, force = false) {
         const ov = this._fields[key];
-        if (ov && ov.valid) {
+        if (!force && ov && ov.valid) {
             return;
         }
 

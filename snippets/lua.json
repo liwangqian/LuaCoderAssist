@@ -76,5 +76,47 @@
         "prefix": "repeat",
         "scope": "source.lua",
         "body": "repeat\n\t${1:-- statements}\nuntil ${2:condition}"
+    },
+    "true": {
+        "description": "insert boolean value true",
+        "prefix": "true",
+        "scope": "source.lua",
+        "body": "true"
+    },
+    "false": {
+        "description": "insert boolean value false",
+        "prefix": "false",
+        "scope": "source.lua",
+        "body": "false"
+    },
+    "nil": {
+        "description": "insert nil",
+        "prefix": "nil",
+        "scope": "source.lua",
+        "body": "nil"
+    },
+    "and": {
+        "description": "insert and",
+        "prefix": "and",
+        "scope": "source.lua",
+        "body": "and"
+    },
+    "or": {
+        "description": "insert or",
+        "prefix": "or",
+        "scope": "source.lua",
+        "body": "or"
+    },
+    "not": {
+        "description": "insert not",
+        "prefix": "not",
+        "scope": "source.lua",
+        "body": "not"
+    },
+    "then": {
+        "description": "insert then",
+        "prefix": "then",
+        "scope": "source.lua",
+        "body": "then"
     }
 }

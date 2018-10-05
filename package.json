@@ -28,11 +28,19 @@
     "commands": [
       {
         "command": "LuaCoderAssist.ldoc",
-        "title": "Insert LDoc"
+        "title": "插入注释(Insert LDoc)"
       },
       {
         "command": "LuaCoderAssist.metrics.details",
-        "title": "Show Code Metrics Details"
+        "title": "显示代码度量详细信息(Show Code Metrics Details)"
+      },
+      {
+        "command": "LuaCoderAssist.busted.activate",
+        "title": "进入busted模式(Enter busted mode)"
+      },
+      {
+        "command": "LuaCoderAssist.busted.deactivate",
+        "title": "退出busted模式(Exit busted mode)"
       }
     ],
     "menus": {
@@ -239,10 +247,6 @@
       }
     },
     "snippets": [
-      {
-        "language": "lua",
-        "path": "./snippets/busted.json"
-      },
       {
         "language": "lua",
         "path": "./snippets/ldoc.json"

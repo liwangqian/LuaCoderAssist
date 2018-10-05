@@ -275,7 +275,8 @@ function functionSnippet(item, symbol, override) {
         return;
     }
 
-    let snippet = symbol.name + '(' + args.map((p, i) => `\${${i + 1}:${p.name}}`).join(', ') + ')';
+    let snippet = (override === undefined) ? symbol.type.insertSnippet : symbol.type.variants[override].insertSnippet;
+    snippet = snippet || symbol.name + '(' + args.map((p, i) => `\${${i + 1}:${p.name}}`).join(', ') + ')';
     item.insertText = snippet;
     item.insertTextFormat = langserver_1.InsertTextFormat.Snippet;
 }

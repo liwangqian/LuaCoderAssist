@@ -4,6 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 'use strict';
 const ldoc_1 = require('./commands/ldoc');
+const busted_1 = require('./commands/busted');
 const showMetricDetails = require('./commands/codemetrics-details');
 const path = require("path");
 const vscode = require("vscode");
@@ -51,6 +52,8 @@ function activate(context) {
             showDetails.showDetails(params);
         })
     );
+
+    busted_1.instance().init(context, connection)
 }
 
 exports.activate = activate;
