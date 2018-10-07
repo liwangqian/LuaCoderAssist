@@ -16,6 +16,7 @@
 'use strict';
 
 const is = require('./is');
+const { _G } = require('./luaenv');
 
 function identName(ident) {
     if (ident) {
@@ -72,6 +73,7 @@ function object2Array(obj, filterout) {
 
 function directParent(stack, names) {
     let parent = stack.search((data) => data.name === names[0]);
+    parent = parent || _G.get(names[0]);
     for (let i = 1; i < names.length; i++) {
         if (parent && is.luaTable(parent.type)) {
             const result = parent.type.search(names[i]);

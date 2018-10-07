@@ -154,7 +154,7 @@ function analysis(code, uri) {
             }
 
             // search parent
-            const predict = (S) => { return (S.name === name) && (!S.local || S.range[1] <= variable.range[0]) };
+            const predict = (S) => { return (S.name === name) && (!S.isLocal || S.range[1] <= variable.range[0]) };
             let parent;
             let bName = utils_1.baseNames(variable.base);
             if (bName.length > 0) {
