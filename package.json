@@ -28,7 +28,7 @@
     "commands": [
       {
         "command": "LuaCoderAssist.ldoc",
-        "title": "插入注释(Insert LDoc)"
+        "title": "插入注释(Insert Lua Document)"
       },
       {
         "command": "LuaCoderAssist.metrics.details",

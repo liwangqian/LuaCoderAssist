@@ -45,7 +45,7 @@ function analysis(code, uri) {
     let moduleType = new LuaModule(uri);
     moduleType.setmetatable(luaenv_1.global__metatable);
 
-    let matchs = uri.match(/(\w+)(\.lua)?$/);
+    let matchs = uri.match(/(\w+(-\w+)*)(\.lua)?$/);
     let rootRange = Range.new(0, Infinity);
     let rootStack = moduleType.menv.stack;
     let currentScope = new Scope(rootStack, rootRange);
@@ -100,7 +100,7 @@ function analysis(code, uri) {
             return;
         }
 
-        let name = param.value.match(/\w+$/)[0];
+        let name = param.value.match(/\w+(-\w+)*$/)[0];
         let symbol = lazyType(new LuaContext(moduleType), node, name, 0);
         moduleType.import(symbol);
     }

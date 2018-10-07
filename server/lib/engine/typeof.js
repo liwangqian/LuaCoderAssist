@@ -162,7 +162,7 @@ function parseCallExpression(node, type) {
     const fname = node.base.name;
     if (fname === 'require') {
         let modulePath = (node.argument || node.arguments[0]).value;
-        let moduleName = modulePath.match(/\w+$/)[0];
+        let moduleName = modulePath.match(/\w+(-\w+)*$/)[0];
         let shortPath = modulePath.replace('.', '/');
         let mdls = LoadedPackages[moduleName]
         // TODO：增加配置项，用来配置搜索路径，然后模拟lua的搜索方法搜索最优匹配模块
