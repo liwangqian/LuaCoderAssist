@@ -2,6 +2,13 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.1.0 @ 2018-10-07
+
+- 新增：lua关键字几常用语句的代码片段
+- 新增：busted测试框架代码补全，删除原来的代码片段，通过按钮来控制busted是否使能
+- 优化：静态检查处理逻辑优化，保证同一时刻只有一个进程检查同一文件，保证最新的修改被检查
+- 修复：#39 #40
+
 ## 2.0.9 @ 2018-10-03
 
 - 优化：LUA 5.3和JIT接口文档优化，修复LUA 5.1接口文档的个别接口未匹配问题

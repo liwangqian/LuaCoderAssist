@@ -18,6 +18,8 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 - [x] 符号预览
 - [x] 静态检查
 - [x] 代码格式化
+- [x] 支持LOVE、JIT、BUSTED代码补全
+- [x] 支持代码补全扩展
 
 ### 当前已支持的功能(Supported)
 
@@ -47,15 +49,7 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 
 - **符号重命名(rename)**, _limitation: can only apply to local defined variable_
 
-![rename](images/rename.gif)
-
-- **代码格式化(code format)**, including format whole file and format select text, _**format on typing** is not supported now._
-
 ![format](images/format.gif)
-
-- **插入函数头(insert ldoc)**
-
-![ldoc](images/ldoc.gif)
 
 - **代码度量(code metrics)**
 
@@ -68,6 +62,14 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 - lua-fmt: https://github.com/trixnz/lua-fmt
 
 ## 发行记录(Release Notes)
+
+### 2.1.0
+
+- 新增：lua关键字几常用语句的代码片段
+- 新增：busted测试框架代码补全，删除原来的代码片段，通过按钮来控制busted是否使能
+- 优化：静态检查处理逻辑优化，保证同一时刻只有一个进程检查同一文件，保证最新的修改被检查
+- 修复：#39 #40
+- 感谢：[Nexela](https://github.com/Nexela)
 
 ### 2.0.9
 
