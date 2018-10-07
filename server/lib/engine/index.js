@@ -21,7 +21,8 @@ const { parseDocument } = require('./analysis');
 const { CompletionContext, completionProvider } = require('./completion');
 const { DefinitionContext, definitionProvider } = require('./definition');
 const { loadExtentLib } = require('./extend');
+const is = require('./is');
 
 module.exports = {
-    typeOf, parseDocument, CompletionContext, completionProvider, DefinitionContext, definitionProvider, LoadedPackages, _G, loadExtentLib
+    typeOf, parseDocument, CompletionContext, completionProvider, DefinitionContext, definitionProvider, LoadedPackages, _G, loadExtentLib, is
 };

@@ -82,6 +82,7 @@ class Coder {
             return false;
         }
 
+        this.workspaceFolders = context.workspaceFolders;
         this.workspaceRoot = context.workspaceRoot;
         this.conn = context.connection;
         this.documents = context.documents;

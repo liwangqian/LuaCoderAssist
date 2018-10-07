@@ -21,7 +21,7 @@ class LDocCommand {
 
         let position = activeDoc.validatePosition(utils.getCursorPosition());
         let params = { uri: activeDoc.uri.toString(), position: position }
-        this.connection.sendRequest(protocols.LDocRequest.type, params).then(undefined, (e) => {
+        this.connection.sendRequest(protocols.LDocRequest.type, params).then(this.onResponse.bind(this), (e) => {
             logger.Logger.error('onRequest for LDoc failed: ', e);
         });
     }

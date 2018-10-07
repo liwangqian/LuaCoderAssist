@@ -13,6 +13,7 @@ function server(connection) {
 
     connection.onInitialize((params) => {
         var ok = coder.init({
+            workspaceFolders: params.workspaceFolders,
             workspaceRoot: params.rootPath,
             connection: connection,
             documents: documents
@@ -108,10 +109,7 @@ function server(connection) {
     });
 
     connection.onRequest(protocols_1.LDocRequest.type, (params) => {
-        let result = coder.onLDocRequest(params);
-        connection.sendRequest(protocols_1.LDocRequest.type, result).then(undefined, e => {
-            coder.tracer.info("send response to ldoc request failed: " + JSON.stringify(e));
-        });
+        return coder.onLDocRequest(params);
     });
 
     connection.onRequest(protocols_1.BustedRequest.type, (params) => {

@@ -1,5 +1,6 @@
 'use strict';
 
+const engine = require('../lib/engine');
 const message_1 = require('./lib/message');
 const utils_1 = require('./lib/utils');
 const awaiter = require('./lib/awaiter');
@@ -24,25 +25,27 @@ class LDocProvider {
                 return message_1.info('no symbol found at the cursor psotion.', 0);
             }
 
-            let defs = [];
-
-            let def = defs[0];
-
+            let funcs = engine.definitionProvider(new engine.DefinitionContext(ref.name, ref.range, uri))
+                .filter(symbol => engine.is.luaFunction(symbol.type));
+            let def = funcs[0];
             if (!def) {
                 return message_1.info('not function definition.', 0);
             }
 
             let docString =
-                '--- ${1:function sum description.}\n' +
-                '-- ${2:Some description, can be over several lines.}\n';
+                '--- ${1:function summary description.}\n' +
+                '-- ${2:function detail description.}\n';
 
-            let tabIndex = 2;
-            def.params.forEach(p => {
-                tabIndex += 1;
-                docString += `-- @param ${p} \${${tabIndex}:description}\n`;
+            let ftype = def.type;
+            let tabIndex = 3;
+            ftype.args.forEach(param => {
+                docString += `-- @param  ${param.name}<\${${tabIndex++}:type}> \${${tabIndex++}:description}\n`;
             });
 
-            docString += `-- @return \${${tabIndex + 1}:value description.}\n`;
+            ftype.returns.forEach((ret, idx) => {
+                const retType = engine.typeOf(ret);
+                docString += `-- @return R${idx}<${retType.typeName}> \${${tabIndex++}:value description.}\n`;
+            });
 
             let settings = this.coder.settings.ldoc;
             if (settings.authorInFunctionLevel) {
