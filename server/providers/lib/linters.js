@@ -36,6 +36,7 @@ class Luacheck {
             this.automaticOptions(settings, args, document);
         }
 
+        args.push(...defaultOpt);
         const fileName = uri_1.parse(document.uri).fsPath;
         args.push("--filename", fileName, "-"); //use stdin
 
@@ -68,13 +69,13 @@ class Luacheck {
         }
         if (settings.ignore.length > 0) {
             args.push("-i");
-            args.push.apply(args, settings.ignore);
+            args.push(...settings.ignore);
         }
         if (this.coder.settings.format.lineWidth > 0) {
             args.push('--max-line-length', this.coder.settings.format.lineWidth);
         }
-        args.push.apply(args, defaultOpt);
-        args.push.apply(args, settings.options);
+
+        args.push(...settings.options);
         const jobs = settings.jobs;
         if (jobs > 1) {
             args.push('-j', jobs);
@@ -88,7 +89,7 @@ class Luacheck {
         }
         if (globals.length > 0) {
             args.push('--read-globals');
-            args.push.apply(args, globals);
+            args.push(...globals);
         }
     }
 
