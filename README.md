@@ -18,6 +18,7 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 - [x] 符号预览
 - [x] 静态检查
 - [x] 代码格式化
+- [x] 给函数插入LDoc格式的注释
 - [x] 支持LOVE、JIT、BUSTED代码补全
 - [x] 支持代码补全扩展
 
@@ -62,6 +63,11 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 - lua-fmt: https://github.com/trixnz/lua-fmt
 
 ## 发行记录(Release Notes)
+
+### 2.1.1
+
+- 修复：支持对函数插入LDoc格式的代码注释
+- 修复：#41 自动补全在依赖模块通过多级目录指定时不生效的BUG
 
 ### 2.1.0
 

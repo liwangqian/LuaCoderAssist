@@ -2,6 +2,11 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.1.1 @ 2018-10-07
+
+- 修复：支持对函数插入LDoc格式的代码注释
+- 修复：#41 自动补全在依赖模块通过多级目录指定时不生效的BUG
+
 ## 2.1.0 @ 2018-10-07
 
 - 新增：lua关键字几常用语句的代码片段
