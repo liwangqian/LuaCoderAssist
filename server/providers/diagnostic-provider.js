@@ -56,7 +56,9 @@ class DiagnosticProvider {
                 }
 
                 const command = linter.command(document);
-                this._run(uri, idx, command, text).then(() => { }, nok => {
+                this._run(uri, idx, command, text).then(() => {
+                    this.coder.sendDiagnostics(uri, []);
+                }, nok => {
                     const diagnostics = linter.parseDiagnostics(nok);
                     this.coder.sendDiagnostics(uri, diagnostics);
                 });
