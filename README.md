@@ -64,6 +64,12 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 
 ## 发行记录(Release Notes)
 
+### 2.1.2
+
+- 修复：当脚本中的静态检查告警从有到无时，告警信息无法清除的问题
+- 修复：第三方接口文档中的table类型数据没有定义fields字段时，导致代码补全弹出异常日志
+- 修复：因为脚本存在语法错误，保存时自动格式化导致异常日志弹出
+
 ### 2.1.1
 
 - 修复：支持对函数插入LDoc格式的代码注释
