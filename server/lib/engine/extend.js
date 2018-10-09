@@ -145,7 +145,7 @@ function parseJsonObject(node, name) {
 
 function parseTableJsonObject(node, name) {
     let table = new LuaTable();
-    table._fields = parseJsonObject(node.fields);
+    table._fields = parseJsonObject(node.fields) || [];
     table._metatable = parseJsonObject(node.metatable, '__mt');
     table.description = node.description;
     table.link = node.link;

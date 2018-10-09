@@ -38,9 +38,12 @@ class FormatProvider {
                 text = text.substring(document.offsetAt(range.start), document.offsetAt(range.end));
             }
 
-            let formattedText = fmt.formatText(text, this._formatOptions(opt));
-
-            return [langserver.TextEdit.replace(range, formattedText)];
+            try {
+                let formattedText = fmt.formatText(text, this._formatOptions(opt));
+                return [langserver.TextEdit.replace(range, formattedText)];
+            } catch (err) {
+                return [];
+            }
         });
     }
 
