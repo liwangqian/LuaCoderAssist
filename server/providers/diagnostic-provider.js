@@ -4,43 +4,58 @@ const execFile = require('child_process').execFile;
 const linters_1 = require('./lib/linters');
 const awaiter = require('./lib/awaiter');
 
+const MINIMUN_TIMEOUT = 500; // ms
+
 class DiagnosticProvider {
     constructor(coder) {
         this.coder = coder;
-        this.linters = [];
         this.lastTasks = {};
-
         this._initLinters();
     }
 
+    _initLinters() {
+        this.linters = [];
+        this.linters.push(new linters_1.Luacheck(this.coder));
+    }
+
     provideDiagnostics(uri) {
-        this._ensureTask(uri);
-        this._updateTask(uri, this._newTimeoutTask(uri));
+        this._updateTask(uri);
     }
 
-    _updateTask(uri, newTimer) {
-        let lastTimer = this.lastTasks[uri].timer;
-        if (lastTimer) {
+    _updateTask(uri) {
+        let lastTask = this._ensureTask(uri);
+        let timerId = lastTask.timerId;
+        if (timerId) {
             /*定时器还没超时，则取消，重新起定时器*/
-            clearTimeout(lastTimer);
+            clearTimeout(timerId);
         }
-        this.lastTasks[uri].timer = newTimer;
+        lastTask.timerId = this._newTimeoutTask(uri, lastTask.timeout);
     }
 
-    _newTimeoutTask(uri) {
+    _ensureTask(uri) {
+        let lastTask = this.lastTasks[uri];
+        if (!lastTask) {
+            lastTask = {
+                version: 0,
+                timeout: MINIMUN_TIMEOUT,
+                timerId: undefined,
+            };
+            this.lastTasks[uri] = lastTask;
+        }
+        return lastTask;
+    }
+
+    _newTimeoutTask(uri, timeout) {
         return setTimeout((uri) => {
             this._lintTask(uri);
-        }, 200, uri);
-    }
-
-    _initLinters() {
-        this.linters.push(new linters_1.Luacheck(this.coder));
+        }, timeout, uri);
     }
 
     _lintTask(uri) {
         return awaiter.await(this, void 0, void 0, function* () {
+            const start = process.hrtime();
             const lastTask = this.lastTasks[uri];
-            lastTask.timer = undefined;
+            lastTask.timerId = undefined;
 
             const document = yield this.coder.document(uri);
             const version = document.version;
@@ -50,38 +65,38 @@ class DiagnosticProvider {
             }
             lastTask.version = version;
             const text = document.getText();
-            this.linters.forEach((linter, idx) => {
+            const promises = [];
+            let timeout = 0;
+            this.linters.forEach(linter => {
                 if (linter.precondiction && !linter.precondiction(document)) {
                     return;
                 }
 
                 const command = linter.command(document);
-                this._run(uri, idx, command, text).then(() => {
+                let promise = this._run(command, text).then(() => {
                     this.coder.sendDiagnostics(uri, []);
+                    timeout = Math.max(timeout, this._elapsedTime(start));
                 }, nok => {
                     const diagnostics = linter.parseDiagnostics(nok);
                     this.coder.sendDiagnostics(uri, diagnostics);
+                    timeout = Math.max(timeout, this._elapsedTime(start));
                 });
+
+                promises.push(promise);
+
             }, this);
+
+            Promise.all(promises).then(() => {
+                if (timeout > MINIMUN_TIMEOUT) {
+                    lastTask.timeout = timeout;
+                }
+                this.coder.tracer.info(`luacheck check ${uri} in ${timeout} ms.`);
+            });
         });
     }
 
-    _ensureTask(uri) {
-        if (!this.lastTasks[uri]) {
-            this.lastTasks[uri] = {
-                version: 0,
-                timer: undefined,
-                procs: []
-            };
-        }
-    }
-
-    _run(uri, idx, linter, input) {
+    _run(linter, input) {
         return new Promise((resolve, reject) => {
-            /*如果上一次检查的进程未结束，则先杀掉老进程*/
-            let procs = this.lastTasks[uri].procs;
-            procs[idx] && procs[idx].kill();
-
             /*重新创建一个检查进程*/
             let proc = execFile(linter.cmd, linter.args, { cwd: linter.cwd }, (error, stdout, stderr) => {
                 if (error != null) {
@@ -91,9 +106,14 @@ class DiagnosticProvider {
                 }
             });
 
-            procs[idx] = proc;
             proc.stdin.end(input);
         });
+    }
+
+    _elapsedTime(start) {
+        const duration = process.hrtime(start);
+        const timeInMs = (duration[0] * 1000) + Math.floor(duration[1] / 1000000);
+        return timeInMs;
     }
 }
 

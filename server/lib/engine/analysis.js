@@ -36,7 +36,9 @@ function parseDocument(code, uri, logger) {
         clearInvalidSymbols();
         return mdl;
     } catch (err) {
-        logger.error(err.stack);
+        if (!err.stack.includes('luaparse.js')) {
+            logger.error(err.stack);
+        }
         return null;
     }
 }

@@ -131,6 +131,13 @@ function analysis(code, uri) {
         });
     }
 
+    function ensureTable(symbol, kind) {
+        if (!is.luaTable(typeOf(symbol))) {
+            symbol.type = new LuaTable();
+        }
+        symbol.kind = kind;
+    }
+
     // OK
     function parseAssignmentStatement(node) {
         let prevInit = node.init[0];
@@ -154,38 +161,45 @@ function analysis(code, uri) {
             }
 
             // search parent
-            const predict = (S) => { return (S.name === name) && (!S.isLocal || S.range[1] <= variable.range[0]) };
-            let parent;
+            function predict(S) {
+                return (S.name === name) && (!S.isLocal || S.location[1] <= variable.range[0]);
+            }
+
+            let base, def;
             let bName = utils_1.baseNames(variable.base);
             if (bName.length > 0) {
-                parent = utils_1.directParent(rootStack, bName);
-                if (!parent || !is.luaTable(parent.type)) {
+                base = utils_1.directParent(rootStack, bName);
+                if (!base || !is.luaTable(base.type)) {
                     return;
                 }
             } else {
-                parent = rootStack.search(predict);
-                if (parent && !is.luaAny(parent.type)) {
+                def = rootStack.search(predict);
+                if (def && !is.luaAny(def.type)) {
                     return;
                 }
             }
 
             let idx = index - prevInitIndex;
-            parseInitStatement(init, idx, name, variable.range, false, (symbol) => {
-                if (parent) {
-                    if (is.luaTable(typeOf(parent))) {
-                        parent.set(name, symbol);
-                    } else {
-                        parent.type = symbol.type;  // local xzy; xzy = 1
-                    }
+            parseInitStatement(init, idx, name, variable.range, variable.isLocal, (symbol) => {
+                if (base) { // base.abc = xyz
+                    ensureTable(base, LuaSymbolKind.table);
+                    base.set(name, symbol);
+                    return;
+                }
+
+                if (def) { // local xzy; xzy = 1
+                    def.type = symbol.type;
+                    return;
+                }
+
+                // abc = xyz
+                (currentFunc || theModule).addChild(symbol);
+                if (moduleType.moduleMode) {
+                    currentScope.push(symbol);
+                    moduleType.set(name, symbol);
                 } else {
-                    (currentFunc || theModule).addChild(symbol);
-                    if (moduleType.moduleMode) {
-                        currentScope.push(symbol);
-                        moduleType.set(name, symbol);
-                    } else {
-                        _G.set(name, symbol);
-                        moduleType.menv.globals.set(name, symbol);
-                    }
+                    _G.set(name, symbol);
+                    moduleType.menv.globals.set(name, symbol);
                 }
             });
         });
@@ -248,13 +262,7 @@ function analysis(code, uri) {
             if (baseNames.length > 0) {
                 let parent = utils_1.directParent(rootStack, baseNames);
                 if (parent) {
-                    /**
-                     * 根据上下文可以推断parent肯定是一个表，如果推导不出来，就创建一个表
-                    */
-                    if (!is.luaTable(typeOf(parent))) {
-                        parent.type = new LuaTable();
-                    }
-                    parent.kind = LuaSymbolKind.class;
+                    ensureTable(parent, LuaSymbolKind.class);
                     parent.set(name, fsymbol);
                     if (node.identifier.indexer === ':') {
                         _self = new LuaSymbol('self', parent.location, range, true, parent.uri, parent.kind, parent.type);

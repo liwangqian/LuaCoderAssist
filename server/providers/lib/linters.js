@@ -124,7 +124,7 @@ class Luacheck {
             let echar = parseInt(matched[4]);
             let eType = this._toDiagnosticSeverity(matched[5]);
             let eCode = parseInt(matched[6])
-            let errMsg = `(${eCode}) ${matched[7]}`;
+            let errMsg = matched[7];
 
             diagnostics.push(langserver_1.Diagnostic.create(
                 langserver_1.Range.create(lineNo - 1, schar - 1, lineNo - 1, echar),
