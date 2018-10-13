@@ -344,17 +344,6 @@ function signatureContext(content, offset) {
 
 exports.signatureContext = signatureContext;
 
-function findDefByNameAndScope(name, location, defs) {
-    for (let i = 0; i < defs.length; i++) {
-        let d = defs[i];
-        if (name === d.name && utils_1.inScope(d.scope, location)) {
-            return d;
-        }
-    }
-
-    return undefined;
-}
-
 function fuzzyCompareName(srcName, dstName) {
     return dstName.includes(srcName);
 }

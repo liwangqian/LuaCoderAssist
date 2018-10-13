@@ -426,7 +426,7 @@ function analysis(code, uri) {
         nodes.forEach(walkNode);
     }
 
-    function walkNode(node, index) {
+    function walkNode(node) {
         if (!node) return;
         switch (node.type) {
             case 'AssignmentStatement':

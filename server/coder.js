@@ -260,10 +260,6 @@ class Coder {
             this.sendDiagnostics(doc.uri, []);
         }
     }
-
-    onWillSaveWaitUntil(params) {
-        return false;
-    }
 };
 
 var _coderInstance = undefined;

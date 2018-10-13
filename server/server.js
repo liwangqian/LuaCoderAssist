@@ -51,10 +51,6 @@ function server(connection) {
         coder.onDidChangeContent(change);
     });
 
-    documents.onWillSaveWaitUntil((params) => {
-        coder.onWillSaveWaitUntil(params);
-    });
-
     documents.onDidSave((params) => {
         coder.onDidSave(params);
     });
