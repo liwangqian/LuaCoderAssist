@@ -269,14 +269,14 @@ function symbolSignature(symbol, override) {
 
 exports.symbolSignature = symbolSignature;
 
-function functionSnippet(item, symbol, override) {
+function functionSnippet(item, symbol, override, selfAsParam) {
     const args = (override === undefined) ? symbol.type.args : symbol.type.variants[override].args;
     if (symbol.type.typeName !== 'function') {
         return;
     }
 
     let snippet = (override === undefined) ? symbol.type.insertSnippet : symbol.type.variants[override].insertSnippet;
-    snippet = snippet || symbol.name + '(' + args.map((p, i) => `\${${i + 1}:${p.name}}`).join(', ') + ')';
+    snippet = snippet || symbol.name + '(' + args.filter(arg => selfAsParam || arg.name !== 'self').map((p, i) => `\${${i + 1}:${p.name}}`).join(', ') + ')';
     item.insertText = snippet;
     item.insertTextFormat = langserver_1.InsertTextFormat.Snippet;
 }

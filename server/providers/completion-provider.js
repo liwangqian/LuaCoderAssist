@@ -23,11 +23,12 @@ class CompletionProvider {
                 return undefined;
             }
 
-            let items = engine.completionProvider(new engine.CompletionContext(ref.name, ref.range, uri));
+            let ctx = new engine.CompletionContext(ref.name, ref.range, uri);
+            let items = engine.completionProvider(ctx);
             let completionItems = [];
             items.forEach((item, index) => {
                 if (is.luaFunction(item.type)) {
-                    this._completeFunction(item, index, completionItems);
+                    this._completeFunction(item, index, completionItems, !ctx.functionOnly);
                     return;
                 } else {
                     let symbol = langserver.CompletionItem.create(item.name);
@@ -46,6 +47,7 @@ class CompletionProvider {
     resolveCompletion(item) {
         let data = this.cache[item.data.index];
         const override = item.data.override;
+        const selfAsParam = item.data.selfAsParam;
         item.detail = utils.symbolSignature(data, override);
         const description = data.type.description || '';
         const link = data.type.link;
@@ -54,23 +56,23 @@ class CompletionProvider {
             kind: langserver.MarkupKind.Markdown,
             value: desc + (link ? `  \r\n[more...](${link})` : '')
         };
-        utils.functionSnippet(item, data, override);
+        utils.functionSnippet(item, data, override, selfAsParam);
         return item;
     }
 
-    _completeFunction(item, index, list) {
+    _completeFunction(item, index, list, selfAsParam) {
         if (item.type.variants) {
             const type = item.type;
             type.variants.forEach((variant, override) => {
                 let symbol = langserver.CompletionItem.create(item.name);
                 symbol.kind = utils.mapToCompletionKind(item.kind);
-                symbol.data = { index, override };
+                symbol.data = { index, override, selfAsParam };
                 list.push(symbol);
             });
         } else {
             let symbol = langserver.CompletionItem.create(item.name);
             symbol.kind = utils.mapToCompletionKind(item.kind);
-            symbol.data = { index };
+            symbol.data = { index, selfAsParam };
             list.push(symbol);
         }
     }

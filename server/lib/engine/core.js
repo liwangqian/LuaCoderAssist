@@ -240,7 +240,8 @@ function analysis(code, uri) {
         let fsymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.function, ftype);
         fsymbol.state = theModule.state;
         fsymbol.children = [];
-        let _self;
+        let _self,
+            paramOffset = 0;
 
         if (done) {
             done(fsymbol);
@@ -267,6 +268,8 @@ function analysis(code, uri) {
                     if (node.identifier.indexer === ':') {
                         _self = new LuaSymbol('self', parent.location, range, true, parent.uri, parent.kind, parent.type);
                         _self.state = theModule.state;
+                        ftype.param(0, _self);
+                        paramOffset = 1;
                     }
                 }
             } else {
@@ -289,7 +292,7 @@ function analysis(code, uri) {
             symbol.state = theModule.state;
             fsymbol.addChild(symbol);
             currentScope.push(symbol);
-            ftype.param(index, symbol);
+            ftype.param(index + paramOffset, symbol);
         });
 
         /* self is defined after the params */
