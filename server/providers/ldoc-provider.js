@@ -10,6 +10,10 @@ class LDocProvider {
         this.coder = coder;
     }
 
+    onRequest(params) {
+        return this.provideFunctionDoc(params);
+    }
+
     provideFunctionDoc(params) {
         return awaiter.await(this, void 0, void 0, function* () {
             let position = params.position;
@@ -26,7 +30,11 @@ class LDocProvider {
             }
 
             let funcs = engine.definitionProvider(new engine.DefinitionContext(ref.name, ref.range, uri))
-                .filter(symbol => engine.is.luaFunction(symbol.type));
+                .filter(symbol => {
+                    return engine.is.luaFunction(symbol.type)
+                        && symbol.location[0] == ref.range[0]
+                        && symbol.location[1] == ref.range[1]
+                });
             let def = funcs[0];
             if (!def) {
                 return message_1.info('not function definition.', 0);
@@ -58,10 +66,6 @@ class LDocProvider {
                 doc: docString
             };
         });
-    }
-
-    onRequest(params) {
-        return this.provideFunctionDoc(params);
     }
 };
 
