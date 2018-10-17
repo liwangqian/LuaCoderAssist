@@ -356,7 +356,7 @@ class LuaTable extends LuaTypeBase {
     walk(solver) {
         solver(this._fields);
         const metatable = this.getmetatable();
-        if (!metatable || !(typeOf(metatable) instanceof LuaTable)) {
+        if (!metatable || !(typeOf({ type: metatable }) instanceof LuaTable)) {
             return;
         }
 
@@ -447,6 +447,11 @@ class LuaModuleEnv {
             return node.data.location[0] - location[0];
         });
 
+        let indexNode = this.stack.nodes[index];
+        if (indexNode && indexNode.data.name === name) { // Hover the definition
+            return indexNode.data;
+        }
+
         return this.stack.search(filter, index) || this.globals.get(name);
     }
 }
@@ -468,10 +473,12 @@ class LuaModule extends LuaTable {
     }
 
     search(name, location, filter) {
-        filter = filter || (symbol => symbol.name === name);
-        let symbol = this.menv.search(name, location, filter);
-        if (symbol) {
-            return new SearchResult(null, name, symbol);
+        if (location) {
+            filter = filter || (symbol => symbol.name === name);
+            let symbol = this.menv.search(name, location, filter);
+            if (symbol) {
+                return new SearchResult(null, name, symbol);
+            }
         }
 
         return super.search(name);
