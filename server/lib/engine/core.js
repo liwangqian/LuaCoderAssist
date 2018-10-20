@@ -354,6 +354,7 @@ function analysis(code, uri) {
             if (name !== tableNode.name) {
                 tableSymbol = new LuaSymbol(name, location, range, isLocal, uri,
                     LuaSymbolKind.table, baseTable && baseTable.type || LuaBasicTypes.any);
+                tableSymbol.state = theModule.state;
             } else {
                 tableSymbol = baseTable;
             }
@@ -361,6 +362,7 @@ function analysis(code, uri) {
             if (tableNode.type === 'TableConstructorExpression') {
                 let nodeType = parseTableConstructorExpression(tableNode);
                 tableSymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.table, nodeType);
+                tableSymbol.state = theModule.state;
             }
         }
         if (tableSymbol && is.luaTable(typeOf(tableSymbol))) {
@@ -373,6 +375,7 @@ function analysis(code, uri) {
             }
 
             let metatable = new LuaSymbol('__mt', null, null, true, uri, LuaSymbolKind.table, nodeType);
+            metatable.state = theModule.state;
             tableSymbol.type.setmetatable(metatable);
         }
         return tableSymbol;
