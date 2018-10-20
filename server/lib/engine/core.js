@@ -347,12 +347,13 @@ function analysis(code, uri) {
         if (tableNode.type === 'Identifier') {
             let baseTable = moduleType.search(tableNode.name, tableNode.range).value;
             // setmetatable returns a table with new name.
-            if (!is.luaTable(typeOf(baseTable))) {
+            if (baseTable && !is.luaTable(typeOf(baseTable))) {
                 baseTable.type = new LuaTable();
                 baseTable.kind = LuaSymbolKind.table;
             }
             if (name !== tableNode.name) {
-                tableSymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.table, baseTable.type);
+                tableSymbol = new LuaSymbol(name, location, range, isLocal, uri,
+                    LuaSymbolKind.table, baseTable && baseTable.type || LuaBasicTypes.any);
             } else {
                 tableSymbol = baseTable;
             }
@@ -362,7 +363,7 @@ function analysis(code, uri) {
                 tableSymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.table, nodeType);
             }
         }
-        if (tableSymbol) {
+        if (tableSymbol && is.luaTable(typeOf(tableSymbol))) {
             let nodeType;
             let metaNode = node.arguments[1];
             if (metaNode.type === 'TableConstructorExpression') {
