@@ -86,6 +86,14 @@ function completionProvider(context) {
     if (!value) {
         value = findDef(name, context.uri, context.range);
     }
+
+    if (Is.luaFunction(typeOf(value))) {
+        if (!value.type.returns) {
+            return [];
+        }
+        value = value.type.returns[0];
+    }
+
     if (!Is.luaTable(typeOf(value)) && !Is.luaModule(value)) {
         return [];
     }
