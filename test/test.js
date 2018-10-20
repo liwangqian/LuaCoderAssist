@@ -73,3 +73,7 @@ let testStr = `return x, base.Class:new().calc(x, y, z(xyz))
 let collection = [];
 console.log(testStr.substring(backward(testStr, testStr.length - 1, collection)));
 console.log(collection.join(''));
+
+let a = [1, 2]
+let b = [1, 2]
+console.log(a == b)

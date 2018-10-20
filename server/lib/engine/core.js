@@ -83,6 +83,11 @@ function analysis(code, uri) {
             let range = Range.rangeOf(location, currentScope.range);
             if (init && init.type === 'CallExpression' && init.base.name === 'setmetatable') {
                 symbol = parseSetmetatable(init, name, location, range, isLocal);
+                if (!symbol) {
+                    let refName = init.arguments[0].name || utils_1.safeName(init);
+                    type = lazyType(new LuaContext(moduleType), init, refName, index);
+                    symbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.variable, type);
+                }
             } else {
                 type = type || (init ? lazyType(new LuaContext(moduleType), init, utils_1.safeName(init), index) : LuaBasicTypes.any);
                 symbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.variable, type);
@@ -100,7 +105,10 @@ function analysis(code, uri) {
             return;
         }
 
-        let name = param.value.match(/\w+(-\w+)*$/)[0];
+        let matches = param.value.match(/\w+(-\w+)*$/);
+        if (!matches) return;
+
+        let name = matches[0];
         let symbol = lazyType(new LuaContext(moduleType), node, name, 0);
         moduleType.import(symbol);
     }
@@ -230,9 +238,9 @@ function analysis(code, uri) {
             name = utils_1.identName(node.identifier);
             isLocal = node.isLocal;
         } else {
-            location = lvLocation;
-            name = lvName;
-            isLocal = lvIsLocal;
+            location = lvLocation || node.range;
+            name = lvName || '@'; // 匿名函数
+            isLocal = lvIsLocal || node.isLocal;
             range[0] = location[0]; // enlarge to include the location
         }
 
@@ -327,6 +335,8 @@ function analysis(code, uri) {
                 parseSetmetatable(node);
                 return;
             default:
+                node.arguments && walkNodes(node.arguments);
+                node.argument && walkNode(node.argument);
                 break;
         }
     }
@@ -337,6 +347,10 @@ function analysis(code, uri) {
         if (tableNode.type === 'Identifier') {
             let baseTable = moduleType.search(tableNode.name, tableNode.range).value;
             // setmetatable returns a table with new name.
+            if (!is.luaTable(typeOf(baseTable))) {
+                baseTable.type = new LuaTable();
+                baseTable.kind = LuaSymbolKind.table;
+            }
             if (name !== tableNode.name) {
                 tableSymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.table, baseTable.type);
             } else {
@@ -348,7 +362,7 @@ function analysis(code, uri) {
                 tableSymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.table, nodeType);
             }
         }
-        if (is.luaTable(typeOf(tableSymbol))) {
+        if (tableSymbol) {
             let nodeType;
             let metaNode = node.arguments[1];
             if (metaNode.type === 'TableConstructorExpression') {

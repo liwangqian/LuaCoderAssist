@@ -97,22 +97,32 @@ function parseAstNode(node, type) {
             return parseLogicalExpression(node, type);
         case 'TableConstructorExpression':
             return parseTableConstructorExpression(node, type);
-        // case 'FunctionDeclaration':
-        //     return parseFunctionDeclaration(node, type);
         case 'VarargLiteral':
             return parseVarargLiteral(node, type);
         case 'MergeType':
             return mergeType(node.left, node.right);
+        case 'setmetatable':
+            return setmetatable(node, type);
         default:
             return null;
     }
+}
+
+function setmetatable(node, type) {
+    let baseType = deduceType(node.base.type);
+    if (baseType && Is.luaTable(baseType)) {
+        let metaType = deduceType(node.meta.type);
+        baseType.setmetatable(metaType);
+        return baseType;
+    }
+
+    return undefined;
 }
 
 function parseRefNode(node) {
     const refSymbol = namedTypes.get(node.name);
     return refSymbol && refSymbol.type;
 }
-
 
 function mergeType(left, right) {
     let leftType = deduceType(left);
@@ -176,6 +186,10 @@ function parseCallExpression(node, type) {
         return null;
     }
 
+    if (fname === 'setmetatable') {
+        return parseSetMetatable(node, type);
+    }
+
     let R = ftype.returns[type.index || 0];
     if (!Is.lazyValue(R.type)) {
         return R.type;
@@ -194,7 +208,40 @@ function parseCallExpression(node, type) {
     if (R.type.context) {
         R.type.context.func_argt = func_argt; // dynamic add
     }
-    return typeOf(R); //deduce the type
+    let retType = deduceType(R.type); //deduce the type
+    if (R.type.context) {
+        R.type.context.func_argt = undefined; // remove
+    }
+
+    return retType;
+}
+
+function parseSetMetatable(node, type) {
+    if (!type || !type.context || !type.context.func_argt) {
+        return undefined;
+    }
+
+    const baseNode = node.arguments[0];
+    if (!baseNode) {
+        return undefined;
+    }
+
+    const baseTable = deduceType(new LazyValue(type.context, baseNode, type.name, 0));
+    if (!Is.luaTable(baseTable)) {
+        return undefined;
+    }
+
+    const metaNode = node.arguments[1];
+    if (!metaNode) {
+        return baseTable;
+    }
+
+    const metaTable = deduceType(new LazyValue(type.context, metaNode, "__mt", 0));
+    if (Is.luaTable(metaTable)) {
+        baseTable.setmetatable(metaTable);
+    }
+
+    return baseTable;
 }
 
 function parseForStdlibFunction(funcName, argsType, type) {
