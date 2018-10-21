@@ -75,6 +75,7 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 - 修复：foo().abc无法提供代码补全的问题
 - 修复：变量判空以及类型判断，防止非法访问错误
 - 修复：修复部分symbol没有定义state的bug
+- 修复：修复匿名函数内部符号无法补全的问题
 
 ### 2.1.3
 
