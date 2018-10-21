@@ -16,7 +16,7 @@
 'use strict';
 
 const is = require('./is');
-const { _G } = require('./luaenv');
+const { _G, LoadedPackages } = require('./luaenv');
 
 function identName(ident) {
     if (ident) {
@@ -87,11 +87,38 @@ function directParent(stack, names) {
     return parent;
 }
 
+function invalidateModuleSymbols(uri) {
+    const _package = LoadedPackages[uri];
+    if (_package) {
+        _package.invalidate();
+    }
+}
+
+function clearInvalidSymbols(moduleMode, moduleName) {
+    if (moduleMode) {
+        const theModule = _G.type.get(moduleName);
+        deleteInvalidSymbols(theModule.type.fields);
+        theModule.state.valid = true;
+    } else {
+        deleteInvalidSymbols(_G.type.fields)
+    }
+}
+
+function deleteInvalidSymbols(table) {
+    for (const name in table) {
+        if (!table[name].valid) {
+            delete table[name];
+        }
+    }
+}
+
 module.exports = {
     identName,
     baseName,
     baseNames,
     safeName,
     directParent,
-    object2Array
+    object2Array,
+    invalidateModuleSymbols,
+    clearInvalidSymbols
 };

@@ -185,6 +185,14 @@ class Coder {
                     break;
                 case 3: //delete
                     fileManager.delFile(fileName, filePath);
+                    let _package = engine.LoadedPackages[uri];
+                    if (_package) {
+                        _package.invalidate();
+                        delete engine.LoadedPackages[uri];
+                        engine.utils.invalidateModuleSymbols(uri);
+                        engine.utils.clearInvalidSymbols(_package.type.moduleMode, _package.name);
+                    }
+                    break;
                 default:
                     break;
             }

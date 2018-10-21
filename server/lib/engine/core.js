@@ -500,10 +500,25 @@ function analysis(code, uri) {
     walkNode(node);
 
     if (moduleType.moduleMode) {
-        _G.set(theModule.name, theModule);
+        let origModule = _G.get(theModule.name);
+        if (!origModule) {
+            _G.set(theModule.name, theModule);
+        } else {
+            mergeTableFields(origModule.type.fields, theModule.type.fields);
+        }
     }
 
     return theModule;
+}
+
+function mergeTableFields(origTableFields, newTableFields) {
+    for (const fid in newTableFields) {
+        const newValue = newTableFields[fid];
+        const origValue = origTableFields[fid];
+        if (!origValue || !origValue.valid) {
+            origTableFields[fid] = newValue;
+        }
+    }
 }
 
 exports.analysis = analysis;

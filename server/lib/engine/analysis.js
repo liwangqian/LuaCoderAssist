@@ -15,7 +15,8 @@
  ********************************************************************************/
 'use strict';
 
-const { _G, LoadedPackages } = require('./luaenv');
+const { LoadedPackages } = require('./luaenv');
+const { invalidateModuleSymbols, clearInvalidSymbols } = require('./utils');
 const { analysis } = require('./core');
 
 function parseDocument(code, uri, logger) {
@@ -33,29 +34,13 @@ function parseDocument(code, uri, logger) {
         }
         packages[mdl.uri] = mdl;
 
-        clearInvalidSymbols();
+        clearInvalidSymbols(mdl.type.moduleMode, mdl.name);
         return mdl;
     } catch (err) {
         if (!err.stack.includes('luaparse.js')) {
             logger.error(err.stack);
         }
         return null;
-    }
-}
-
-function invalidateModuleSymbols(uri) {
-    const _package = LoadedPackages[uri];
-    if (_package) {
-        _package.invalidate();
-    }
-}
-
-function clearInvalidSymbols() {
-    let globals = _G.type.fields;
-    for (const name in globals) {
-        if (!globals[name].valid) {
-            delete globals[name];
-        }
     }
 }
 
