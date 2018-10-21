@@ -21,38 +21,39 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 - [x] 给函数插入LDoc格式的注释
 - [x] 支持LOVE、JIT、BUSTED代码补全
 - [x] 支持代码补全扩展
+- [x] 支持setmetatable通过__index模拟类继承的类成员补全
 
 ### 当前已支持的功能(Supported)
 
-- **文件内符号列表(document symbols)**
+- **文件内符号列表(Document Symbols)**
 
 ![list](images/symbol-list.gif)
 
-- **符号定义跳转(goto definition)**
+- **符号定义跳转(Goto Definition)**
 
 ![goto](images/goto-def.gif)
 
-- **符号定义预览(definition peak)**
+- **符号定义预览(Definition Peak)**
 
 ![peak](images/def-peak.gif)
 
-- **代码补全(code complete)**
+- **代码补全(Code Complete)**
 
 ![complete](images/complete.gif)
 
-- **函数特征帮助(signatrue help)**
+- **函数特征帮助(Signatrue Help)**
 
 ![signature](images/signature.gif)
 
-- **静态检查(diagnostics)**
+- **静态检查(LuaCheck Support)**
 
 ![diagnostics](images/diagnostics.gif)
 
-- **符号重命名(rename)**, _limitation: can only apply to local defined variable_
+- **代码格式化(Code Format)**
 
 ![format](images/format.gif)
 
-- **代码度量(code metrics)**
+- **代码度量(Code Metrics)**
 
 ![metrics](images/metrics.gif)
 
@@ -63,6 +64,17 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 - lua-fmt: https://github.com/trixnz/lua-fmt
 
 ## 发行记录(Release Notes)
+
+### 2.2.0
+
+- 新增：支持不同文件使用相同的模块名
+- 优化：支持增删文件后的符号表增删处理
+- 优化：setmetatable使用场景优化，支持函数返回setmetatable的类型推导
+- 优化：支持在符号的定义处提供Hover信息
+- 优化：ldoc功能，只允许在函数定义的地方添加doc
+- 修复：foo().abc无法提供代码补全的问题
+- 修复：变量判空以及类型判断，防止非法访问错误
+- 修复：修复部分symbol没有定义state的bug
 
 ### 2.1.3
 

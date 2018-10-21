@@ -2,6 +2,17 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.0 @ 2018-10-21
+
+- 新增：支持不同文件使用相同的模块名
+- 优化：支持增删文件后的符号表增删处理
+- 优化：setmetatable使用场景优化，支持函数返回setmetatable的类型推导
+- 优化：支持在符号的定义处提供Hover信息
+- 优化：ldoc功能，只允许在函数定义的地方添加doc
+- 修复：foo().abc无法提供代码补全的问题
+- 修复：变量判空以及类型判断，防止非法访问错误
+- 修复：修复部分symbol没有定义state的bug
+
 ## 2.1.3 @ 2018-10-13
 
 - 修复：在IO慢的机器上，由于kill了静态检查进程导致的代码补全过程中server异常重启
