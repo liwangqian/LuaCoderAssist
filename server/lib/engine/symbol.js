@@ -356,7 +356,7 @@ class LuaTable extends LuaTypeBase {
     walk(solver) {
         solver(this._fields);
         const metatable = this.getmetatable();
-        if (!metatable || !(metatable.type instanceof LuaTable)) {
+        if (!metatable || !(typeOf(metatable) instanceof LuaTable)) {
             return;
         }
 

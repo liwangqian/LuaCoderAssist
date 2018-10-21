@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.1 @ 2018-10-21
+
+- 修复：setmetatable在某些场景下无法生效的问题
+
 ## 2.2.0 @ 2018-10-21
 
 - 新增：支持不同文件使用相同的模块名

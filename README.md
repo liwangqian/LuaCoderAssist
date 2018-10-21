@@ -59,11 +59,15 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 
 ## 依赖(Dependences)
 
-- luaparse: https://github.com/oxyc/luaparse
-- luacheck: https://github.com/mpeterv/luacheck
-- lua-fmt: https://github.com/trixnz/lua-fmt
+- [luaparse](https://github.com/oxyc/luaparse)
+- [luacheck](https://github.com/mpeterv/luacheck)
+- [lua-fmt](https://github.com/trixnz/lua-fmt)
 
 ## 发行记录(Release Notes)
+
+### 2.2.1
+
+- 修复：setmetatable在某些场景下无法生效的问题
 
 ### 2.2.0
 
