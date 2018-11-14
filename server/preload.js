@@ -14,12 +14,13 @@ const LOVE_PRELOAD = 'stdlibs/love.json';
 const LUAJIT_PRELOAD = 'stdlibs/luajit-2_0.json';
 
 function loadAll(coder) {
+    if (coder.settings.useStd) {
+        const luaversion = coder.luaversion;
+        const filePath = coder.extensionPath + (STD_PRELOADS[luaversion] || 'stdlibs/5_3.json');
+        engine.loadExtentLib(filePath, "std.lua"); // load stdlib
+    }
+
     const preloads = coder.settings.preloads;
-    const luaversion = coder.luaversion;
-    const filePath = coder.extensionPath + (STD_PRELOADS[luaversion] || 'stdlibs/5_3.json');
-
-    engine.loadExtentLib(filePath, "std.lua"); // load stdlib
-
     preloads.forEach(filePath => {
         engine.loadExtentLib(filePath);
     });

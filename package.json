@@ -71,6 +71,11 @@
           "default": [],
           "description": "Preload modules path."
         },
+        "LuaCoderAssist.useStd": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use standard libraries."
+        },
         "LuaCoderAssist.useLove": {
           "type": "boolean",
           "default": false,
