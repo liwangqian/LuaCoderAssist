@@ -18,7 +18,7 @@
 const _ = require('underscore');
 const { LuaBasicTypes, LazyValue, LuaSymbolKind, LuaSymbol, LuaTable } = require('./symbol');
 const { StackNode } = require('./linear-stack');
-const { LoadedPackages, namedTypes } = require('./luaenv');
+const { LoadedPackages, namedTypes, _G } = require('./luaenv');
 const Is = require('./is');
 const utils_1 = require('./utils');
 
@@ -174,7 +174,7 @@ function parseCallExpression(node, type) {
         let modulePath = (node.argument || node.arguments[0]).value;
         let moduleName = modulePath.match(/\w+(-\w+)*$/)[0];
         let shortPath = modulePath.replace(/\./g, '/');
-        let mdls = LoadedPackages[moduleName]
+        let mdls = LoadedPackages[moduleName];
         // TODO：增加配置项，用来配置搜索路径，然后模拟lua的搜索方法搜索最优匹配模块
         for (const uri in mdls) {
             if (uri.includes(shortPath)) { // 查找最优匹配，如果存在多个最优匹配，则返回第一个
@@ -183,7 +183,8 @@ function parseCallExpression(node, type) {
             }
         }
 
-        return null;
+        let symbol = _G.get(moduleName);
+        return symbol && symbol.type;
     }
 
     if (fname === 'setmetatable') {
