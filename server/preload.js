@@ -21,7 +21,7 @@ function loadAll(coder) {
     engine.loadExtentLib(filePath, "std.lua"); // load stdlib
 
     preloads.forEach(filePath => {
-        engine.loadExtentLib(filePath);
+        engine.loadExtentLib(filePath, filePath);
     });
 
     if (coder.settings.useLove) {

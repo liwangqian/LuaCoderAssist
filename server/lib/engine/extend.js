@@ -94,7 +94,21 @@ function parseModule(json, moduleName) {
         const value = fields[name];
         const symbol = parseJsonObject(value, name);
         if (symbol) {
-            _G.set(name, symbol);
+            let existTbl;
+            if (symbol.type instanceof LuaTable) {
+                existTbl = _G.get(name);
+            }
+            if (existTbl) {
+                /**
+                 * 合并，支持扩展自带的std\love\jit库
+                */
+                if (existTbl.type instanceof LuaTable) {
+                    Object.assign(existTbl.type.fields, symbol.type.fields);
+                }
+            } else {
+                _G.set(name, symbol);
+            }
+
             theModule && theModule.set(name, symbol);
         }
     }
@@ -145,7 +159,7 @@ function parseJsonObject(node, name) {
 
 function parseTableJsonObject(node, name) {
     let table = new LuaTable();
-    table._fields = parseJsonObject(node.fields) || [];
+    table._fields = parseJsonObject(node.fields) || {};
     table._metatable = parseJsonObject(node.metatable, '__mt');
     table.description = node.description;
     table.link = node.link;
