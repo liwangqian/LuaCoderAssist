@@ -45,13 +45,20 @@ function definitionProvider(context) {
         return [];
     }
 
+    if (length === 1) {
+        return [def];
+    }
+
+    if (Is.luaFunction(typeOf(def))) {
+        if (!def.type.returns) {
+            return [];
+        }
+        def = def.type.returns[0];
+    }
+
     let type = def.type;
     if (Is.lazyValue(type)) {
         type = typeOf(def); //try deduce type
-    }
-
-    if (length === 1) {
-        return [def];
     }
 
     if (!Is.luaTable(type) && !Is.luaModule(type)) {

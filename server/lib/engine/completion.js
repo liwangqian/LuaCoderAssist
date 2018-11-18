@@ -132,12 +132,7 @@ function completionProvider(context) {
     } else {
         children = Object.create(null);
         def.type.walk(fields => {
-            for (const name in fields) {
-                const symbol = fields[name];
-                if (!children[name]) {
-                    children[name] = symbol;
-                }
-            }
+            Object.assign(children, fields);
         });
     }
 

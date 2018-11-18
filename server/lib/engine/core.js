@@ -240,7 +240,7 @@ function analysis(code, uri) {
         } else {
             location = lvLocation || node.range;
             name = lvName || '@'; // 匿名函数
-            isLocal = lvIsLocal || node.isLocal;
+            isLocal = lvIsLocal || true;
             range[0] = location[0]; // enlarge to include the location
         }
 
@@ -335,6 +335,7 @@ function analysis(code, uri) {
                 parseSetmetatable(node);
                 return;
             default:
+                walkNode(node.base);
                 node.arguments && walkNodes(node.arguments);
                 node.argument && walkNode(node.argument);
                 break;
@@ -482,6 +483,9 @@ function analysis(code, uri) {
                 break;
             case 'IfStatement':
                 parseIfStatement(node);
+                break;
+            case 'MemberExpression':
+                walkNode(node.base);
                 break;
             case 'Chunk':
                 walkNodes(node.body);

@@ -121,55 +121,85 @@ function skip(pattern, content, offset, step) {
     return offset;
 }
 
+function bracketMatches(bracketLeft, bracketRight) {
+    switch (bracketLeft) {
+        case '(':
+            return bracketRight == ')';
+        case '[':
+            return bracketRight == ']';
+        case '{':
+            return bracketRight == '}';
+        default:
+            return false;
+    }
+}
+
+let rightBracketRegx = /[\)\]\}]/;
+let bracketPairsRegx = /[\(\)\[\]\{\}]/;
 function backward(content, offset, collection) {
-    let bracketDepth = 0;
-    while (true) {
-        let c = content.charAt(offset);
+    let charIndex = offset;
+    let bracketStack = [];
+    while (charIndex >= 0) {
+        let c = content.charAt(charIndex);
         if (c === '.' || c === ':') {
-            if (bracketDepth === 0) {
+            if (bracketStack.length === 0) {
                 collection.push(c);
             }
-            offset--;
-            offset = skip(/\s/, content, offset, -1);
+            charIndex--;
+            charIndex = skip(/\s/, content, charIndex, -1);
             continue;
         }
 
-        if (c === ')') {
-            bracketDepth++;
-            offset--;
-            continue;
-        }
-
-        if (c === '(') {
-            bracketDepth--;
-            if (bracketDepth < 0) {
-                break;
+        if (c == '"' || c == "'") {
+            let topChar = bracketStack[bracketStack.length - 1];
+            if (topChar == c) {
+                bracketStack.pop();
+            } else {
+                bracketStack.push(c);
             }
-            offset--;
+            charIndex--;
             continue;
+        }
+
+        if (bracketPairsRegx.test(c)) {
+            if (rightBracketRegx.test(c)) {
+                bracketStack.push(c);
+                charIndex--;
+                continue;
+            } else {
+                let topRightBracket = bracketStack.pop();
+                if (bracketMatches(c, topRightBracket)) {
+                    charIndex--;
+                    continue;
+                } else {
+                    // error
+                    break;
+                }
+            }
         }
 
         if (isalpha(c) || isdigit(c) || c === '_') {
-            offset--;
-            if (bracketDepth === 0) {
+            charIndex--;
+            if (bracketStack.length === 0) {
                 collection.push(c);
             }
             continue;
         }
 
-        if (c === ' ' || c === ',') {
-            if (bracketDepth === 0) {
+        if (c === ' ' || c === ',' || c === '\r' || c === '\n' || c === '\r\n' || c === '\n\r') {
+            if (bracketStack.length === 0) {
                 break;
             }
-            offset--;
+            charIndex--;
+            charIndex = skip(/\s/, content, charIndex, -1);
             continue;
         }
 
-        break;
+        charIndex--;
     }
 
     collection.reverse();
-    return offset + 1;
+    return charIndex + 1;
 }
 
 const forwardRegex = /[a-zA-Z0-9_]/;   // parse only the name

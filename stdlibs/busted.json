@@ -185,6 +185,12 @@
                         {
                             "name": "self"
                         }
+                    ],
+                    "returnTypes": [
+                        {
+                            "type": "ref",
+                            "name": "SnapShotObject"
+                        }
                     ]
                 },
                 "equals": {
@@ -803,6 +809,19 @@
                         {
                             "type": "ref",
                             "name": "MockObject"
+                        }
+                    ]
+                }
+            }
+        },
+        "SnapShotObject": {
+            "type": "table",
+            "fields": {
+                "revert": {
+                    "type": "function",
+                    "args": [
+                        {
+                            "name": "self"
                         }
                     ]
                 }
