@@ -2,6 +2,14 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.2 @ 2018-11-18
+
+- 修复：显式require love/jit等外部库时，无法提供补全信息(#45)
+- 优化：支持自定义扩展插件自带的std/love/jit等库符号(#46)
+- 优化：符号补全以及符号Hover功能在复杂的函数调用关系及参数场景下正常运行
+- 优化：支持显式通过_G来获取全局变量的代码补全
+- 优化：支持string类型变量及字面值字符串的函数补全
+
 ## 2.2.1 @ 2018-10-21
 
 - 修复：setmetatable在某些场景下无法生效的问题
