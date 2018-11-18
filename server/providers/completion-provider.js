@@ -24,6 +24,7 @@ class CompletionProvider {
             }
 
             let ctx = new engine.CompletionContext(ref.name, ref.range, uri);
+            ctx.isString = ref.isString;
             let items = engine.completionProvider(ctx);
             let completionItems = [];
             items.forEach((item, index) => {

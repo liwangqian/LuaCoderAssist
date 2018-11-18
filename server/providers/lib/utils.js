@@ -137,6 +137,7 @@ function bracketMatches(bracketLeft, bracketRight) {
 let rightBracketRegx = /[\)\]\}]/;
 let bracketPairsRegx = /[\(\)\[\]\{\}]/;
 function backward(content, offset, collection) {
+    let isString = false;
     let charIndex = offset;
     let bracketStack = [];
     while (charIndex >= 0) {
@@ -154,6 +155,10 @@ function backward(content, offset, collection) {
             let topChar = bracketStack[bracketStack.length - 1];
             if (topChar == c) {
                 bracketStack.pop();
+                if (bracketStack.length === 0) {
+                    isString = true;
+                    break;
+                }
             } else {
                 bracketStack.push(c);
             }
@@ -199,17 +204,19 @@ function backward(content, offset, collection) {
     }
 
     collection.reverse();
-    return charIndex + 1;
+    return { offset: charIndex + 1, isString };
 }
 
 const forwardRegex = /[a-zA-Z0-9_]/;   // parse only the name
 function extendTextRange(content, from, options) {
-    let range = { start: from, end: from, text: '' };
+    let range = { start: from, end: from, text: '', isString: false };
     let offset = from;
     let collection = [];
     if (options.backward) {
-        offset = backward(content, offset, collection);
-        range.start = offset;
+        let res = backward(content, offset, collection);
+        range.start = res.offset;
+        range.isString = res.isString;
+        offset = res.offset;
     }
 
     if (options.forward) {
@@ -260,7 +267,7 @@ function symbolAtPosition(position, doc, options) {
         return undefined;
     }
 
-    let ref = { name: range.text, range: [range.start, range.end] };
+    let ref = { name: range.text, range: [range.start, range.end], isString: range.isString };
     return ref;
 }
 
@@ -358,7 +365,8 @@ function signatureContext(content, offset) {
     end_pos = skip(/\s/, content, end_pos - 1, -1);
 
     let collection = [];
-    let start_pos = backward(content, end_pos, collection);
+    let res = backward(content, end_pos, collection);
+    let start_pos = res.offset;
     if (start_pos < lower_bound) {
         return undefined;
     }

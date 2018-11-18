@@ -15,7 +15,7 @@
  ********************************************************************************/
 'use strict';
 
-const { LoadedPackages } = require('./luaenv');
+const { LoadedPackages, _G } = require('./luaenv');
 const { object2Array } = require('./utils');
 const { typeOf, findDef, searchInnerStackIndex } = require('./typeof');
 const { ScopeEnd } = require('./linear-stack');
@@ -34,6 +34,7 @@ class CompletionContext {
         this.range = range;
         this.uri = uri;
         this.functionOnly = expr.endsWith(':');
+        this.isString = false;
     }
 };
 
@@ -87,11 +88,23 @@ function completionProvider(context) {
         value = findDef(name, context.uri, context.range);
     }
 
+    if (context.isString) {
+        value = _G.get('string');
+    }
+
+    if (!value) {
+        return [];
+    }
+
     if (Is.luaFunction(typeOf(value))) {
         if (!value.type.returns) {
             return [];
         }
         value = value.type.returns[0];
+    }
+
+    if (Is.luaString(value.type)) {
+        value = _G.get('string');
     }
 
     if (!Is.luaTable(typeOf(value)) && !Is.luaModule(value)) {
