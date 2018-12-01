@@ -45,6 +45,7 @@ class SymbolProvider {
                     }
 
                     if (depth++ >= maxDepth) {
+                        depth--;
                         return;
                     }
 
