@@ -131,6 +131,11 @@ function completionProvider(context) {
             type = typeOf(def);
         }
 
+        if (Is.luaString(type) && _G.get('string')) {
+            def = _G.get('string');
+            type = def.type;
+        }
+
         if (Is.luaTable(type)) {
             continue;
         } else {

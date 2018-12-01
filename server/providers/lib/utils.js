@@ -155,8 +155,8 @@ function backward(content, offset, collection) {
             let topChar = bracketStack[bracketStack.length - 1];
             if (topChar == c) {
                 bracketStack.pop();
+                isString = true;
                 if (bracketStack.length === 0) {
-                    isString = true;
                     break;
                 }
             } else {

@@ -429,7 +429,7 @@ function analysis(code, uri) {
         variables.forEach((variable, index) => {
             let name = variable.name;
             if (!isPlaceHolder(name)) {
-                let type = lazyType(new LuaContext(moduleType), node.iterators[0], index);
+                let type = lazyType(new LuaContext(moduleType), node.iterators[0], name, index);
                 let symbol = new LuaSymbol(name, variable.range, currentScope.range, true, uri, LuaSymbolKind.variable, type);
                 symbol.state = theModule.state;
                 (currentFunc || theModule).addChild(symbol);

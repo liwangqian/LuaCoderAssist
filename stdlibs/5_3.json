@@ -192,13 +192,10 @@
         ],
         "returnTypes": [
           {
-            "type": "function"
-          },
-          {
-            "type": "table"
-          },
-          {
             "type": "number"
+          },
+          {
+            "type": "any"
           }
         ]
       },
@@ -285,10 +282,10 @@
         ],
         "returnTypes": [
           {
-            "type": "function"
+            "type": "any"
           },
           {
-            "type": "table"
+            "type": "any"
           }
         ]
       },
