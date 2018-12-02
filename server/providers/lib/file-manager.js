@@ -39,8 +39,8 @@ class FileManager {
     /**
      * @param {String} luaPath
      */
-    setLuaPath(luaPath) {
-        this._luaPaths = luaPath.split(';');
+    addLuaPath(luaPath) {
+        this._luaPaths.push(...luaPath.split(';'));
     }
 
     addFile(moduleName, file) {

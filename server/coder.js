@@ -24,6 +24,7 @@ const fs = require('fs');
 class Coder {
     constructor() {
         this.workspaceRoot = undefined;
+        this.workspaceFolders = undefined;
         this.conn = undefined;
         this.documents = undefined;
         this.settings = {
@@ -82,7 +83,9 @@ class Coder {
             return false;
         }
 
-        this.workspaceFolders = context.workspaceFolders;
+        this.workspaceFolders = context.workspaceFolders.map(folder => {
+            return uri_1.parse(folder.uri).fsPath;
+        });
         this.workspaceRoot = context.workspaceRoot;
         this.conn = context.connection;
         this.documents = context.documents;
@@ -145,9 +148,12 @@ class Coder {
         let fileManager = file_manager_1.instance();
         fileManager.reset();
 
-        if (this.workspaceRoot) {
-            fileManager.setRoots(settings.search.externalPaths.concat(this.workspaceRoot));
-            fileManager.setLuaPath(settings.luaPath.replace(/\{workspaceRoot\}/g, this.workspaceRoot));
+        const workspaceFolders = this.workspaceFolders || (this.workspaceRoot && [this.workspaceRoot]);
+        if (workspaceFolders) {
+            fileManager.setRoots(settings.search.externalPaths.concat(...workspaceFolders));
+            workspaceFolders.forEach(folder => {
+                fileManager.addLuaPath(settings.luaPath.replace(/\{workspaceRoot\}/g, folder));
+            });
         }
 
         preload_1.loadAll(this);
