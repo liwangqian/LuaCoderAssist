@@ -2,6 +2,14 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.3 @ 2018-11-18
+
+- 修复：当文件内存在循环依赖的表结构，例如`Class.__index=Class`时，无法提供完整的文件符号列表
+- 优化：支持("string"):upper()风格的字符串函数补全
+- 修复：for循环的key、value类型推导错误的问题
+- 优化：从README.md文件中删掉修改记录清单
+- 变更：插入函数的document统一采用带类型的格式
+
 ## 2.2.2 @ 2018-11-18
 
 - 修复：显式require love/jit等外部库时，无法提供补全信息(#45)

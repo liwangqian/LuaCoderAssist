@@ -47,12 +47,12 @@ class LDocProvider {
             let ftype = def.type;
             let tabIndex = 3;
             ftype.args.forEach(param => {
-                docString += `-- @param  ${param.name}<\${${tabIndex++}:type}> \${${tabIndex++}:description}\n`;
+                docString += `-- @tparam  \${${tabIndex++}:type} ${param.name} \${${tabIndex++}:description}\n`;
             });
 
-            ftype.returns.forEach((ret, idx) => {
+            ftype.returns.forEach((ret) => {
                 const retType = engine.typeOf(ret);
-                docString += `-- @return R${idx}<${retType.typeName}> \${${tabIndex++}:value description.}\n`;
+                docString += `-- @treturn ${retType.typeName} \${${tabIndex++}:description.}\n`;
             });
 
             let settings = this.coder.settings.ldoc;
