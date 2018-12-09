@@ -2,6 +2,11 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.5 @ 2018-12-09
+
+- 新增：初步支持workspace工程，暂时还不支持动态增删workspace下的目录
+- 修复：foo('string'):此时提供的是string库的函数列表，应该根据函数返回值进行补全
+
 ## 2.2.3 @ 2018-11-18
 
 - 修复：当文件内存在循环依赖的表结构，例如`Class.__index=Class`时，无法提供完整的文件符号列表
