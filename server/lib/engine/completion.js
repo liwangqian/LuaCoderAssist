@@ -88,7 +88,7 @@ function completionProvider(context) {
         value = findDef(name, context.uri, context.range);
     }
 
-    if (context.isString) {
+    if (name.length === 0 && context.isString) {
         value = _G.get('string');
     }
 
