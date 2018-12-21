@@ -177,12 +177,12 @@ function analysis(code, uri) {
             let bName = utils_1.baseNames(variable.base);
             if (bName.length > 0) {
                 base = utils_1.directParent(rootStack, bName);
-                if (!base || !is.luaTable(base.type)) {
+                if (!base || !is.luaTable(typeOf(base))) {
                     return;
                 }
             } else {
                 def = rootStack.search(predict);
-                if (def && !is.luaAny(def.type)) {
+                if (def && !is.luaAny(typeOf(def))) {
                     return;
                 }
             }
@@ -394,7 +394,7 @@ function analysis(code, uri) {
 
     function parseReturnStatement(node) {
         node.arguments.forEach((arg, index) => {
-            parseInitStatement(arg, 0, 'R' + index, arg.range, false, (symbol) => {
+            parseInitStatement(arg, 0, 'R' + index, arg.range, arg.isLocal, (symbol) => {
                 if (currentFunc) {
                     // return from function
                     currentFunc.type.return(index, symbol);
