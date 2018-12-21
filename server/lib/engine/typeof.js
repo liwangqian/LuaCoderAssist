@@ -193,6 +193,9 @@ function parseCallExpression(node, type) {
 
     let R = ftype.returns[type.index || 0];
     if (!Is.lazyValue(R.type)) {
+        if (Is.luaTable(R.type) && (R.isLocal)) {
+            return inheritFrom(R);
+        }
         return R.type;
     }
 
@@ -214,7 +217,25 @@ function parseCallExpression(node, type) {
         R.type.context.func_argt = undefined; // remove
     }
 
+    if (Is.luaTable(retType) && (R.isLocal)) {
+        return inheritFrom(R);
+    }
+
     return retType;
+}
+
+/**
+ * Create a new LuaTable inherit from tableSymbol
+ * @param {LuaTable} tableSymbol the parent table symbol
+ * @returns {LuaTable}
+ */
+function inheritFrom(tableSymbol) {
+    let metaTable = new LuaSymbol('__metatable', tableSymbol.location,
+        tableSymbol.range, true, tableSymbol.uri, LuaSymbolKind.table,
+        new LuaTable());
+    metaTable.state = tableSymbol.state;
+    metaTable.set('__index', tableSymbol);
+    return new LuaTable(metaTable);
 }
 
 function parseSetMetatable(node, type) {

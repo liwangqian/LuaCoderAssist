@@ -362,7 +362,7 @@ function analysis(code, uri) {
         } else {
             if (tableNode.type === 'TableConstructorExpression') {
                 let nodeType = parseTableConstructorExpression(tableNode);
-                tableSymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.table, nodeType);
+                tableSymbol = new LuaSymbol(name, location, range, true, uri, LuaSymbolKind.table, nodeType);
                 tableSymbol.state = theModule.state;
             }
         }
@@ -372,10 +372,10 @@ function analysis(code, uri) {
             if (metaNode.type === 'TableConstructorExpression') {
                 nodeType = parseTableConstructorExpression(metaNode);
             } else {
-                nodeType = lazyType(new LuaContext(moduleType), node.arguments[1], '__mt');
+                nodeType = lazyType(new LuaContext(moduleType), node.arguments[1], '__metatable');
             }
 
-            let metatable = new LuaSymbol('__mt', null, null, true, uri, LuaSymbolKind.table, nodeType);
+            let metatable = new LuaSymbol('__metatable', null, null, true, uri, LuaSymbolKind.table, nodeType);
             metatable.state = theModule.state;
             tableSymbol.type.setmetatable(metatable);
         }
