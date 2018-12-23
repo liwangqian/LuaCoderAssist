@@ -48,7 +48,10 @@ function baseNames(node) {
             _iter(base.base);
         }
 
-        names.push(identName(base));
+        let name = identName(base);
+        if (name) {
+            names.push(identName(base));
+        }
     }
 
     _iter(node);

@@ -236,7 +236,7 @@ function analysis(code, uri) {
         if (node.identifier) {
             location = node.identifier.range;
             name = utils_1.identName(node.identifier);
-            isLocal = node.isLocal;
+            isLocal = node.identifier.isLocal;
         } else {
             location = lvLocation || node.range;
             name = lvName || '@'; // 匿名函数
@@ -248,17 +248,27 @@ function analysis(code, uri) {
         let fsymbol = new LuaSymbol(name, location, range, isLocal, uri, LuaSymbolKind.function, ftype);
         fsymbol.state = theModule.state;
         fsymbol.children = [];
-        let _self,
-            paramOffset = 0;
+        let _self, paramOffset = 0;
 
         if (done) {
             done(fsymbol);
         } else if (fsymbol.isLocal) {
             /**
              * case: `local function foo() end`
+             * case: `local foo; function foo() end`
             */
-            (currentFunc || theModule).addChild(fsymbol);
-            currentScope.push(fsymbol);
+            const predict = (S) => S.name === name;
+            let prevDeclare = rootStack.search(predict)
+            if (prevDeclare) {
+                prevDeclare.location = fsymbol.location;
+                prevDeclare.range = fsymbol.range;
+                prevDeclare.children = fsymbol.children;
+                prevDeclare.type = ftype;
+                prevDeclare.kind = LuaSymbolKind.function;
+            } else {
+                (currentFunc || theModule).addChild(fsymbol);
+                currentScope.push(fsymbol);
+            }
         } else {
 
             /**

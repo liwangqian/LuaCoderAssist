@@ -304,6 +304,10 @@ function parseMemberExpression(node, type) {
     let def = symbol;
     for (let i = 1, size = names.length; i < size; ++i) {
         let t = typeOf(def);
+        if (Is.luaFunction(t) && t.returns) {
+            def = t.returns[0];
+            t = typeOf(def);
+        }
         if (!def || !(Is.luaTable(t) || Is.luaModule(t))) {
             return null;
         }
