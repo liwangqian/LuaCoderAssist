@@ -89,16 +89,18 @@ class LuaSymbol {
      * Construct a new lua symbol
      * @param {String} name Name of the symbol
      * @param {[Number, Number]} location Location of the symbol
-     * @param {[Number, Number]} range Range of the symbol's scope
+     * @param {[Number, Number]} range Range of the symbol's definition
+     * @param {[Number, Number]} scope Scope of the symbol
      * @param {Boolean} isLocal The scope of the symbol
      * @param {String} uri The uri of the Symbol
      * @param {'variable'|'parameter'|'property'|'class'|'module'|'function'} kind The kind name of the symbol
      * @param {LuaFunction|LuaTable|LuaModule|LazyValue} type The type value of the symbol
      */
-    constructor(name, location, range, isLocal, uri, kind, type) {
+    constructor(name, location, range, scope, isLocal, uri, kind, type) {
         this.name = name;
         this.location = Range.clone(location);
         this.range = Range.clone(range);
+        this.scope = Range.clone(scope);
         this.isLocal = isLocal;
         this.uri = uri;
         this.kind = kind;

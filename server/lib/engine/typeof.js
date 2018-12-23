@@ -238,12 +238,12 @@ function unwrapTailCall(ftype, stype) {
 }
 /**
  * Create a new LuaTable inherit from tableSymbol
- * @param {LuaTable} tableSymbol the parent table symbol
+ * @param {LuaSymbol} tableSymbol the parent table symbol
  * @returns {LuaTable}
  */
 function inheritFrom(tableSymbol) {
     let metaTable = new LuaSymbol('__metatable', tableSymbol.location,
-        tableSymbol.range, true, tableSymbol.uri, LuaSymbolKind.table,
+        tableSymbol.range, tableSymbol.scope, true, tableSymbol.uri, LuaSymbolKind.table,
         new LuaTable());
     metaTable.state = tableSymbol.state;
     metaTable.set('__index', tableSymbol);
@@ -283,7 +283,7 @@ function parseForStdlibFunction(funcName, argsType, type) {
         case 'setmetatable':
             let table = argsType[0].type;
             if (Is.luaTable(table)) {
-                let mt = new LuaSymbol('__mt', null, null, true, type.context.module.uri, LuaSymbolKind.table, argsType[1].type);
+                let mt = new LuaSymbol('__mt', null, null, null, true, type.context.module.uri, LuaSymbolKind.table, argsType[1].type);
                 table.setmetatable(mt);
             }
             return table;
@@ -362,7 +362,7 @@ function parseTableConstructorExpression(node, type) {
 
         let name = field.key.name;
         let ft = parseAstNode(field.value, type);
-        let fs = new LuaSymbol(name, field.key.range, node.range, true, type.context.module.uri, LuaSymbolKind.property, ft);
+        let fs = new LuaSymbol(name, field.key.range, field.key.range, node.range, true, type.context.module.uri, LuaSymbolKind.property, ft);
         table.set(name, fs);
     });
     return table;

@@ -50,12 +50,12 @@ class SymbolProvider {
                     }
 
                     const document = yield this.coder.document(def.uri);
-                    const RangeOf = (loc) => {
-                        return langserver_1.Range.create(document.positionAt(loc[0]), document.positionAt(loc[1]));
+                    const RangeOf = (start, end) => {
+                        return langserver_1.Range.create(document.positionAt(start), document.positionAt(end));
                     }
                     const symbol = langserver_1.DocumentSymbol.create(
                         def.name, utils_2.symbolSignature(def), mapSymbolKind(def.kind),
-                        RangeOf(def.range), RangeOf(def.location),
+                        RangeOf(def.location[0], def.range[1]), RangeOf(def.location[0], def.location[1]),
                         def.children
                             ? yield collectAllChildren(def.children)
                             : (is.luaTable(typeOf(def))

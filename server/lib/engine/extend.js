@@ -44,7 +44,7 @@ function loadExtentLib(filePath, moduleName) {
 exports.loadExtentLib = loadExtentLib;
 
 const newExtentSymbol = (name, isLocal, kind, type) => {
-    let newSymbol = new LuaSymbol(name, null, null, isLocal, null, kind, type);
+    let newSymbol = new LuaSymbol(name, null, null, null, isLocal, null, kind, type);
     newSymbol.state = state;
     return newSymbol;
 }
