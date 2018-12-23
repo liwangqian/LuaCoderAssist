@@ -2,6 +2,15 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.6 @ 2018-12-23
+
+- 修复：#49 通过赋值表达式`t.x = 123`动态地向表添加成员变量时，无法生效的问题
+- 修复：#49 问题2，当函数返回的是局部表时，两次调用该函数得到的表不应该是相同的，否则向其中一个表添加成员时，会影响所有该函数返回的表
+- 修复：#49 第三种场景，`local foo; function foo() end`存在两个foo符号的问题
+- 修复：#50 当返回一个函数调用(尾调用)时，函数的返回值类型只推导了尾调用函数的第一个返回值
+- 修复：形如`local xx = foo(params).foo()`的表达式，`xx`变量的类型推导失败的问题
+- 优化：#48区分符号的range和scope，解决符号outline不跟随鼠标的问题，但是该修改无法解决在表定义的外部定义函数的场景,比如：`local tbl={}; function tb.foo() end`，此时foo方法不在tb的range内
+
 ## 2.2.5 @ 2018-12-09
 
 - 新增：初步支持workspace工程，暂时还不支持动态增删workspace下的目录
