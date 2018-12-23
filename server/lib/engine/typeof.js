@@ -192,6 +192,10 @@ function parseCallExpression(node, type) {
     }
 
     let R = ftype.returns[type.index || 0];
+    if (R === undefined) {
+        return unwrapTailCall(ftype, type);
+    }
+
     if (!Is.lazyValue(R.type)) {
         if (Is.luaTable(R.type) && (R.isLocal)) {
             return inheritFrom(R);
@@ -224,6 +228,14 @@ function parseCallExpression(node, type) {
     return retType;
 }
 
+function unwrapTailCall(ftype, stype) {
+    if (!ftype.tailCall) {
+        return LuaBasicTypes.any;
+    }
+    let tailType = ftype.tailCall;
+    tailType.index = stype.index - ftype.returns.length + 1;
+    return deduceType(tailType);
+}
 /**
  * Create a new LuaTable inherit from tableSymbol
  * @param {LuaTable} tableSymbol the parent table symbol

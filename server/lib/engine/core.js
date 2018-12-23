@@ -393,8 +393,12 @@ function analysis(code, uri) {
     }
 
     function parseReturnStatement(node) {
+        let tailArgIdx = node.arguments.length - 1;
         node.arguments.forEach((arg, index) => {
             parseInitStatement(arg, 0, 'R' + index, arg.range, arg.isLocal, (symbol) => {
+                if ((tailArgIdx === index) && (arg.type === "CallExpression")) {
+                    currentFunc.type.tailCall = symbol.type; //LazyValue
+                }
                 if (currentFunc) {
                     // return from function
                     currentFunc.type.return(index, symbol);

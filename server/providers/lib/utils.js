@@ -297,6 +297,10 @@ function symbolSignature(symbol, override) {
         return typeName;
     });
 
+    if (type.tailCall) {
+        ret.push('...');
+    }
+
     let args = (override !== undefined) ? type.variants[override].args : type.args;
     details.push('function ', symbol.name);
     details.push('(' + args.map(p => p.displayName || p.name).join(', ') + ') -> ');
