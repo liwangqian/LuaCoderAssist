@@ -205,7 +205,15 @@ function parseCallExpression(node, type) {
 
     // 推导调用参数类型，用来支持推导返回值类型
     const func_argt = node.arguments.map((arg, index) => {
-        return { name: ftype.args[index].name, type: parseAstNode(arg, type) };
+        let argType;
+        if (node.isParsed) { // 防止循环推导
+            node.isParsed = false;
+            argType = LuaBasicTypes.any;
+        } else {
+            node.isParsed = true;
+            argType = parseAstNode(arg, type);
+        }
+        return { name: ftype.args[index].name, type: argType };
     });
 
     let rt = parseForStdlibFunction(node.base.name, func_argt, type);

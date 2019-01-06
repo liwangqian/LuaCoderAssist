@@ -407,7 +407,7 @@ function analysis(code, uri) {
         let tailArgIdx = node.arguments.length - 1;
         node.arguments.forEach((arg, index) => {
             parseInitStatement(arg, 0, 'R' + index, arg.range, arg.range, arg.isLocal, (symbol) => {
-                if ((tailArgIdx === index) && (arg.type === "CallExpression")) {
+                if ((tailArgIdx === index) && (arg.type === "CallExpression") && currentFunc) {
                     currentFunc.type.tailCall = symbol.type; //LazyValue
                 }
                 if (currentFunc) {
