@@ -2,6 +2,12 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.6 @ 2019-01-09
+
+- 修复：#52 当存在`a = foo(a, b); b = foo(a, b)`的表达式时，存在循环类型推导，导致死循环
+- 修复：#52 循环推导导致死循环，server无响应
+- 修复：#53 由于workspaceFolder为undefined导致server初始化失败
+
 ## 2.2.6 @ 2018-12-23
 
 - 修复：#49 通过赋值表达式`t.x = 123`动态地向表添加成员变量时，无法生效的问题
