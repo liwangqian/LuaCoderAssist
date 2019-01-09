@@ -13,7 +13,7 @@ function server(connection) {
 
     connection.onInitialize((params) => {
         var ok = coder.init({
-            workspaceFolders: params.workspaceFolders,
+            workspaceFolders: params.workspaceFolders || [],
             workspaceRoot: params.rootPath,
             connection: connection,
             documents: documents
