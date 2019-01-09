@@ -70,42 +70,61 @@ function deduceType(type) {
 }
 
 function parseAstNode(node, type) {
-    if (!node) return null;
+    if (!node || node.isParsed) return null;
+    let varType;
+    node.isParsed = true; /*防止循环推导*/
     switch (node.type) {
         case 'ref':
-            return parseRefNode(node);
+            varType = parseRefNode(node);
+            break;
         case 'StringLiteral':
-            return LuaBasicTypes.string;
+            varType = LuaBasicTypes.string;
+            break;
         case 'NumericLiteral':
-            return LuaBasicTypes.number;
+            varType = LuaBasicTypes.number;
+            break;
         case 'BooleanLiteral':
-            return LuaBasicTypes.boolean;
+            varType = LuaBasicTypes.boolean;
+            break;
         case 'NilLiteral':
-            return LuaBasicTypes.any;
+            varType = LuaBasicTypes.any;
+            break;
         case 'Identifier':
-            return parseIdentifier(node, type);
+            varType = parseIdentifier(node, type);
+            break;
         case 'UnaryExpression':
-            return parseUnaryExpression(node, type);
+            varType = parseUnaryExpression(node, type);
+            break;
         case 'BinaryExpression':
-            return parseBinaryExpression(node, type);
+            varType = parseBinaryExpression(node, type);
+            break;
         case 'MemberExpression':
-            return parseMemberExpression(node, type);
+            varType = parseMemberExpression(node, type);
+            break;
         case 'StringCallExpression':
         case 'CallExpression':
-            return parseCallExpression(node, type);
+            varType = parseCallExpression(node, type);
+            break;
         case 'LogicalExpression':
-            return parseLogicalExpression(node, type);
+            varType = parseLogicalExpression(node, type);
+            break;
         case 'TableConstructorExpression':
-            return parseTableConstructorExpression(node, type);
+            varType = parseTableConstructorExpression(node, type);
+            break;
         case 'VarargLiteral':
-            return parseVarargLiteral(node, type);
+            varType = parseVarargLiteral(node, type);
+            break;
         case 'MergeType':
-            return mergeType(node.left, node.right);
+            varType = mergeType(node.left, node.right);
+            break;
         case 'setmetatable':
-            return setmetatable(node, type);
+            varType = setmetatable(node, type);
+            break;
         default:
-            return null;
+            varType = null;
     }
+    node.isParsed = false;
+    return varType;
 }
 
 function setmetatable(node, type) {
@@ -339,6 +358,7 @@ function parseUnaryExpression(node) {
 }
 
 function parseBinaryExpression(node, type) {
+    // 暂时不支持运算符重载
     switch (node.operator) {
         case '..':
             return LuaBasicTypes.string;
@@ -355,7 +375,7 @@ function parseBinaryExpression(node, type) {
         case '^':
         case '/':
         case '%':
-            return parseAstNode(node.right, type);
+            return LuaBasicTypes.number;
         default:
             return null;
     }
