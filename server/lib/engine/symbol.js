@@ -389,6 +389,7 @@ class LuaFunction extends LuaTypeBase {
 
         /*support for override functions with different params*/
         this.variants = undefined;
+        this.isConstructor = false;
     }
 
     /**

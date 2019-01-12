@@ -172,6 +172,7 @@ function parseFunctionJsonObject(node, name) {
     func.description = node.description;
     func.link = node.link;
     func.insertSnippet = node.insertSnippet;
+    func.isConstructor = (node.kind === "constructor") ? true : false;
     func.args = parseArgumentsObject(node.args);
     func.returns = parseReturnsObject(node.returnTypes);
     parseVariantsArgumentsObject(node.variants, func);

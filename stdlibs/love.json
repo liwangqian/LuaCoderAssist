@@ -71,6 +71,7 @@
                             },
                             "newCompressedData": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -99,6 +100,7 @@
                             },
                             "newImageData": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -302,6 +304,7 @@
                         "fields": {
                             "newVideoStream": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -1054,6 +1057,7 @@
                             },
                             "newChannel": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Create a new unnamed thread channel.\n\nOne use for them is to pass new unnamed channels to other threads via Channel:push",
                                 "args": [],
                                 "returnTypes": [
@@ -1066,6 +1070,7 @@
                             },
                             "newThread": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -1255,6 +1260,7 @@
                         "fields": {
                             "newCursor": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -1675,6 +1681,7 @@
                             },
                             "newShader": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -1743,6 +1750,7 @@
                             },
                             "newCanvas": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Creates a new Canvas object for offscreen rendering.\n\nAntialiased Canvases have slightly higher system requirements than normal Canvases. Additionally, the supported maximum number of MSAA samples varies depending on the system. Use love.graphics.getSystemLimit to check.\n\nIf the number of MSAA samples specified is greater than the maximum supported by the system, the Canvas will still be created but only using the maximum supported amount (this includes 0.)",
                                 "args": [
                                     {
@@ -1937,6 +1945,7 @@
                             },
                             "newImage": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -2229,6 +2238,7 @@
                             },
                             "newFont": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -2484,6 +2494,7 @@
                             },
                             "newParticleSystem": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Creates a new ParticleSystem.",
                                 "args": [
                                     {
@@ -3293,6 +3304,7 @@
                             },
                             "newQuad": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Creates a new Quad.\n\nThe purpose of a Quad is to describe the result of the following transformation on any drawable object. The object is first scaled to dimensions sw * sh. The Quad then describes the rectangular area of dimensions width * height whose upper left corner is at position (x, y) inside the scaled object.",
                                 "args": [
                                     {
@@ -3490,6 +3502,7 @@
                             },
                             "newVideo": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -3526,6 +3539,7 @@
                             },
                             "newSpriteBatch": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Creates a new SpriteBatch object.",
                                 "args": [
                                     {
@@ -3550,6 +3564,7 @@
                             },
                             "newText": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Creates a new drawable Text object.",
                                 "args": [
                                     {
@@ -3730,6 +3745,7 @@
                             },
                             "newImageFont": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -3794,6 +3810,7 @@
                             },
                             "newMesh": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -4164,6 +4181,7 @@
                             },
                             "newBezierCurve": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -4271,6 +4289,7 @@
                             },
                             "newRandomGenerator": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -4306,6 +4325,7 @@
                             },
                             "newTransform": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -4677,6 +4697,7 @@
                         "fields": {
                             "newDecoder": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -4713,6 +4734,7 @@
                             },
                             "newSoundData": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -4918,6 +4940,7 @@
                             },
                             "newFile": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Creates a new File object. It needs to be opened before it can be accessed.",
                                 "args": [
                                     {
@@ -5028,6 +5051,7 @@
                             },
                             "newFileData": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -5393,6 +5417,7 @@
                             },
                             "newWorld": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Creates a new World.",
                                 "args": [
                                     {
@@ -5418,6 +5443,7 @@
                             },
                             "newGearJoint": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Create a gear joint connecting two joints.\n\nThe gear joint connects two joints that must be either prismatic or revolute joints. Using this joint requires that the joints it uses connect their respective bodies to the ground and have the ground as the first body. When destroying the bodies and joints you must make sure you destroy the gear joint before the other joints.\n\nThe gear joint has a ratio the determines how the angular or distance values of the connected joints relate to each other. The formula coordinate1 + ratio * coordinate2 always has a constant value that is set when the gear joint is created.",
                                 "args": [
                                     {
@@ -5456,6 +5482,7 @@
                             },
                             "newDistanceJoint": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Create a distance joint between two bodies.\n\nThis joint constrains the distance between two points on two bodies to be constant. These two points are specified in world coordinates and the two bodies are assumed to be in place when this joint is created. The first anchor point is connected to the first body and the second to the second body, and the points define the length of the distance joint.",
                                 "args": [
                                     {
@@ -5501,6 +5528,7 @@
                             },
                             "newWheelJoint": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Creates a wheel joint.",
                                 "args": [
                                     {
@@ -5536,6 +5564,7 @@
                             },
                             "newRopeJoint": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Create a joint between two bodies. Its only function is enforcing a max distance between these bodies.",
                                 "args": [
                                     {
@@ -5574,6 +5603,7 @@
                             },
                             "newMouseJoint": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Create a joint between a body and the mouse.\n\nThis joint actually connects the body to a fixed point in the world. To make it follow the mouse, the fixed point must be updated every timestep (example below).\n\nThe advantage of using a MouseJoint instead of just changing a body position directly is that collisions and reactions to other joints are handled by the physics engine.",
                                 "args": [
                                     {
@@ -5596,6 +5626,7 @@
                             },
                             "newFrictionJoint": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Create a friction joint between two bodies. A FrictionJoint applies friction to a body.",
                                 "args": [
                                     {
@@ -5625,6 +5656,7 @@
                             },
                             "newWeldJoint": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -5716,6 +5748,7 @@
                             },
                             "newRevoluteJoint": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -5780,6 +5813,7 @@
                             },
                             "newChainShape": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -5826,6 +5860,7 @@
                             },
                             "newPrismaticJoint": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -5935,6 +5970,7 @@
                             },
                             "newRectangleShape": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -5979,6 +6015,7 @@
                             },
                             "newBody": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Creates a new body.\n\nThere are three types of bodies. Static bodies do not move, have a infinite mass, and can be used for level boundaries. Dynamic bodies are the main actors in the simulation, they collide with everything. Kinematic bodies do not react to forces and only collide with dynamic bodies.\n\nThe mass of the body gets calculated when a Fixture is attached or removed, but can be changed at any time with Body:setMass or Body:resetMassData.",
                                 "args": [
                                     {
@@ -6007,6 +6044,7 @@
                             },
                             "newPulleyJoint": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Create a pulley joint to join two bodies to each other and the ground.\n\nThe pulley joint simulates a pulley with an optional block and tackle. If the ratio parameter has a value different from one, then the simulated rope extends faster on one side than the other. In a pulley joint the total length of the simulated rope is the constant length1 + ratio * length2, which is set when the pulley joint is created.\n\nPulley joints can behave unpredictably if one side is fully extended. It is recommended that the method setMaxLengths  be used to constrain the maximum lengths each side can attain.",
                                 "args": [
                                     {
@@ -6058,6 +6096,7 @@
                             },
                             "newEdgeShape": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Creates a edge shape.",
                                 "args": [
                                     {
@@ -6083,6 +6122,7 @@
                             },
                             "newMotorJoint": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -6129,6 +6169,7 @@
                             },
                             "newCircleShape": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -6163,6 +6204,7 @@
                             },
                             "newPolygonShape": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -6203,6 +6245,7 @@
                             },
                             "newFixture": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "description": "Creates and attaches a Fixture to a body.",
                                 "args": [
                                     {
@@ -6474,6 +6517,7 @@
                             },
                             "newSource": {
                                 "type": "function",
+                                "kind": "constructor",
                                 "returnTypes": [
                                     {
                                         "type": "ref",
@@ -9569,6 +9613,7 @@
                 },
                 "newImageData": {
                     "type": "function",
+                    "kind": "constructor",
                     "returnTypes": [
                         {
                             "type": "ref",

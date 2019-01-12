@@ -215,8 +215,8 @@ function parseCallExpression(node, type) {
         return unwrapTailCall(ftype, type);
     }
 
-    if (!Is.lazyValue(R.type)) {
-        if (Is.luaTable(R.type) && (R.isLocal)) {
+    if (!Is.lazyValue(typeOf(R))) {
+        if (Is.luaTable(R.type) && (R.isLocal || ftype.isConstructor)) {
             return inheritFrom(R);
         }
         return R.type;
@@ -248,7 +248,7 @@ function parseCallExpression(node, type) {
         R.type.context.func_argt = undefined; // remove
     }
 
-    if (Is.luaTable(retType) && (R.isLocal)) {
+    if (Is.luaTable(retType) && (R.isLocal || ftype.isConstructor)) {
         return inheritFrom(R);
     }
 

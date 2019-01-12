@@ -191,7 +191,7 @@ function analysis(code, uri) {
             parseInitStatement(init, idx, name, variable.range, variable.range, variable.isLocal, (symbol) => {
                 if (base) { // base.abc = xyz
                     ensureTable(base, LuaSymbolKind.table);
-                    base.set(name, symbol);
+                    base.set(name, symbol, true);
                     return;
                 }
 
