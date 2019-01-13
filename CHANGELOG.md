@@ -2,7 +2,12 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
-## 2.2.6 @ 2019-01-09
+## 2.2.8 @ 2019-01-13
+
+- 新增：#44 支持require文件路径补全
+- 优化：#49 支持在api描述文件中标志构造函数，已支持创建新对象，需要api的描述文件中对函数添加"kind": "constructor"属性
+
+## 2.2.7 @ 2019-01-09
 
 - 修复：#52 当存在`a = foo(a, b); b = foo(a, b)`的表达式时，存在循环类型推导，导致死循环
 - 修复：#52 循环推导导致死循环，server无响应
