@@ -30,7 +30,7 @@ function server(connection) {
                 definitionProvider: true,
                 completionProvider: {
                     resolveProvider: true,
-                    triggerCharacters: [".", ":"]
+                    triggerCharacters: [".", ":", "'", '"']
                 },
                 hoverProvider: true,
                 signatureHelpProvider: {

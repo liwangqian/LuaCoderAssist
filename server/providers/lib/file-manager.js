@@ -7,13 +7,14 @@ const fs = require('fs');
 
 class FileManager {
     constructor() {
-        this._files = {};
+        this._moduleFileMap = {};
+        this._files = [];
         this._roots = [];
         this._luaPaths = [];
     }
 
     reset() {
-        this._files = {};
+        this._moduleFileMap = {};
         this._roots = [];
     }
 
@@ -29,7 +30,7 @@ class FileManager {
                 }
             }
         }
-        return this._files[moduleName] || [];
+        return this._moduleFileMap[moduleName] || [];
     }
 
     setRoots(rootPaths) {
@@ -44,18 +45,21 @@ class FileManager {
     }
 
     addFile(moduleName, file) {
-        this._files[moduleName] = this._files[moduleName] || [];
-        this._files[moduleName].push(file);
+        this._moduleFileMap[moduleName] = this._moduleFileMap[moduleName] || [];
+        this._moduleFileMap[moduleName].push(file);
+        this._files.push(file);
     }
 
     delFile(moduleName, file) {
-        let files = this._files[moduleName];
+        let files = this._moduleFileMap[moduleName];
         if (!files) {
             return;
         }
 
         let index = files.indexOf(file);
         index >= 0 && files.splice(index, 1);
+        index = this._files.indexOf(file);
+        index >= 0 && this._files.splice(index, 1);
     }
 
     searchFiles(options, extname) {
@@ -66,13 +70,18 @@ class FileManager {
             utils_1.searchFile(root_, options, (root, name) => {
                 if (path_1.extname(name) == extname) {
                     let moduleName = path_1.basename(name, extname);
-                    this._files[moduleName] = this._files[moduleName] || [];
-                    this._files[moduleName].push(path_1.resolve(root, name));
+                    this.addFile(moduleName, path_1.resolve(root, name));
                 }
             }, (path_) => {
                 trace.info(`search ${path_} end.`)
             });
         }
+    }
+
+    matchPath(pathSegment) {
+        return this._files.filter(file => {
+            return file.includes(pathSegment);
+        });
     }
 };
 

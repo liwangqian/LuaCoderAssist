@@ -101,7 +101,7 @@ function analysis(code, uri) {
     }
 
     function parseDependence(node, param) {
-        if (param.type !== 'StringLiteral') {
+        if (!param || param.type !== 'StringLiteral') {
             return;
         }
 

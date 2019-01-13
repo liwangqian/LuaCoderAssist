@@ -5,6 +5,8 @@ const utils = require('./lib/utils');
 const engine = require('../lib/engine');
 const is = require('../lib/engine/is');
 const awaiter = require('./lib/awaiter');
+const fileManager = require('./lib/file-manager');
+const path = require('path')
 
 class CompletionProvider {
     constructor(coder) {
@@ -21,6 +23,10 @@ class CompletionProvider {
             let ref = utils.symbolAtPosition(position, document, { backward: true });
             if (ref === undefined) {
                 return undefined;
+            }
+
+            if (ref.completePath) {
+                return this._completePath(ref);
             }
 
             let ctx = new engine.CompletionContext(ref.name, ref.range, uri);
@@ -46,6 +52,10 @@ class CompletionProvider {
     }
 
     resolveCompletion(item) {
+        if (!item.data) {
+            return item;
+        }
+    
         let data = this.cache[item.data.index];
         const override = item.data.override;
         const selfAsParam = item.data.selfAsParam;
@@ -77,7 +87,49 @@ class CompletionProvider {
             list.push(symbol);
         }
     }
+
+    _completePath(ref) {
+        const fmInstance = fileManager.instance();
+        let refPath = ref.name.replace(/\./g, path.sep);
+        let matchedFiles = fmInstance.matchPath(refPath);
+        let pathList = [];
+        if (path.sep == '\\') {
+            refPath = refPath.replace(/\\/g, '\\\\');
+        }
+        const subDirNameReg = RegExp(refPath + `([^\./\\\\]+)`);
+        let existSubDir = {};
+        matchedFiles.forEach(file => {
+            let label;
+            let detail;
+            if (refPath === "") { //trigger by ' or "
+                label = path.basename(file, '.lua');
+                detail = file;
+            } else {
+                label = subDirName(file, subDirNameReg);
+                if (!label) {
+                    return;
+                }
+                if (existSubDir[label]) {
+                    return;
+                } else {
+                    existSubDir[label] = true;
+                    detail = ref.name + label;
+                }
+            }
+
+            let item = langserver.CompletionItem.create(label);
+            item.kind = langserver.CompletionItemKind.Module;
+            item.detail = detail;
+            pathList.push(item);
+        });
+        return pathList;
+    }
 };
+
+function subDirName(filePath, regExp) {
+    let matches = filePath.match(regExp);
+    return matches && matches[1];
+}
 
 exports.CompletionProvider = CompletionProvider;
 

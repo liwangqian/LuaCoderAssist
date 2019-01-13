@@ -259,8 +259,37 @@ function parseContext(content) {
 
 exports.parseContext = parseContext;
 
+function documentLineAt(doc, position) {
+    let lineBeg = { line: position.line, character: 0 };
+    let lineEnd = { line: position.line, character: Infinity };
+    return doc.getText({ start: lineBeg, end: lineEnd });
+}
+
+const REQUIRE_EXPR_REGEDX = /require\s{0,}\(?\s{0,}[\"|\'](.{0,})[\"|\']\s{0,}\)?/;
+function parseRequireExpr(line, cursor, options) {
+    let matches = line.match(REQUIRE_EXPR_REGEDX);
+    if (!matches || matches.length < 2) {
+        return false;
+    }
+
+    if ((cursor < (matches.index + 8)) || (cursor >= (matches.index + matches[0].length))) {
+        return false;
+    }
+
+    return { name: matches[1], completePath: true };
+}
 function symbolAtPosition(position, doc, options) {
     let cursor = doc.offsetAt(position);
+
+    //for path completion
+    let line = documentLineAt(doc, position);
+    if (line.length >= 11) { //length of require("")
+        let result = parseRequireExpr(line, position.character, options);
+        if (result) {
+            return result;
+        }
+    }
+
     let text = doc.getText();
     let range = extendTextRange(text, cursor, options);
     if (range.start < 0) {

@@ -54,7 +54,7 @@ class DiagnosticProvider {
     _lintTask(uri) {
         return awaiter.await(this, void 0, void 0, function* () {
             const start = process.hrtime();
-            const lastTask = this.lastTasks[uri];
+            let lastTask = this.lastTasks[uri];
             lastTask.timerId = undefined;
 
             const document = yield this.coder.document(uri);
