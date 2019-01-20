@@ -239,10 +239,10 @@ function analysis(code, uri) {
             name = utils_1.identName(node.identifier);
             isLocal = node.identifier.isLocal;
         } else {
-            location = lvLocation || node.range;
+            location = node.range;
             name = lvName || utils_1.safeName(node); // 匿名函数
-            isLocal = lvIsLocal || true;
-            scope[0] = location[0]; // enlarge to include the location
+            isLocal = lvIsLocal || false;
+            scope[0] = (lvLocation || location)[0]; // enlarge to include the location
         }
 
         let ftype = new LuaFunction();
@@ -251,25 +251,27 @@ function analysis(code, uri) {
         fsymbol.children = [];
         let _self, paramOffset = 0;
 
-        if (done) {
-            done(fsymbol);
-        } else if (fsymbol.isLocal) {
+        if (fsymbol.isLocal) {
             /**
              * case: `local function foo() end`
              * case: `local foo; function foo() end`
+             * case: `local foo; foo = function() end`
             */
-            const predict = (S) => S.name === name;
-            let prevDeclare = rootStack.search(predict)
-            if (prevDeclare) {
-                // prevDeclare.location = fsymbol.location;
-                prevDeclare.range = fsymbol.range;
-                prevDeclare.children = fsymbol.children;
-                prevDeclare.type = ftype;
-                prevDeclare.kind = LuaSymbolKind.function;
-            } else {
-                (currentFunc || theModule).addChild(fsymbol);
-                currentScope.push(fsymbol);
-            }
+           const predict = (S) => S.name === name;
+           let prevDeclare = rootStack.search(predict)
+           if (prevDeclare) {
+            //    prevDeclare.location = fsymbol.location;
+               prevDeclare.range = fsymbol.range;
+               prevDeclare.scope = fsymbol.scope;
+               prevDeclare.children = fsymbol.children;
+               prevDeclare.type = ftype;
+               prevDeclare.kind = LuaSymbolKind.function;
+           } else {
+               (currentFunc || theModule).addChild(fsymbol);
+               currentScope.push(fsymbol);
+           }
+        } else if (done) {
+            done(fsymbol);
         } else {
 
             /**
