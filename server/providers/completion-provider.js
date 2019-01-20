@@ -29,6 +29,10 @@ class CompletionProvider {
                 return this._completePath(ref);
             }
 
+            if (params.context.triggerCharacter === "\"" || params.context.triggerCharacter === "'") {
+                return undefined;
+            }
+
             let ctx = new engine.CompletionContext(ref.name, ref.range, uri);
             ctx.isString = ref.isString;
             let items = engine.completionProvider(ctx);

@@ -2,10 +2,12 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
-## 2.2.8 @ 2019-01-13
+## 2.2.8 @ 2019-01-20
 
 - 新增：#44 支持require文件路径补全
 - 优化：#49 支持在api描述文件中标志构造函数，已支持创建新对象，需要api的描述文件中对函数添加"kind": "constructor"属性
+- 修复：#55 当文件中存在匿名函数时，无法提供文件内符号列表
+- 修复：#56 修复访问null的数据
 
 ## 2.2.7 @ 2019-01-09
 

@@ -240,7 +240,7 @@ function analysis(code, uri) {
             isLocal = node.identifier.isLocal;
         } else {
             location = lvLocation || node.range;
-            name = lvName || '@'; // 匿名函数
+            name = lvName || utils_1.safeName(node); // 匿名函数
             isLocal = lvIsLocal || true;
             scope[0] = location[0]; // enlarge to include the location
         }

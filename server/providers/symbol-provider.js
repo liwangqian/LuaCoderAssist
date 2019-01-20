@@ -23,6 +23,9 @@ function mapSymbolKind(kind) {
 class SymbolProvider {
     constructor(coder) {
         this.coder = coder;
+        this._isShow = (name) => {
+            return coder.settings.symbol.showAnonymousFunction || !name.includes("@");
+        }
     }
 
     provideDocumentSymbols(uri) {
@@ -46,6 +49,10 @@ class SymbolProvider {
 
                     if (depth++ >= maxDepth) {
                         depth--;
+                        return;
+                    }
+
+                    if (!this._isShow(def.name)) {
                         return;
                     }
 

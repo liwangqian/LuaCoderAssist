@@ -119,6 +119,11 @@
           "default": false,
           "description": "Allow defining globals implicitly by setting them."
         },
+        "LuaCoderAssist.symbol.showAnonymousFunction": {
+          "type":"boolean",
+          "default":true,
+          "description": "Show anonymous function in document symbol list."
+        },
         "LuaCoderAssist.luacheck.enable": {
           "type": "boolean",
           "default": true,

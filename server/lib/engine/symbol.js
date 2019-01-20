@@ -123,10 +123,13 @@ class LuaSymbol {
     }
 
     get valid() {
-        return this.state.valid;
+        return this.state && this.state.valid;
     }
 
     invalidate() {
+        if (!this.state) {
+            return;
+        }
         this.state.valid = false;
     }
 
