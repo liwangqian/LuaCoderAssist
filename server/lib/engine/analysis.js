@@ -19,23 +19,33 @@ const { LoadedPackages } = require('./luaenv');
 const { invalidateModuleSymbols, clearInvalidSymbols } = require('./utils');
 const { analysis } = require('./core');
 
+function addLoadedPackage(name, pkg) {
+    // 用于方便查找定义
+    LoadedPackages[pkg.uri] = pkg;
+    let pkgs = LoadedPackages[name];
+    if (!pkgs) {
+        pkgs = {};
+        LoadedPackages[name] = pkgs;
+    }
+    pkgs[pkg.uri] = pkg;
+}
+
+const MODULE_NAME_REGEX = /(\w+)?[\\\\|/]?init\.lua/;
+function dumpPackageWithInit(pkg) {
+    const matches = MODULE_NAME_REGEX.exec(pkg.uri);
+    if (matches) {
+        addLoadedPackage(matches[1], pkg);
+    }
+}
+
 function parseDocument(code, uri, logger) {
     try {
         invalidateModuleSymbols(uri);
-
-        let mdl = analysis(code, uri);
-
-        // 用于方便查找定义
-        LoadedPackages[uri] = mdl;
-        let packages = LoadedPackages[mdl.name];
-        if (!packages) {
-            packages = {};
-            LoadedPackages[mdl.name] = packages;
-        }
-        packages[mdl.uri] = mdl;
-
-        clearInvalidSymbols(mdl.type.moduleMode, mdl.name);
-        return mdl;
+        let pkg = analysis(code, uri);
+        addLoadedPackage(pkg.name, pkg);
+        dumpPackageWithInit(pkg);
+        clearInvalidSymbols(pkg.type.moduleMode, pkg.name);
+        return pkg;
     } catch (err) {
         if (!err.stack.includes('luaparse.js')) {
             logger.error(err.stack);
