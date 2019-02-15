@@ -1,7 +1,6 @@
 'use strict';
 
 const langserver_1 = require('vscode-languageserver');
-const path_1 = require('path');
 const uri_1 = require('vscode-uri').default;
 const tracer_1 = require('./tracer');
 const preload_1 = require('./preload');
@@ -183,14 +182,13 @@ class Coder {
             let uri = event.uri;
             let etype = event.type;
             let filePath = uri_1.parse(uri).fsPath;
-            let fileName = path_1.basename(filePath, '.lua');
             let fileManager = file_manager_1.instance();
             switch (etype) {
                 case 1: //create
-                    fileManager.addFile(fileName, filePath);
+                    fileManager.addFile(filePath);
                     break;
                 case 3: //delete
-                    fileManager.delFile(fileName, filePath);
+                    fileManager.delFile(filePath);
                     let _package = engine.LoadedPackages[uri];
                     if (_package) {
                         _package.invalidate();

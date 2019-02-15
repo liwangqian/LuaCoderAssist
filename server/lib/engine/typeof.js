@@ -193,12 +193,12 @@ function parseCallExpression(node, type) {
         let modulePath = (node.argument || node.arguments[0]).value;
         let moduleName = modulePath.match(/\w+(-\w+)*$/)[0];
         let shortPath = modulePath.replace(/\./g, '/');
-        let mdls = LoadedPackages[moduleName];
+        let pkgs = LoadedPackages[moduleName];
         // TODO：增加配置项，用来配置搜索路径，然后模拟lua的搜索方法搜索最优匹配模块
-        for (const uri in mdls) {
+        for (const uri in pkgs) {
             if (uri.includes(shortPath)) { // 查找最优匹配，如果存在多个最优匹配，则返回第一个
-                const ret = mdls[uri].type.return;
-                return ret && ret.type;
+                const ret = pkgs[uri].type.return;
+                return ret && inheritFrom(ret);
             }
         }
 
