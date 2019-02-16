@@ -2,6 +2,13 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.9 @ 2019-02-16
+
+- 优化：#57 require and init.lua for AwesomeWM
+- 修复：#55 当文件中存在匿名函数时，无法提供文件内符号列表;
+- 修复：#56 修复访问null的数据
+- 修复：#49 CASE 3
+
 ## 2.2.8 @ 2019-01-20
 
 - 新增：#44 支持require文件路径补全

@@ -3,7 +3,7 @@
   "displayName": "LuaCoderAssist",
   "description": "lua coder assistant in javascript for vscode",
   "icon": "images/icon.png",
-  "version": "2.2.8",
+  "version": "2.2.9",
   "publisher": "liwangqian",
   "engines": {
     "vscode": "^1.25.0"
@@ -120,8 +120,8 @@
           "description": "Allow defining globals implicitly by setting them."
         },
         "LuaCoderAssist.symbol.showAnonymousFunction": {
-          "type":"boolean",
-          "default":true,
+          "type": "boolean",
+          "default": true,
           "description": "Show anonymous function in document symbol list."
         },
         "LuaCoderAssist.luacheck.enable": {
@@ -270,30 +270,30 @@
     "lua-coder-assist": "server/server-stdio.js"
   },
   "dependencies": {
-    "autodetect-decoder-stream": "^1.0.0",
+    "autodetect-decoder-stream": "^1.0.3",
     "check-types": "~4",
     "escomplex": "0.2.5",
     "escomplex-traits": "0.2.x",
     "iconv-lite": "^0.4.24",
     "jschardet": "^1.6.0",
-    "lodash": "^4.17.4",
-    "lua-fmt": "^2.3.0",
+    "lodash": "^4.17.11",
+    "lua-fmt": "^2.6.0",
     "luaparse": "^0.2.1",
-    "opn": "^5.1.0",
-    "tree-kill": "^1.2.0",
-    "underscore": "^1.9.0",
-    "vscode-languageclient": "^5.0.0",
-    "vscode-languageserver": "^5.0.0",
-    "vscode-uri": "^1.0.1",
+    "opn": "^5.4.0",
+    "tree-kill": "^1.2.1",
+    "underscore": "^1.9.1",
+    "vscode-languageclient": "^5.2.1",
+    "vscode-languageserver": "^5.2.1",
+    "vscode-uri": "^1.0.6",
     "walk": "^2.3.9"
   },
   "devDependencies": {
-    "typescript": "^2.0.3",
-    "vscode": "^1.0.0",
-    "mocha": "^2.3.3",
+    "@types/mocha": "^2.2.48",
+    "@types/node": "^6.14.3",
     "eslint": "^3.6.0",
-    "@types/node": "^6.0.40",
-    "@types/mocha": "^2.2.32"
+    "mocha": "^2.3.3",
+    "typescript": "^2.9.2",
+    "vscode": "^1.1.29"
   },
   "homepage": "https://github.com/liwangqian/LuaCoderAssist/blob/master/README.md",
   "bugs": {
