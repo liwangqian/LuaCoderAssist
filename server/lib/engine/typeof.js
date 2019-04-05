@@ -206,32 +206,15 @@ function parseCallExpression(node, type) {
         return symbol && symbol.type;
     }
 
-    if (fname === 'setmetatable') {
-        return parseSetMetatable(node, type);
-    }
-
     let R = ftype.returns[type.index || 0];
     if (R === undefined) {
         return unwrapTailCall(ftype, type);
     }
 
-    if (!Is.lazyValue(typeOf(R))) {
-        if (Is.luaTable(R.type) && (R.isLocal || ftype.isConstructor)) {
-            return inheritFrom(R);
-        }
-        return R.type;
-    }
 
     // 推导调用参数类型，用来支持推导返回值类型
     const func_argt = node.arguments.map((arg, index) => {
-        let argType;
-        if (node.isParsed) { // 防止循环推导
-            node.isParsed = false;
-            argType = LuaBasicTypes.any;
-        } else {
-            node.isParsed = true;
-            argType = parseAstNode(arg, type);
-        }
+        let argType = parseAstNode(arg, type);
         return { name: ftype.args[index].name, type: argType };
     });
 
@@ -308,12 +291,7 @@ function parseSetMetatable(node, type) {
 function parseForStdlibFunction(funcName, argsType, type) {
     switch (funcName) {
         case 'setmetatable':
-            let table = argsType[0].type;
-            if (Is.luaTable(table)) {
-                let mt = new LuaSymbol('__mt', null, null, null, true, type.context.module.uri, LuaSymbolKind.table, argsType[1].type);
-                table.setmetatable(mt);
-            }
-            return table;
+            return parseSetMetatable(type.node, type);
         case 'require':
         default:
             break;

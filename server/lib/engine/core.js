@@ -61,7 +61,17 @@ function analysis(code, uri) {
     }
 
     function parseInitStatement(init, index, name, location, range, isLocal, done) {
-        if (init && init.type === 'TableConstructorExpression') {
+        if (!init) {
+            let type = LuaBasicTypes.any;
+            let scope = Range.rangeOf(location, currentScope.range);
+            let symbol = new LuaSymbol(name, location, range, scope, isLocal, uri, LuaSymbolKind.variable, type);
+            symbol.state = theModule.state;
+            done && done(symbol);
+            walkNode(init);
+            return;
+        }
+
+        if (init.type === 'TableConstructorExpression') {
             let type = parseTableConstructorExpression(init, name);
             let kind = LuaSymbolKind.table;
             let scope = Range.rangeOf(location, currentScope.range);
@@ -69,30 +79,48 @@ function analysis(code, uri) {
             table.state = theModule.state;
             done(table);
             return;
-        } else if (init && init.type === 'FunctionDeclaration') {
+        }
+        
+        if (init.type === 'FunctionDeclaration') {
             parseFunctionDeclaration(init, name, location, isLocal, done);
             return;
-        } else {
-            let type;
-            if (init && init.name === name) {
-                // local string = string
-                type = typeOf(_G.get(name));
-            }
+        }
 
-            let symbol;
-            let scope = Range.rangeOf(location, currentScope.range);
-            if (init && init.type === 'CallExpression' && init.base.name === 'setmetatable') {
+        let scope = Range.rangeOf(location, currentScope.range);
+
+        if (init.type === 'CallExpression') {
+            let fname = init.base.name;
+            let symbol, type;
+            if (fname == 'setmetatable') {
                 symbol = parseSetmetatable(init, name, location, scope, isLocal);
                 if (!symbol) {
                     let refName = init.arguments[0].name || utils_1.safeName(init);
                     type = lazyType(new LuaContext(moduleType), init, refName, index);
-                    symbol = new LuaSymbol(name, location, range, scope, isLocal, uri, LuaSymbolKind.variable, type);
                 }
             } else {
-                type = type || (init ? lazyType(new LuaContext(moduleType), init, utils_1.safeName(init), index) : LuaBasicTypes.any);
+                type = lazyType(new LuaContext(moduleType), init, utils_1.safeName(init), index);
+            }
+
+            if (!symbol) {
                 symbol = new LuaSymbol(name, location, range, scope, isLocal, uri, LuaSymbolKind.variable, type);
             }
 
+            symbol.state = theModule.state;
+            done(symbol);
+            walkNode(init);
+            return;
+        }
+
+        { //else
+            let type;
+            if (init.name === name) {
+                // local string = string
+                type = typeOf(_G.get(name));
+            } else {
+                type = lazyType(new LuaContext(moduleType), init, utils_1.safeName(init), index);
+            }
+
+            let symbol = new LuaSymbol(name, location, range, scope, isLocal, uri, LuaSymbolKind.variable, type);
             symbol && (symbol.state = theModule.state);
             done(symbol);
             walkNode(init);
