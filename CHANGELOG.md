@@ -2,6 +2,11 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.10 @ 2019-04-05
+
+- 优化：#58 Autocomplete only names of functions, not parentheses and arguments
+- 优化：利用调用参数简单推导返回值类型
+
 ## 2.2.9 @ 2019-02-16
 
 - 优化：#57 require and init.lua for AwesomeWM

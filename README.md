@@ -22,6 +22,7 @@ Search `LuaCoderAssist` in extension market of vscode and install.
 - [x] 支持LOVE、JIT、BUSTED代码补全
 - [x] 支持代码补全扩展
 - [x] 支持setmetatable通过__index模拟类继承的类成员补全
+- [x] 支持通过api接口描述文档来提供代码补全功能
 
 ### 当前已支持的功能(Supported)
 
