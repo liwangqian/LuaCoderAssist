@@ -346,7 +346,8 @@ function functionSnippet(item, symbol, override, selfAsParam) {
     }
 
     let snippet = (override === undefined) ? symbol.type.insertSnippet : symbol.type.variants[override].insertSnippet;
-    snippet = snippet || symbol.name + '(' + args.filter(arg => selfAsParam || arg.name !== 'self').map((p, i) => `\${${i + 1}:${p.name}}`).join(', ') + ')';
+    let argSnippet = args.filter(arg => selfAsParam || arg.name !== 'self').map((p, i) => `\${${i + 2}:${p.name}}`).join(', ');
+    snippet = snippet || symbol.name + `\${1:(${argSnippet})}`;
     item.insertText = snippet;
     item.insertTextFormat = langserver_1.InsertTextFormat.Snippet;
 }
