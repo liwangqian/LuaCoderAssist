@@ -53,7 +53,7 @@ class HoverProvider {
         const desc = (override !== undefined) ? symbol.type.variants[override].description : (symbol.type.description || '');
         const link = symbol.type.link;
         const more = (link ? `  \r\n[more...](${link})` : '');
-        return `\`\`\`lua\n${utils.symbolSignature(symbol, override)}\`\`\`` + `\r\n${desc}${more}`;
+        return `\`\`\`lua\n${utils.symbolSignature(symbol, override)}\r\n\`\`\`` + `\r\n${desc}${more}`;
     }
 };
 
