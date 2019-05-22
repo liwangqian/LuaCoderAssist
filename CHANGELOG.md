@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.11 @ 2019-05-23
+
+- 修复：Fix backticks in the hover tooltips. From @alanfran
+
 ## 2.2.10 @ 2019-04-05
 
 - 优化：#58 Autocomplete only names of functions, not parentheses and arguments
