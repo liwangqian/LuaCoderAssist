@@ -265,7 +265,7 @@ function documentLineAt(doc, position) {
     return doc.getText({ start: lineBeg, end: lineEnd });
 }
 
-const REQUIRE_EXPR_REGEDX = /require\s{0,}\(?\s{0,}[\"|\'](.{0,})[\"|\']\s{0,}\)?/;
+const REQUIRE_EXPR_REGEDX = /require\s{0,}\(?\s{0,}[\"|\']([\w+\/\.]{0,})[\"|\']/;
 function parseRequireExpr(line, cursor, options) {
     let matches = line.match(REQUIRE_EXPR_REGEDX);
     if (!matches || matches.length < 2) {

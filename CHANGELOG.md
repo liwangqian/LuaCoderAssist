@@ -2,6 +2,11 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.12 @ 2019-05-26
+
+- 修复：#62 设置`LuaCoderAssist.preloads`不生效的问题
+- 修复：#63 Text document completion failed, invalid regular expression
+
 ## 2.2.11 @ 2019-05-23
 
 - 修复：Fix backticks in the hover tooltips. From @alanfran

@@ -18,17 +18,21 @@ function loadAll(coder) {
     const luaversion = coder.luaversion;
     const filePath = coder.extensionPath + (STD_PRELOADS[luaversion] || 'stdlibs/5_3.json');
 
+    coder.tracer.info('loading STD library ...');
     engine.loadExtentLib(filePath, "std.lua"); // load stdlib
 
     preloads.forEach(filePath => {
-        engine.loadExtentLib(filePath, filePath);
+        coder.tracer.info(`loading file ${filePath} ...`);
+        load(filePath, coder);
     });
 
     if (coder.settings.useLove) {
+        coder.tracer.info('loading LOVE library ...');
         engine.loadExtentLib(coder.extensionPath + LOVE_PRELOAD, "love.lua");
     }
 
     if (coder.settings.useJit) {
+        coder.tracer.info('loading JIT library ...');
         engine.loadExtentLib(coder.extensionPath + LUAJIT_PRELOAD, "jit.lua");
     }
 

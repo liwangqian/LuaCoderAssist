@@ -94,7 +94,7 @@ class CompletionProvider {
 
     _completePath(ref) {
         const fmInstance = fileManager.instance();
-        let refPath = ref.name.replace(/\./g, path.sep);
+        let refPath = ref.name.replace(/[\.|\/]/g, path.sep);
         let matchedFiles = fmInstance.matchPath(refPath);
         let pathList = [];
         if (path.sep == '\\') {
