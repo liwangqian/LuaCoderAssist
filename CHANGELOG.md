@@ -2,6 +2,11 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.2.13 @ 2019-6-02
+
+- 修复：#63 and #59 在`LuaCoderAssist.preloads`中配置了目录的情况下，插件崩溃的问题
+- 优化：在`LuaCoderAssist.preloads`中支持预加载目录下的所有lua文件
+
 ## 2.2.12 @ 2019-05-26
 
 - 修复：#62 设置`LuaCoderAssist.preloads`不生效的问题

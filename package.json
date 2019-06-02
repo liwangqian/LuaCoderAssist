@@ -3,7 +3,7 @@
   "displayName": "LuaCoderAssist",
   "description": "lua编程助手，包括代码补全、符号预览&跳转、函数特征帮助、符号类型推导、静态检查、格式化、代码度量等功能",
   "icon": "images/icon.png",
-  "version": "2.2.12",
+  "version": "2.2.13",
   "publisher": "liwangqian",
   "engines": {
     "vscode": "^1.25.0"
@@ -69,7 +69,7 @@
         "LuaCoderAssist.preloads": {
           "type": "array",
           "default": [],
-          "description": "Preload modules path."
+          "description": "Preload modules path, can be file or directory. DO NOT config a dirctory with a lot files for performance consideration. If a directory configured has a init.lua file, the file will be loaded instead of all file under this directory, otherwise, files in the directory and its subdir will be loaded"
         },
         "LuaCoderAssist.useLove": {
           "type": "boolean",
