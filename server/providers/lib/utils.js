@@ -339,15 +339,21 @@ function symbolSignature(symbol, override) {
 
 exports.symbolSignature = symbolSignature;
 
-function functionSnippet(item, symbol, override, selfAsParam) {
-    const args = (override === undefined) ? symbol.type.args : symbol.type.variants[override].args;
+function functionSnippet(item, symbol, override, selfAsParam, insertParams) {
     if (symbol.type.typeName !== 'function') {
         return;
     }
 
     let snippet = (override === undefined) ? symbol.type.insertSnippet : symbol.type.variants[override].insertSnippet;
-    let argSnippet = args.filter(arg => selfAsParam || arg.name !== 'self').map((p, i) => `\${${i + 2}:${p.name}}`).join(', ');
-    snippet = snippet || symbol.name + `\${1:(${argSnippet})}`;
+    if (!insertParams) {
+        item.insertText = snippet || symbol.name;
+        item.insertTextFormat = langserver_1.InsertTextFormat.Snippet;
+        return;
+    }
+
+    let args = (override === undefined) ? symbol.type.args : symbol.type.variants[override].args;
+    let argSnippet = '(' + args.filter(arg => selfAsParam || arg.name !== 'self').map((p, i) => `\${${i + 1}:${p.name}}`).join(', ') + ')';
+    snippet = snippet || symbol.name + argSnippet;
     item.insertText = snippet;
     item.insertTextFormat = langserver_1.InsertTextFormat.Snippet;
 }

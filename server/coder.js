@@ -27,6 +27,12 @@ class Coder {
         this.conn = undefined;
         this.documents = undefined;
         this.settings = {
+            enable: true,
+            debug: false,
+            preloads:[],
+            useLove: false,
+            useJit: false,
+            luaPath:"",
             luacheck: {
                 enable: true,
                 onSave: true,
@@ -64,6 +70,9 @@ class Coder {
                 physicalLineMax: 80,
                 cyclomaticMax: 10,
                 maintainabilityMin: 60
+            },
+            completion: {
+                autoInsertParameters: true
             }
         };
         this.tracer = tracer_1.instance();

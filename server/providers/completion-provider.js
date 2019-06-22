@@ -71,7 +71,8 @@ class CompletionProvider {
             kind: langserver.MarkupKind.Markdown,
             value: desc + (link ? `  \r\n[more...](${link})` : '')
         };
-        utils.functionSnippet(item, data, override, selfAsParam);
+        const insertParams = this.coder.settings.completion.autoInsertParameters;
+        utils.functionSnippet(item, data, override, selfAsParam, insertParams);
         return item;
     }
 

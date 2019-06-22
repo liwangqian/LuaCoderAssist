@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.3.0 @ 2019-6-22
+
+- 优化：#58 支持配置是否自动插入函数参数列表，默认自动插入
+
 ## 2.2.13 @ 2019-6-02
 
 - 修复：#63 and #59 在`LuaCoderAssist.preloads`中配置了目录的情况下，插件崩溃的问题
