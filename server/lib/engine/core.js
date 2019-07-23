@@ -115,7 +115,12 @@ function analysis(code, uri) {
             let type;
             if (init.name === name) {
                 // local string = string
-                type = typeOf(_G.get(name));
+                if (init.isLocal) {
+                    let def = currentScope.stack.search((sym) => sym.name == name);
+                    type = def ? def.type : undefined;
+                } else {
+                    type = typeOf(_G.get(name));
+                }
             } else {
                 type = lazyType(new LuaContext(moduleType), init, utils_1.safeName(init), index);
             }
