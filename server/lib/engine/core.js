@@ -250,10 +250,11 @@ function analysis(code, uri) {
     function parseTableConstructorExpression(node) {
         let table = new LuaTable();
         node.fields.forEach((field) => {
-            if (field.type !== 'TableKeyString') {
+            if (!((field.type === 'TableKeyString') ||
+                  (field.type === 'TableKey' && field.key.type === 'StringLiteral'))) {
                 return;
             }
-            let name = field.key.name;
+            let name = field.key.name || field.key.value;
             parseInitStatement(field.value, 0, name, field.key.range, field.value.range, false, symbol => {
                 table.set(name, symbol);
             });

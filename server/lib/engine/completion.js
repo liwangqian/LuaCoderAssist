@@ -33,7 +33,7 @@ class CompletionContext {
         this.names = expr.trim().split(/[\.\:]/);
         this.range = range;
         this.uri = uri;
-        this.functionOnly = expr.endsWith(':');
+        this.functionOnly = expr.lastIndexOf(':') > 0;
         this.isString = false;
     }
 };
