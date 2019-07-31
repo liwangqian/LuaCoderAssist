@@ -265,7 +265,7 @@ function analysis(code, uri) {
     // OK
     function parseFunctionDeclaration(node, lvName, lvLocation, lvIsLocal, done) {
         let location, name, isLocal;
-        let scope = isLocal ? node.range : rootScope;
+        let scope = lvIsLocal ? node.range : rootScope;
         let range = node.range;
         if (node.identifier) {
             location = node.identifier.range;
@@ -294,7 +294,7 @@ function analysis(code, uri) {
            let prevDeclare = rootStack.search(predict)
            if (prevDeclare) {
             //    prevDeclare.location = fsymbol.location;
-               prevDeclare.range = fsymbol.range;
+            //    prevDeclare.range = fsymbol.range;
                prevDeclare.scope = fsymbol.scope;
                prevDeclare.children = fsymbol.children;
                prevDeclare.type = ftype;

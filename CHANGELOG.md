@@ -2,6 +2,11 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.3.1 @ 2019-7-31
+
+- 优化：符号搜索的比较方法改成根据range进行比较，解决部分场景下符号无法提供补全和悬浮提示功能
+- 优化：跳转到require的模块(非module定于的模块)
+
 ## 2.3.0 @ 2019-6-22
 
 - 优化：#58 支持配置是否自动插入函数参数列表，默认自动插入

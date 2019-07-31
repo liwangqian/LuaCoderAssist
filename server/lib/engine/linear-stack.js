@@ -35,7 +35,7 @@ class ScopeEnd extends StackNode {
      * @param {Number[]} location 
      */
     constructor(location) {
-        super({ location });
+        super({ location, range: location });
     }
 
     static is(node) {

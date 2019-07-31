@@ -15,6 +15,7 @@
  ********************************************************************************/
 'use strict';
 
+const { LoadedPackages } = require('./luaenv');
 const { typeOf, findDef } = require('./typeof');
 const Is = require('./is');
 
@@ -42,7 +43,15 @@ function definitionProvider(context) {
     const length = names.length;
     let def = findDef(names[0], context.uri, context.range);
     if (!def) {
-        return [];
+        //查找已加载的模块列表
+        let defs = [];
+        let loaded = LoadedPackages[names[length-1]];
+        if (loaded) {
+            for (const loadedUri in loaded) {
+                defs.push(loaded[loadedUri]);
+            }
+        }
+        return defs;
     }
 
     let type = typeOf(def);

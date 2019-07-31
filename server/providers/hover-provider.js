@@ -1,6 +1,6 @@
 'use strict';
 
-const { DefinitionContext, definitionProvider } = require('../lib/engine/definition');
+const { DefinitionContext, definitionProvider, LoadedPackages } = require('../lib/engine');
 const utils = require('./lib/utils');
 const awaiter = require('./lib/awaiter');
 const langserver_1 = require('vscode-languageserver');

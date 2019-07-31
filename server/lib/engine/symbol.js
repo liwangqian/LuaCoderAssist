@@ -448,9 +448,9 @@ class LuaModuleEnv {
      * @return {LuaSymbol} The symbol
      */
     search(name, location, filter) {
-        const target = new StackNode(new LuaSymbol(name, location));
+        const target = new StackNode(new LuaSymbol(name, null, location));
         const index = _.sortedIndex(this.stack.nodes, target, (node) => {
-            return node.data.location[0] - location[0];
+            return node.data.range[1] - location[1];
         });
 
         let indexNode = this.stack.nodes[index];
