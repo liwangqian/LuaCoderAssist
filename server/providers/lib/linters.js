@@ -34,6 +34,11 @@ class Luacheck {
 
         if (settings.automaticOption) {
             this.automaticOptions(settings, args, document);
+        } else {
+            const luacheckrc = path_1.resolve(settings.configFilePath, ".luacheckrc");
+            if (isFileSync(luacheckrc)) {
+                args.push('--config', luacheckrc);
+            }
         }
 
         args.push(...defaultOpt);
@@ -50,9 +55,6 @@ class Luacheck {
     }
 
     automaticOptions(settings, args, document) {
-        if (isFileSync(path_1.resolve(settings.configFilePath, ".luacheckrc"))) {
-            args.push('--config', path_1.resolve(settings.configFilePath, ".luacheckrc"));
-        }
         let std = settings.std;
         let luaversion = this.coder.settings.luaparse.luaversion;
         if (luaversion === 5.1) {
