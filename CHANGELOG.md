@@ -2,6 +2,12 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.3.2 @ 2019-7-31
+
+- 修复：#71
+- 优化：#70 
+- 优化：支持提供通过下标表达式的方式添加的字符串类型的域段的代码补全(形如如：foo['xx-yy'] = bar)，暂不支持hover
+
 ## 2.3.1 @ 2019-7-31
 
 - 优化：符号搜索的比较方法改成根据range进行比较，解决部分场景下符号无法提供补全和悬浮提示功能
