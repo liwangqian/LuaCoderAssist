@@ -376,6 +376,8 @@ function analysis(code, uri) {
             case 'pcall':
                 if (node.arguments[0].value === 'require') {
                     parseDependence(node, node.arguments[1]);
+                } else {
+                    walkNodes(node.arguments);
                 }
                 return;
             case 'setmetatable':

@@ -2,10 +2,15 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.3.3 @ 2019-8-11
+
+- 修复：`pcall(function () ... end)`场景下，`function`函数体内无法提供局部符号表信息和自动补全功能
+- 优化：使用`:`调用`.`定义的函数时，不自动补全第一个参数
+
 ## 2.3.2 @ 2019-7-31
 
 - 修复：#71
-- 优化：#70 
+- 优化：#70
 - 优化：支持提供通过下标表达式的方式添加的字符串类型的域段的代码补全(形如如：foo['xx-yy'] = bar)，暂不支持hover
 
 ## 2.3.1 @ 2019-7-31
