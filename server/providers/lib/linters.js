@@ -34,6 +34,7 @@ class Luacheck {
 
         if (settings.automaticOption) {
             this.automaticOptions(settings, args, document);
+            args.push(...defaultOpt);
         } else {
             const luacheckrc = path_1.resolve(settings.configFilePath, ".luacheckrc");
             if (isFileSync(luacheckrc)) {
@@ -41,7 +42,6 @@ class Luacheck {
             }
         }
 
-        args.push(...defaultOpt);
         const fileName = uri_1.parse(document.uri).fsPath;
         args.push("--filename", fileName, "-"); //use stdin
 
