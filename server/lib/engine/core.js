@@ -294,8 +294,9 @@ function analysis(code, uri) {
            const predict = (S) => S.name === name;
            let prevDeclare = rootStack.search(predict)
            if (prevDeclare) {
-            //    prevDeclare.location = fsymbol.location;
-            //    prevDeclare.range = fsymbol.range;
+               // 跳到变量定义处
+               prevDeclare.location = fsymbol.location;
+               prevDeclare.range = fsymbol.range;
                prevDeclare.scope = fsymbol.scope;
                prevDeclare.children = fsymbol.children;
                prevDeclare.type = ftype;

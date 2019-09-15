@@ -32,6 +32,10 @@ class Coder {
             preloads:[],
             useLove: false,
             useJit: false,
+            symbol: {
+                showAnonymousFunction: true,
+                showFunctionOnly: false,
+            },
             luaPath:"",
             luacheck: {
                 enable: true,

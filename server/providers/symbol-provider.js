@@ -23,8 +23,9 @@ function mapSymbolKind(kind) {
 class SymbolProvider {
     constructor(coder) {
         this.coder = coder;
-        this._isShow = (name) => {
-            return coder.settings.symbol.showAnonymousFunction || !name.includes("@");
+        this._isShow = (symbol) => {
+            return (coder.settings.symbol.showAnonymousFunction || !symbol.name.includes("@"))
+            && ((!coder.settings.symbol.showFunctionOnly || is.luaFunction(symbol.type)));
         }
     }
 
@@ -52,7 +53,8 @@ class SymbolProvider {
                         return;
                     }
 
-                    if (!this._isShow(def.name)) {
+                    if (!this._isShow(def)) {
+                        depth--;
                         return;
                     }
 

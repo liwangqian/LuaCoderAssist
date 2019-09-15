@@ -2,6 +2,11 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.3.5 @ 2019-9-15
+
+- 优化：新增`showFunctionOnly`配置，用来控制是否只显示函数符号列表，默认值为false
+- 优化：对于前向声明的函数变量，跳转到函数实现的地方
+
 ## 2.3.3 @ 2019-8-11
 
 - 修复：`pcall(function () ... end)`场景下，`function`函数体内无法提供局部符号表信息和自动补全功能

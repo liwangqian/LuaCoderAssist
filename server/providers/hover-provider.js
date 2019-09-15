@@ -20,7 +20,7 @@ class HoverProvider {
             let uri = params.textDocument.uri;
             let document = yield this.coder.document(uri);
             let ref = utils.symbolAtPosition(position, document, { backward: true, forward: true });
-            if (ref === undefined) {
+            if (ref === undefined || ref.name === "") {
                 return undefined;
             }
 
