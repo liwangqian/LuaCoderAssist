@@ -30,13 +30,20 @@ const fs_1 = require('fs');
 
 let state = undefined;
 
-function loadExtentLib(filePath, moduleName) {
+function loadExtentLib(filePath, moduleName, logger) {
     fs_1.readFile(filePath, 'utf8', (error, data) => {
         if (!error) {
-            const lib = JSON.parse(data);
-            state = undefined; /*namedTypes不需要state*/
-            parseNamedTypes(lib);
-            parseModule(lib, moduleName);
+            let lib = undefined;
+            try {
+                lib = JSON.parse(data);
+                state = undefined; /*namedTypes不需要state*/
+                parseNamedTypes(lib);
+                parseModule(lib, moduleName);
+            } catch (e) {
+                logger && logger.error(e.message);
+            }
+        } else {
+            logger && logger.error(error.message);
         }
     });
 }

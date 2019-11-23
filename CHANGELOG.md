@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.3.6 @ 2019-11-23
+
+- 优化：#78 支持递归获取父目录的`.luacompleterc`文件
+
 ## 2.3.5 @ 2019-9-15
 
 - 优化：新增`showFunctionOnly`配置，用来控制是否只显示函数符号列表，默认值为false

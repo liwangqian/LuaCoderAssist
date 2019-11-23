@@ -6,6 +6,7 @@ const awaiter = require('./providers/lib/awaiter');
 const utils_1 = require('./providers/lib/utils');
 const fs_1 = require('fs');
 const path_1 = require('path');
+const findup = require('find-up');
 
 const STD_PRELOADS = {
     '5.1': 'stdlibs/5_1.json',
@@ -22,7 +23,7 @@ function loadAll(coder) {
     const filePath = coder.extensionPath + (STD_PRELOADS[luaversion] || 'stdlibs/5_3.json');
 
     coder.tracer.info('loading STD library ...');
-    engine.loadExtentLib(filePath, "std.lua"); // load stdlib
+    engine.loadExtentLib(filePath, "std.lua", coder.tracer); // load stdlib
 
     preloads.forEach(filePath => {
         load(filePath, coder);
@@ -30,17 +31,19 @@ function loadAll(coder) {
 
     if (coder.settings.useLove) {
         coder.tracer.info('loading LOVE library ...');
-        engine.loadExtentLib(coder.extensionPath + LOVE_PRELOAD, "love.lua");
+        engine.loadExtentLib(coder.extensionPath + LOVE_PRELOAD, "love.lua", coder.tracer);
     }
 
     if (coder.settings.useJit) {
         coder.tracer.info('loading JIT library ...');
-        engine.loadExtentLib(coder.extensionPath + LUAJIT_PRELOAD, "jit.lua");
+        engine.loadExtentLib(coder.extensionPath + LUAJIT_PRELOAD, "jit.lua", coder.tracer);
     }
 
     // TODO: add watcher for the modification of the rc file to avoid reload vscode.
-    const rcFilePath = coder.workspaceRoot + '\\.luacompleterc';
-    engine.loadExtentLib(rcFilePath);
+    findup(".luacompleterc", {cwd: coder.workspaceRoot}).then(rcFilePath => {
+        coder.tracer.info('loading luacomplete resource file: ' + rcFilePath);
+        engine.loadExtentLib(rcFilePath, undefined, coder.tracer);
+    });
 }
 
 function load(filePath, coder) {

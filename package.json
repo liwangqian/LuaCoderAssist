@@ -3,7 +3,7 @@
   "displayName": "LuaCoderAssist",
   "description": "lua编程助手，包括代码补全、符号预览&跳转、函数特征帮助、符号类型推导、静态检查、格式化、代码度量等功能",
   "icon": "images/icon.png",
-  "version": "2.3.5",
+  "version": "2.3.6",
   "publisher": "liwangqian",
   "engines": {
     "vscode": "^1.25.0"
@@ -258,8 +258,8 @@
           "description": "The minimum maintainability index of a function."
         },
         "LuaCoderAssist.completion.autoInsertParameters": {
-          "type":"boolean",
-          "default":true,
+          "type": "boolean",
+          "default": true,
           "description": "Insert function parameter list automatically."
         }
       }
@@ -287,23 +287,24 @@
     "check-types": "~4",
     "escomplex": "0.2.5",
     "escomplex-traits": "0.2.x",
-    "lodash": "^4.17.11",
+    "find-up": "^4.1.0",
+    "lodash": "^4.17.15",
     "lua-fmt": "^2.6.0",
     "luaparse": "^0.2.1",
-    "opn": "^5.4.0",
+    "opn": "^5.5.0",
     "underscore": "^1.9.1",
     "vscode-languageclient": "^5.2.1",
     "vscode-languageserver": "^5.2.1",
-    "vscode-uri": "^1.0.6",
+    "vscode-uri": "^1.0.8",
     "walk": "^2.3.9"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.48",
-    "@types/node": "^6.14.3",
+    "@types/node": "^6.14.9",
     "eslint": "^3.6.0",
     "mocha": "^2.3.3",
     "typescript": "^2.9.2",
-    "vscode": "^1.1.29"
+    "vscode": "^1.1.36"
   },
   "homepage": "https://github.com/liwangqian/LuaCoderAssist/blob/master/README.md",
   "bugs": {
