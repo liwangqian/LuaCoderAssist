@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.3.7 @ 2019-12-7
+
+- 优化：#79 修复格式化文档失效的问题
+
 ## 2.3.6 @ 2019-11-23
 
 - 优化：#78 支持递归获取父目录的`.luacompleterc`文件
