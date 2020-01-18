@@ -103,6 +103,10 @@ function completionProvider(context) {
         value = value.type.returns[0];
     }
 
+    if (!value) {
+        return [];
+    }
+
     if (Is.luaString(value.type)) {
         value = _G.get('string');
     }
