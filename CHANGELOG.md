@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.3.8 @ 2020-01-18
+
+- 修复：#81 Thanks for the feedback from @tesselode
+
 ## 2.3.7 @ 2019-12-7
 
 - 优化：#79 修复格式化文档失效的问题
