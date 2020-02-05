@@ -102,6 +102,16 @@ class Luacheck {
             return diagnostics;
         }
 
+        if (data.stderr != null && data.stderr.length > 0) {
+            diagnostics.push(langserver_1.Diagnostic.create(
+                langserver_1.Range.create(0, 0, 0, 0),
+                data.stderr,
+                langserver_1.DiagnosticSeverity.Error,
+                -1, "luacheck"
+            ));
+            return diagnostics;
+        }
+
         if (data.stdout === undefined) {
             return diagnostics;
         }
