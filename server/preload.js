@@ -41,8 +41,11 @@ function loadAll(coder) {
 
     // TODO: add watcher for the modification of the rc file to avoid reload vscode.
     findup(".luacompleterc", {cwd: coder.workspaceRoot}).then(rcFilePath => {
-        coder.tracer.info('loading luacomplete resource file: ' + rcFilePath);
-        engine.loadExtentLib(rcFilePath, undefined, coder.tracer);
+        if (rcFilePath !== undefined && typeof(rcFilePath) === 'string') {
+            coder.tracer.info('loading luacomplete resource file: ' + rcFilePath);
+            engine.loadExtentLib(rcFilePath, undefined, coder.tracer);
+        }
+        
     });
 }
 
