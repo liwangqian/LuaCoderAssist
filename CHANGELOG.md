@@ -2,6 +2,10 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.3.9 @ 2020-01-18
+
+- 优化：#85 当luacheckrc存在语法错误时，输出告警信息
+
 ## 2.3.8 @ 2020-01-18
 
 - 修复：#81 Thanks for the feedback from @tesselode
