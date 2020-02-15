@@ -70,7 +70,7 @@ class ShowMetricsDetails {
                 placeHolder: 'Click to review more details introduction',
             }
         ).then(item => {
-            item.onDidPressKey();
+            item && item.onDidPressKey();
         });
     }
 };

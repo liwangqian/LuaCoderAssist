@@ -64,13 +64,15 @@ class CompletionProvider {
         const override = item.data.override;
         const selfAsParam = item.data.selfAsParam;
         item.detail = utils.symbolSignature(data, override);
-        const description = data.type.description || '';
-        const link = data.type.link;
-        const desc = (override !== undefined) ? data.type.variants[override].description : description;
-        item.documentation = {
-            kind: langserver.MarkupKind.Markdown,
-            value: desc + (link ? `  \r\n[more...](${link})` : '')
-        };
+        if (data.type) {
+            const description = data.type.description || '';
+            const link = data.type.link;
+            const desc = (override !== undefined) ? data.type.variants[override].description : description;
+            item.documentation = {
+                kind: langserver.MarkupKind.Markdown,
+                value: desc + (link ? `  \r\n[more...](${link})` : '')
+            };
+        }
         const insertParams = this.coder.settings.completion.autoInsertParameters;
         utils.functionSnippet(item, data, override, selfAsParam, insertParams);
         return item;
