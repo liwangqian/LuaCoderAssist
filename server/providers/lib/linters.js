@@ -31,6 +31,7 @@ class Luacheck {
     command(document) {
         const settings = this.coder.settings.luacheck;
         let args = [];
+        let luacheckrc_path
 
         if (settings.automaticOption) {
             this.automaticOptions(settings, args, document);
@@ -38,6 +39,7 @@ class Luacheck {
             const luacheckrc = path_1.resolve(settings.configFilePath, ".luacheckrc");
             if (isFileSync(luacheckrc)) {
                 args.push('--config', luacheckrc);
+                luacheckrc_path = path_1.dirname(luacheckrc)
             }
         }
 
@@ -46,10 +48,11 @@ class Luacheck {
         args.push("--filename", fileName, "-"); //use stdin
 
         let cmd = settings.execPath || default_luacheck_executor;
+        let cwd = path_1.dirname(luacheckrc_path || fileName);
 
         return {
             cmd: cmd,
-            cwd: path_1.dirname(fileName),
+            cwd: cwd,
             args: args
         };
     }
