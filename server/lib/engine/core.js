@@ -394,6 +394,10 @@ function analysis(code, uri) {
 
     function parseSetmetatable(node, name, location, scope, isLocal) {
         const tableNode = node.arguments[0];
+        if (tableNode === undefined) {
+            return;
+        }
+
         let tableSymbol;
         if (tableNode.type === 'Identifier') {
             let baseTable = moduleType.search(tableNode.name, tableNode.range).value;
