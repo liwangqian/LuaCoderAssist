@@ -288,7 +288,7 @@
     "escomplex": "0.2.5",
     "escomplex-traits": "0.2.x",
     "find-up": "^4.1.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "lua-fmt": "^2.6.0",
     "luaparse": "^0.2.1",
     "opn": "^5.5.0",
