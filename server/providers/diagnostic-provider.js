@@ -98,15 +98,21 @@ class DiagnosticProvider {
     _run(linter, input) {
         return new Promise((resolve, reject) => {
             /*重新创建一个检查进程*/
-            let proc = execFile(linter.cmd, linter.args, { cwd: linter.cwd }, (error, stdout, stderr) => {
-                if (error != null) {
-                    reject({ error: error, stdout: stdout, stderr: stderr });
-                } else {
-                    resolve({ error: error, stdout: stdout, stderr: stderr });
-                }
-            });
+            try {
+                let proc = execFile(linter.cmd, linter.args, { cwd: linter.cwd }, (error, stdout, stderr) => {
+                    if (error != null) {
+                        reject({ error: error, stdout: stdout, stderr: stderr });
+                    } else {
+                        resolve({ error: error, stdout: stdout, stderr: stderr });
+                    }
+                });
 
-            proc.stdin.end(input);
+                proc.stdin.end(input);
+            } catch (e) {
+                console.error(`execute '${linter.cmd} ${linter.args.join(' ')}' failed.`);
+                console.error(e);
+                reject({error: e});
+            }
         });
     }
 

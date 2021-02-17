@@ -530,3 +530,10 @@ function findAllReferences(references, def) {
 }
 
 exports.findAllReferences = findAllReferences;
+
+const execSync = require('child_process').execSync
+function getExePath(extName) {
+    return execSync(`which ${extName}`).toString().replace(/[\r\n]/g, '');
+}
+
+exports.getExePath = getExePath;

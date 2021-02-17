@@ -1,10 +1,12 @@
 'use strict';
 
 const engine = require('../../lib/engine');
+const utils_1 = require('./utils');
 const uri_1 = require('vscode-uri').default;
 const langserver_1 = require('vscode-languageserver');
 const path_1 = require('path');
 const fs_1 = require('fs');
+const os = require('os')
 
 // default to 64-bit windows luacheck.exe, from https://github.com/mpeterv/luacheck/releases
 const default_luacheck_executor = path_1.resolve(__dirname, '../../../3rd/luacheck/luacheck.exe');
@@ -23,9 +25,20 @@ function isFileSync(aPath) {
     }
 }
 
+function getLuacheckExecutor() {
+    let osType = os.type().toLowerCase();
+    if (osType.includes('windows')) {
+        return default_luacheck_executor;
+    } else {
+        return utils_1.getExePath('luacheck');
+    }
+}
+
 class Luacheck {
     constructor(coder) {
         this.coder = coder;
+        this.exePath = getLuacheckExecutor();
+        console.info(`[INFO] using '${this.exePath}'`)
     }
 
     command(document) {
@@ -47,7 +60,7 @@ class Luacheck {
         const fileName = uri_1.parse(document.uri).fsPath;
         args.push("--filename", fileName, "-"); //use stdin
 
-        let cmd = settings.execPath || default_luacheck_executor;
+        let cmd = settings.execPath || this.exePath;
         let cwd = path_1.dirname(luacheckrc_path || fileName);
 
         return {
