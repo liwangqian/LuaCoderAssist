@@ -2,6 +2,15 @@
 
 All notable changes to the "luacoderassist" extension will be documented in this file.
 
+## 2.5.0 @ 2021-02-17
+
+* fixed: the default packaged luacheck executable is not macos/linux format, try to find a valid luacheck executable using `which luacheck` shell command.
+- #107 Ship UNIX luacheck binaries in addition to Windows ones
+- #106 Crashes after VSCode update
+- #104 LuaCoderAssist Crash
+- #102 Crash when luacheck is not available
+- #86  安裝後立即出錯，無法使用。
+
 ## 2.3.9 @ 2020-01-18
 
 - 优化：#85 当luacheckrc存在语法错误时，输出告警信息
