@@ -292,7 +292,7 @@
     "lua-fmt": "^2.6.0",
     "luaparse": "^0.2.1",
     "opn": "^5.5.0",
-    "underscore": "^1.9.1",
+    "underscore": "^1.12.1",
     "vscode-languageclient": "^5.2.1",
     "vscode-languageserver": "^5.2.1",
     "vscode-uri": "^1.0.8",
