@@ -25,6 +25,10 @@ class FormatProvider {
             let uri = params.textDocument.uri;
             let opt = this.coder.settings.format;
 
+            if (!opt.enable) {
+                return [];
+            }
+
             let document = yield this.coder.document(uri);
 
             let text
