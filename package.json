@@ -207,6 +207,11 @@
           "default": true,
           "description": "Keep diagnostic information after document closed."
         },
+        "LuaCoderAssist.format.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/Disable code formatter."
+        },
         "LuaCoderAssist.format.lineWidth": {
           "type": "integer",
           "default": 120,

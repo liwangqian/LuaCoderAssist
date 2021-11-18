@@ -29,14 +29,14 @@ class Coder {
         this.settings = {
             enable: true,
             debug: false,
-            preloads:[],
+            preloads: [],
             useLove: false,
             useJit: false,
             symbol: {
                 showAnonymousFunction: true,
                 showFunctionOnly: false,
             },
-            luaPath:"",
+            luaPath: "",
             luacheck: {
                 enable: true,
                 onSave: true,
@@ -60,6 +60,7 @@ class Coder {
                 allowDefined: false
             },
             format: {
+                enable: true,
                 lineWidth: 120,
                 indentCount: 4,
                 quotemark: "single"
