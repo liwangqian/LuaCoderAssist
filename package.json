@@ -200,7 +200,7 @@
         "LuaCoderAssist.luacheck.configFilePath": {
           "type": "string",
           "default": "",
-          "description": "The path of '.luacheckrc'."
+          "description": "The path of the folder where '.luacheckrc' is stored."
         },
         "LuaCoderAssist.luacheck.keepAfterClosed": {
           "type": "boolean",
